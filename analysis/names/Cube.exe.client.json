@@ -1,0 +1,1674 @@
+{
+ "binary": "Cube.exe",
+ "note": "Client-only names (functions with no Server.exe counterpart): entry and frame flow, GameController/Controller, widgets, plasma engine and D3D9 classes, audio, input, client networking. Shared functions live in Cube.exe.json and are not repeated here. Written for roadmap step 3b; see analysis/notes/client-classes.md. Entries marked tentative need a second look.",
+ "names": {
+  "0x0040ecd0": {
+   "name": "cube::AdaptionWidget::AdaptionWidget",
+   "evidence": "only writer of cube::AdaptionWidget::vftable; calls Widget::Widget 0x00627260; operator_new(0x178) at the call site"
+  },
+  "0x0040f8f0": {
+   "name": "cube::AdaptionWidget::update",
+   "evidence": "Widget vtable slot 1 override"
+  },
+  "0x00411330": {
+   "name": "plasma::returnFalseStub",
+   "evidence": "shared stub xor al,al; ret"
+  },
+  "0x00411410": {
+   "name": "cube::AdaptionWidget::layout",
+   "evidence": "Widget vtable slot 10 override"
+  },
+  "0x00424e80": {
+   "name": "cube::CharacterPreviewWidget::CharacterPreviewWidget",
+   "evidence": "only writer of cube::CharacterPreviewWidget::vftable; calls Widget::Widget 0x00627260; operator_new(0x168) at the call site"
+  },
+  "0x00425450": {
+   "name": "cube::CharacterPreviewWidget::update",
+   "evidence": "Widget vtable slot 1 override"
+  },
+  "0x00427b40": {
+   "name": "plasma::Node::connectByName<cube::CharacterStyleWidget>",
+   "evidence": "recurses over node children (+0x2c); connects when the node widget name matches"
+  },
+  "0x00427bc0": {
+   "name": "plasma::Widget::connect<cube::CharacterStyleWidget>",
+   "evidence": "operator_new(0x18) MemberFunctionConnection {vtbl, bool, obj, -, pmf...}, stores it in the widget event map; recurses over children when flag set"
+  },
+  "0x00427ce0": {
+   "name": "cube::CharacterStyleWidget::CharacterStyleWidget",
+   "evidence": "only writer of cube::CharacterStyleWidget::vftable; calls Widget::Widget 0x00627260; operator_new(0x1a8) at the call site"
+  },
+  "0x00428a30": {
+   "name": "plasma::Widget::`scalar deleting destructor`",
+   "evidence": "vtable slot 0; calls ~Widget then operator_delete if flag&1"
+  },
+  "0x00428e40": {
+   "name": "cube::CharacterStyleWidget::update",
+   "evidence": "Widget vtable slot 1 override"
+  },
+  "0x0042bb00": {
+   "name": "cube::CharacterStyleWidget::layout",
+   "evidence": "Widget vtable slot 10 override"
+  },
+  "0x0042f190": {
+   "name": "cube::BlueprintPreviewWidget::BlueprintPreviewWidget",
+   "evidence": "only writer of cube::BlueprintPreviewWidget::vftable; calls Widget::Widget 0x00627260; operator_new(0x3c8) at the call site"
+  },
+  "0x0042f5e0": {
+   "name": "cube::BlueprintPreviewWidget::`scalar deleting destructor`",
+   "evidence": "Widget vtable slot 0 override"
+  },
+  "0x0042f910": {
+   "name": "cube::BlueprintPreviewWidget::update",
+   "evidence": "Widget vtable slot 1 override"
+  },
+  "0x004348f0": {
+   "name": "cube::BlueprintPreviewWidget::layout",
+   "evidence": "Widget vtable slot 10 override"
+  },
+  "0x00434d90": {
+   "name": "cube::CharacterWidget::CharacterWidget",
+   "evidence": "only writer of cube::CharacterWidget::vftable; calls Widget::Widget 0x00627260; operator_new(0x164) at the call site"
+  },
+  "0x00434e30": {
+   "name": "cube::CharacterWidget::update",
+   "evidence": "Widget vtable slot 1 override"
+  },
+  "0x004393b0": {
+   "name": "cube::ChatWidget::ChatWidget",
+   "evidence": "only writer of cube::ChatWidget::vftable; calls Widget::Widget 0x00627260; operator_new(0x190) at the call site"
+  },
+  "0x00439590": {
+   "name": "cube::ChatWidget::`scalar deleting destructor`",
+   "evidence": "Widget vtable slot 0 override"
+  },
+  "0x00439660": {
+   "name": "cube::ChatWidget::getContentSize",
+   "evidence": "Widget vtable slot 3 override"
+  },
+  "0x00439730": {
+   "name": "cube::ChatWidget::update",
+   "evidence": "Widget vtable slot 1 override"
+  },
+  "0x0043a000": {
+   "name": "plasma::returnTrueStub",
+   "evidence": "shared stub mov al,1; ret"
+  },
+  "0x0043b4c0": {
+   "name": "cube::Controller::Controller",
+   "evidence": "writes cube::Controller::vftable, zeroes key[256] at +0x19 and buttons at +0x119, stores arg at +0x134"
+  },
+  "0x0043b540": {
+   "name": "cube::Controller::~Controller",
+   "evidence": "writes cube::Controller::vftable"
+  },
+  "0x0043b550": {
+   "name": "cube::Controller::`scalar deleting destructor'",
+   "evidence": "Controller vtable slot 0"
+  },
+  "0x0043b580": {
+   "name": "cube::Controller::onMouseDown",
+   "evidence": "slot 7: button[b] (+0x119) = 1"
+  },
+  "0x0043b5a0": {
+   "name": "cube::Controller::onMouseUp",
+   "evidence": "slot 8: button[b] = 0"
+  },
+  "0x0043b5c0": {
+   "name": "cube::Controller::onKeyDown",
+   "evidence": "slot 2: key[vk] (+0x19) = 1"
+  },
+  "0x0043b5d0": {
+   "name": "cube::Controller::onKeyUp",
+   "evidence": "slot 3: key[vk] = 0"
+  },
+  "0x00447c20": {
+   "name": "cube::CubeShader::CubeShader",
+   "evidence": "writes cube::CubeShader::vftable, device at +0x1c; operator_new(0x74) in initDirect3D"
+  },
+  "0x00447c70": {
+   "name": "cube::CubeShader::~CubeShader",
+   "evidence": "releases VS +4, PS +8/+0xc/+0x10/+0x14/+0x18, vertex declaration +0x20"
+  },
+  "0x00447ce0": {
+   "name": "cube::CubeShader::`scalar deleting destructor'",
+   "evidence": "CubeShader vtable slot 0"
+  },
+  "0x00447d10": {
+   "name": "cube::CubeShader::bind",
+   "evidence": "SetVertexDeclaration +0x20, SetVertexShader +4, SetPixelShader +8 (0x006feb50); 13 callers"
+  },
+  "0x00447d50": {
+   "name": "cube::CubeShader::bindVariant10",
+   "evidence": "as bind but PixelShader +0x10 (0x006ff7c8); only GameController::render"
+  },
+  "0x00447d90": {
+   "name": "cube::CubeShader::bindVariantC",
+   "evidence": "as bind but PixelShader +0xc (0x006fefa0); only GameController::render"
+  },
+  "0x00447dd0": {
+   "name": "cube::CubeShader::bindVariant14",
+   "evidence": "as bind but PixelShader +0x14 (0x006ff1d0); only GameController::render"
+  },
+  "0x00447e10": {
+   "name": "cube::CubeShader::init",
+   "evidence": "CreateVertexDeclaration (UBYTE4 POSITION + D3DCOLOR COLOR, 8 bytes), CreateVertexShader 0x006fd928, CreatePixelShader 0x006feb50/0x006fefa0/0x006ff7c8/0x006ff1d0/0x006ff5c0, constant register table"
+  },
+  "0x00447fb0": {
+   "name": "cube::CubeShader::setAlpha",
+   "evidence": "SetPixelShaderConstantF(reg +0x5c = c3 'alpha')"
+  },
+  "0x00448010": {
+   "name": "cube::CubeShader::setCameraPosition",
+   "evidence": "SetVertexShaderConstantF(reg +0x70 = c36 'cameraPosition')"
+  },
+  "0x00448070": {
+   "name": "cube::CubeShader::setDarknessColor",
+   "evidence": "SetVertexShaderConstantF(reg +0x34 = c37 'darknessColor')"
+  },
+  "0x00448090": {
+   "name": "cube::CubeShader::setFogGradientTranslation",
+   "evidence": "SetVertexShaderConstantF(reg +0x64 = c31)"
+  },
+  "0x00448100": {
+   "name": "cube::CubeShader::setFogScale",
+   "evidence": "SetVertexShaderConstantF(reg +0x60 = c30)"
+  },
+  "0x00448170": {
+   "name": "cube::CubeShader::setLight",
+   "evidence": "SetVertexShaderConstantF for lightDirection c33, lightFrontColor c34, lightBackColor c35, ambientColor c38"
+  },
+  "0x00448280": {
+   "name": "cube::CubeShader::setMaterialColor",
+   "evidence": "SetVertexShaderConstantF(reg +0x30 = c32 'materialColor')"
+  },
+  "0x004482a0": {
+   "name": "cube::CubeShader::setTransforms",
+   "evidence": "3166 bytes; computes and uploads worldMatrix c27, worldViewMatrix c24, worldViewProjMatrix c20"
+  },
+  "0x00448f10": {
+   "name": "cube::CubeShader::setPointLights",
+   "evidence": "SetVertexShaderConstantF pointLightPositions c0 (+0x68) and pointLightColors c10 (+0x6c), 10 each"
+  },
+  "0x00448fe0": {
+   "name": "cube::CubeShader::setShininess",
+   "evidence": "SetPixelShaderConstantF(reg +0x58 = c4 'shininess')"
+  },
+  "0x00449040": {
+   "name": "cube::CubeShader::setSkyAndFogColors",
+   "evidence": "SetPixelShaderConstantF skyColor1 c0 (+0x4c), skyColor2 c1 (+0x50), fogColor c2 (+0x54)"
+  },
+  "0x00449090": {
+   "name": "cube::CubeShader::setWhite",
+   "evidence": "SetVertexShaderConstantF(reg +0x48 = c39 'white')"
+  },
+  "0x004490f0": {
+   "name": "plasma::Matrix::transpose",
+   "evidence": "used before every matrix SetVertexShaderConstantF in CubeShader and D3D9Engine (tentative)"
+  },
+  "0x0044e910": {
+   "name": "cube::EnchantWidget::EnchantWidget",
+   "evidence": "only writer of cube::EnchantWidget::vftable; calls Widget::Widget 0x00627260; operator_new(0x174) at the call site"
+  },
+  "0x0044ea30": {
+   "name": "cube::EnchantWidget::update",
+   "evidence": "Widget vtable slot 1 override"
+  },
+  "0x00450b90": {
+   "name": "cube::EnchantWidget::layout",
+   "evidence": "Widget vtable slot 10 override"
+  },
+  "0x00450e00": {
+   "name": "startThread::threadProc",
+   "evidence": "_beginthread start routine passed by startThread"
+  },
+  "0x004576f0": {
+   "name": "plasma::Widget::connect<cube::GameController>",
+   "evidence": "writes MemberFunctionConnection<GameController> vftable; 9 calls from GameController ctor"
+  },
+  "0x00459c40": {
+   "name": "cube::GameController::GameController",
+   "evidence": "writes cube::GameController::vftable; WinMain allocates 0x1001018 bytes; loads gui.plx/start.plx, builds every widget, starts three worker threads"
+  },
+  "0x00466650": {
+   "name": "cube::CubeVertex::CubeVertex",
+   "evidence": "(pos int3, normal int3, color float4): bytes x,y,z, face index 0..5 (+x,-x,+y,-y,+z,-z), D3DCOLOR ARGB"
+  },
+  "0x00466d90": {
+   "name": "cube::GameController::~GameController",
+   "evidence": "second writer of cube::GameController::vftable, called from the deleting dtor 0x0046d340"
+  },
+  "0x004690a0": {
+   "name": "cube::GameController::chunkMeshThread",
+   "evidence": "loop while +0x800584: collects chunks in the (+0x2dc)^2 window around +0x2ac/+0x2b0, sorts by distance^2 (0x00455d80), under CS +0x800600 rebuilds changed chunks with 0x0049d910, Sleep(5); every 60 s calls 0x00487520"
+  },
+  "0x00469590": {
+   "name": "cube::GameController::landscapeThread",
+   "evidence": "worker loop: builds cube::LandscapeTile (ctor 0x006024d0) and calls 0x00603230/0x00603a00, Sleep; the distant-terrain / world-map tiles (tentative)"
+  },
+  "0x00469c10": {
+   "name": "cube::GameController::sendLoop",
+   "evidence": "std::function body (lambda_864084cd...) started by connect; per pass sends 0 (entity delta, zlib), 10 (chat), 6 (interact), 7/8/9 (hit/passive/shoot lists), 0xb/0xc (chunk/sector discovered, once per second); paces to 20 ms"
+  },
+  "0x0046a8a0": {
+   "name": "cube::GameController::zoneThread",
+   "evidence": "std::function body (lambda_fdf816e4...) started by the constructor: World::generateZone, World::load, unloadZone/unloadRegion/removeRegion, Database::putBlobVec"
+  },
+  "0x0046b740": {
+   "name": "cube::GameController::recvLoop",
+   "evidence": "std::function body (lambda_ff38bf9e...) started by connect; recv packet id, switch 0..15 via tables 0x46d180/0x46d1a4; entity updates snap or start interpolation (+0x1398 = 60)"
+  },
+  "0x0046d2f0": {
+   "name": "cube::ChunkBuffer::`scalar deleting destructor'",
+   "evidence": "writes cube::ChunkBuffer::vftable, Releases +4 (VB), +8, +0xc (IBs)"
+  },
+  "0x0046d340": {
+   "name": "cube::GameController::`scalar deleting destructor'",
+   "evidence": "GameController vtable slot 0"
+  },
+  "0x0046db70": {
+   "name": "lambda_GameController_chunkMeshThread",
+   "evidence": "_Func_impl<lambda_1ffef...> _Do_call, forwards to 0x004690a0; started from the GameController ctor"
+  },
+  "0x0046db80": {
+   "name": "lambda_GameController_landscapeThread",
+   "evidence": "_Func_impl<lambda_29209...> _Do_call, forwards to 0x00469590"
+  },
+  "0x0046db90": {
+   "name": "lambda_GameController_sendLoop",
+   "evidence": "_Func_impl<lambda_86408...> _Do_call, forwards to 0x00469c10; started in connect"
+  },
+  "0x0046dba0": {
+   "name": "lambda_GameController_zoneThread",
+   "evidence": "_Func_impl<lambda_fdf81...> _Do_call, forwards to 0x0046a8a0"
+  },
+  "0x0046dbb0": {
+   "name": "lambda_GameController_receiveLoop",
+   "evidence": "_Func_impl<lambda_ff38b...> _Do_call, forwards to 0x0046b740; started in connect"
+  },
+  "0x0046f450": {
+   "name": "cube::GameController::lockForReset",
+   "evidence": "called by resetDevice before Reset; enters GameController critical sections"
+  },
+  "0x0046f480": {
+   "name": "plasma::Widget::MemberFunctionConnection<cube::GameController>::invoke",
+   "evidence": "slot 0: jmp [this+0xc]"
+  },
+  "0x0046fc50": {
+   "name": "cube::GameController::connect",
+   "evidence": "(host string): socket, inet_addr/gethostbyname, connect port 12345 (htons 0x3039), sends id 0x11 + version 3, handles 0x11 (version mismatch), 0x12 (full), 0x10 (join: int, int64 entity id, 0x1168-byte EntityData), then starts the recv and send threads"
+  },
+  "0x004719f0": {
+   "name": "cube::GameController::disconnect",
+   "evidence": "closesocket(+0x8006cc), clears state under World::lock, called for /disconnect, the system menu, and by update when +0x800585 is set but the socket is gone"
+  },
+  "0x00477280": {
+   "name": "cube::GameController::unlockAfterReset",
+   "evidence": "called by resetDevice after Reset"
+  },
+  "0x0047b600": {
+   "name": "cube::GameController::onMouseDown",
+   "evidence": "slot 7, WM_xBUTTONDOWN with button 0/1/2"
+  },
+  "0x0047ddd0": {
+   "name": "cube::GameController::onMouseUp",
+   "evidence": "slot 8, WM_xBUTTONUP"
+  },
+  "0x0047e1b0": {
+   "name": "cube::GameController::onKeyDown",
+   "evidence": "slot 2, called from WndProc on WM_KEYDOWN; hard-coded VK bindings"
+  },
+  "0x0047e9d0": {
+   "name": "cube::GameController::onKeyUp",
+   "evidence": "slot 3, WM_KEYUP"
+  },
+  "0x0047ea00": {
+   "name": "cube::GameController::onMouseMove",
+   "evidence": "slot 6, called from WinMain with DirectInput deltas or client cursor coords; camera pitch/yaw"
+  },
+  "0x0047ef40": {
+   "name": "cube::GameController::onMouseWheel",
+   "evidence": "slot 9, WM_MOUSEWHEEL with sign of delta"
+  },
+  "0x0047f1d0": {
+   "name": "cube::GameController::isCursorFree",
+   "evidence": "slot 1: true when any menu widget (map, inventory, options, chat...) is visible; WinMain recentres the cursor when false"
+  },
+  "0x00482a00": {
+   "name": "cube::GameController::onChar",
+   "evidence": "slot 5, WM_CHAR"
+  },
+  "0x00482a40": {
+   "name": "cube::GameController::onResize",
+   "evidence": "slot 4, called from resetDevice with the new width/height"
+  },
+  "0x00484320": {
+   "name": "cube::GameController::playSoundAtListener",
+   "evidence": "(soundEnum): playSound(id, this+0x140, 1.0, 1.0)"
+  },
+  "0x00484350": {
+   "name": "cube::GameController::playSound",
+   "evidence": "(soundEnum, const vec3i64* pos, float volume, float pitch): switch over 101 enum values -> '<name>.wav', XAudio2Engine::loadSound (slot 7); skips when |pos-listener(+0x140)|>100 blocks; gain=(1-dist/100)*volume; pan = clamp(-0.1*clipX/clipW) from the view-projection at +0x22c; calls slot 6 with soundVolume(+0x184)*gain*0.01"
+  },
+  "0x00486830": {
+   "name": "std::vector<cube::CubeVertex>::push_back",
+   "evidence": "8-byte element push_back with aliasing check"
+  },
+  "0x00488bd0": {
+   "name": "cube::GameController::toggleCharacter",
+   "evidence": "C key: toggles widget +0x8008c0"
+  },
+  "0x00488c00": {
+   "name": "cube::GameController::toggleInventory",
+   "evidence": "B and I keys: toggles visibility attribute of widget +0x8008bc, closes widget +0x800910"
+  },
+  "0x00488c70": {
+   "name": "cube::GameController::toggleAdaption",
+   "evidence": "X key: flips +0x8008f1, copies the player's appearance (+0xfd8+0x160..0x18c) into widget +0x80090c (tentative: cube::AdaptionWidget)"
+  },
+  "0x00488d00": {
+   "name": "cube::GameController::togglePanelO",
+   "evidence": "O key: toggles widget +0x800910 and closes the inventory (likely crafting; unresolved)"
+  },
+  "0x00488ee0": {
+   "name": "cube::GameController::update",
+   "evidence": "slot 10, called from frame with dt in ms; 77 KB; calls World::tick in 20 ms steps"
+  },
+  "0x0049d910": {
+   "name": "cube::GameController::buildChunkMesh",
+   "evidence": "15 KB; for each block face emits 4 CubeVertex (0x00466650) lit by 0x004c1510, into global vertex/index vectors 0x0076b098/0x0076b0a8; creates VB (n*8, WRITEONLY, MANAGED) and two INDEX32 IBs through GameController+0x134 device; allocates cube::ChunkBuffer (0x20)"
+  },
+  "0x004a6b50": {
+   "name": "cube::GameController::applyMovementInput",
+   "evidence": "9 KB, called from update when no panel is open and not in auto-walk; tentative: WASD/jump/attack to the local player's EntityData (not read)"
+  },
+  "0x004ac260": {
+   "name": "cube::GameController::render",
+   "evidence": "slot 11, called from frame before Present; only BeginScene/EndScene caller"
+  },
+  "0x004c1510": {
+   "name": "cube::computeVertexLight",
+   "evidence": "(out rgba, wx, wy, wz, baseColor, normal, fullbright): averages block light bytes over a 3x3x3 (half-space along the normal) neighbourhood weighted (3-max|d+0.5|)/3, alpha = light/255, rgb mixes base colour toward a desaturated tint by the open-air fraction"
+  },
+  "0x004c1a90": {
+   "name": "plasma::Widget::connect<cube::InventoryWidget>",
+   "evidence": "writes MemberFunctionConnection<InventoryWidget> vftable"
+  },
+  "0x004c1bb0": {
+   "name": "cube::InventoryWidget::InventoryWidget",
+   "evidence": "only writer of cube::InventoryWidget::vftable; calls Widget::Widget 0x00627260; operator_new(0x1b8) at the call site"
+  },
+  "0x004c2010": {
+   "name": "cube::InventoryWidget::`scalar deleting destructor`",
+   "evidence": "Widget vtable slot 0 override"
+  },
+  "0x004c2040": {
+   "name": "plasma::Widget::MemberFunctionConnection::invoke",
+   "evidence": "slot 0 of the CharacterStyleWidget/InventoryWidget/OptionsWidget instantiations (folded): jmp [this+0x10]"
+  },
+  "0x004c2050": {
+   "name": "cube::InventoryWidget::update",
+   "evidence": "Widget vtable slot 1 override"
+  },
+  "0x004c59a0": {
+   "name": "cube::PreviewWidget_containsPoint",
+   "evidence": "Widget slot 5 override shared by CharacterPreview/Inventory/Sprite/WorldPreview widgets: 0<=x<width && 0<=y<height"
+  },
+  "0x004c5d50": {
+   "name": "cube::InventoryWidget::layout",
+   "evidence": "Widget vtable slot 10 override"
+  },
+  "0x004c83f0": {
+   "name": "WndProc",
+   "evidence": "lpfnWndProc of the 'Cube' class in WinMain; WM_KEYDOWN/UP/CHAR -> GameController slots 2/3/5, mouse buttons -> 7/8, wheel -> 9, WM_SIZE/WM_MOVE -> resetDevice"
+  },
+  "0x004c85f0": {
+   "name": "frame",
+   "evidence": "per-frame: GameController slot 10 update(dt ms from timeGetTime), settings-change check -> resetDevice, slot 11 render, device Present (+0x44), D3DERR_DEVICELOST sets 0x76b1d1"
+  },
+  "0x004c8720": {
+   "name": "initDirect3D",
+   "evidence": "Direct3DCreate9(0x20), CreateDevice (+0x40), new D3D9Engine(0x2d0), new CubeShader(0x74); message box on failure"
+  },
+  "0x004c8940": {
+   "name": "resetDevice",
+   "evidence": "D3DPRESENT_PARAMETERS from the options globals (fullscreen, size, antiAliasing*2 multisample), device Reset (+0x40) retried with Sleep(100), then GameController slot 4 onResize"
+  },
+  "0x004c8ae0": {
+   "name": "WinMain",
+   "evidence": "called from the CRT entry 0x0068e1e0; RegisterClassW/CreateWindowExW 'Cube' 800x600, DirectInput8Create, PeekMessageW loop, timeBeginPeriod(1)"
+  },
+  "0x004c95a0": {
+   "name": "cube::MapOverlayWidget::MapOverlayWidget",
+   "evidence": "only writer of cube::MapOverlayWidget::vftable; calls Widget::Widget 0x00627260; operator_new(0x164) at the call site"
+  },
+  "0x004c9680": {
+   "name": "cube::MapOverlayWidget::update",
+   "evidence": "Widget vtable slot 1 override"
+  },
+  "0x004ce180": {
+   "name": "cube::ObjectiveWidget::ObjectiveWidget",
+   "evidence": "only writer of cube::ObjectiveWidget::vftable; calls Widget::Widget 0x00627260; operator_new(0x170) at the call site"
+  },
+  "0x004ce240": {
+   "name": "cube::ObjectiveWidget::`scalar deleting destructor`",
+   "evidence": "slot 0 of ObjectiveWidget and OptionsWidget (identical code folded)"
+  },
+  "0x004ce6e0": {
+   "name": "Options::load",
+   "evidence": "reads options.cfg keys fullscreen, resolutionX/Y, antiAliasing, renderDistance, soundVolume, musicVolume, cameraSpeed, cameraSmoothness, language, invertY, minTimeStep into 0x0076b1d8[12]"
+  },
+  "0x004cef80": {
+   "name": "Options::save",
+   "evidence": "writes the same twelve keys to options.cfg"
+  },
+  "0x004cf2a0": {
+   "name": "plasma::Widget::connect<cube::OptionsWidget>",
+   "evidence": "writes MemberFunctionConnection<OptionsWidget> vftable"
+  },
+  "0x004cf3c0": {
+   "name": "cube::OptionsWidget::OptionsWidget",
+   "evidence": "only writer of cube::OptionsWidget::vftable; calls Widget::Widget 0x00627260; operator_new(0x208) at the call site"
+  },
+  "0x004d0230": {
+   "name": "cube::OptionsWidget::update",
+   "evidence": "Widget vtable slot 1 override"
+  },
+  "0x004d46d0": {
+   "name": "cube::OptionsWidget::layout",
+   "evidence": "Widget vtable slot 10 override"
+  },
+  "0x004d4f10": {
+   "name": "cube::PreviewWidget::PreviewWidget",
+   "evidence": "only writer of cube::PreviewWidget::vftable; calls Widget::Widget 0x00627260; operator_new(0x180) at the call site"
+  },
+  "0x004d5070": {
+   "name": "cube::PreviewWidget::`scalar deleting destructor`",
+   "evidence": "Widget vtable slot 0 override"
+  },
+  "0x004d50a0": {
+   "name": "cube::PreviewWidget::update",
+   "evidence": "Widget vtable slot 1 override"
+  },
+  "0x004dd750": {
+   "name": "cube::SkillWidget::SkillWidget",
+   "evidence": "only writer of cube::SkillWidget::vftable; calls Widget::Widget 0x00627260; operator_new(0x194) at the call site"
+  },
+  "0x004dd810": {
+   "name": "cube::SkillWidget::update",
+   "evidence": "Widget vtable slot 1 override"
+  },
+  "0x004e5c90": {
+   "name": "cube::SpeechWidget::SpeechWidget",
+   "evidence": "only writer of cube::SpeechWidget::vftable; calls Widget::Widget 0x00627260; operator_new(0x1e0) at the call site"
+  },
+  "0x004e5f60": {
+   "name": "cube::SpeechWidget::`scalar deleting destructor`",
+   "evidence": "Widget vtable slot 0 override"
+  },
+  "0x004e5f90": {
+   "name": "cube::SpeechWidget::update",
+   "evidence": "Widget vtable slot 1 override"
+  },
+  "0x004e6df0": {
+   "name": "cube::Model::draw",
+   "evidence": "SetStreamSource(stride 8) +0x34, SetIndices +0x38, DrawIndexedPrimitive(TRIANGLELIST, NumVertices +0x3c, primCount +0x40); if not built and +0x56 sets +0x54 (build request); stamps +0x50 = DAT_0076b338"
+  },
+  "0x004e7870": {
+   "name": "cube::Model::buildMesh",
+   "evidence": "16 KB, client-only body of Model: builds 8-byte CubeVertex VB (WRITEONLY, MANAGED) and INDEX16 IB via device at +0x58; called from Model::setVoxels 0x004e7650 and others"
+  },
+  "0x0051c310": {
+   "name": "cube::SpriteWidget::SpriteWidget",
+   "evidence": "only writer of cube::SpriteWidget::vftable; calls Widget::Widget 0x00627260; operator_new(0x16c) at the call site"
+  },
+  "0x0051c3d0": {
+   "name": "cube::SpriteWidget::update",
+   "evidence": "Widget vtable slot 1 override"
+  },
+  "0x00583270": {
+   "name": "cube::StartMenuWidget::StartMenuWidget",
+   "evidence": "only writer of cube::StartMenuWidget::vftable; calls Widget::Widget 0x00627260; operator_new(0x168) at the call site"
+  },
+  "0x00583320": {
+   "name": "cube::StartMenuWidget::update",
+   "evidence": "Widget vtable slot 1 override"
+  },
+  "0x00583b40": {
+   "name": "cube::StatisticsWidget::StatisticsWidget",
+   "evidence": "only writer of cube::StatisticsWidget::vftable; calls Widget::Widget 0x00627260; operator_new(0x164) at the call site"
+  },
+  "0x00583be0": {
+   "name": "cube::StatisticsWidget::update",
+   "evidence": "Widget vtable slot 1 override"
+  },
+  "0x00587660": {
+   "name": "cube::SystemWidget::SystemWidget",
+   "evidence": "only writer of cube::SystemWidget::vftable; calls Widget::Widget 0x00627260; operator_new(0x168) at the call site"
+  },
+  "0x00587710": {
+   "name": "cube::SystemWidget::update",
+   "evidence": "Widget vtable slot 1 override"
+  },
+  "0x00587f70": {
+   "name": "cube::VoxelWidget::VoxelWidget",
+   "evidence": "only writer of cube::VoxelWidget::vftable; calls Widget::Widget 0x00627260; operator_new(0x440) at the call site"
+  },
+  "0x005881b0": {
+   "name": "cube::VoxelWidget::`scalar deleting destructor`",
+   "evidence": "Widget vtable slot 0 override"
+  },
+  "0x00588500": {
+   "name": "cube::VoxelWidget::update",
+   "evidence": "Widget vtable slot 1 override"
+  },
+  "0x00605a20": {
+   "name": "cube::WorldPreviewWidget::WorldPreviewWidget",
+   "evidence": "only writer of cube::WorldPreviewWidget::vftable; calls Widget::Widget 0x00627260; operator_new(0x16c) at the call site"
+  },
+  "0x00605ae0": {
+   "name": "cube::WorldPreviewWidget::update",
+   "evidence": "Widget vtable slot 1 override"
+  },
+  "0x00622d60": {
+   "name": "cube::Music::Music",
+   "evidence": "(IXAudio2*): writes cube::Music::vftable, +0x1e0008 = IXAudio2, voice +0x1e000c = 0, volume +0x1e0018 = 1.0; object 0x1e02f0 bytes"
+  },
+  "0x00622da0": {
+   "name": "cube::XAudio2Engine::XAudio2Engine",
+   "evidence": "writes cube::XAudio2Engine::vftable; creates two std::map heads (+0xc voice list, +0x14/+0x1c name->id and id->Sound* maps), opens 'data2.db' as the sound blob database at +0x2c via cube::Database::open; called by WinMain on a global before init"
+  },
+  "0x00622ef0": {
+   "name": "cube::XAudio2Engine::~XAudio2Engine",
+   "evidence": "writes vftable, reaps voices, deletes every Sound, deletes both Music objects (+0x24,+0x28), DestroyVoice (+0x48) on the mastering voice (+8), Release on IXAudio2 (+4)"
+  },
+  "0x00623060": {
+   "name": "cube::Music::`scalar deleting destructor'",
+   "evidence": "writes cube::Music::vftable, DestroyVoice(+0x48) on +0x1e000c"
+  },
+  "0x006230a0": {
+   "name": "cube::XAudio2Engine::Sound::`scalar deleting destructor'",
+   "evidence": "writes cube::XAudio2Engine::Sound::vftable, delete"
+  },
+  "0x006230d0": {
+   "name": "cube::XAudio2Engine::`scalar deleting destructor'",
+   "evidence": "vtable slot 8: calls 0x622ef0 then operator delete if flag&1"
+  },
+  "0x00623100": {
+   "name": "riffFindChunk(memory)",
+   "evidence": "same as 0x6231e0 over a std::vector<char> blob"
+  },
+  "0x006231e0": {
+   "name": "riffFindChunk(file)",
+   "evidence": "(HANDLE, fourcc, &size, &offset); used by loadSound file path with 'RIFF','fmt ','data'; the DirectX SDK XAudio2 sample FindChunk"
+  },
+  "0x00623340": {
+   "name": "riffReadChunkData(memory)",
+   "evidence": "same as 0x6233a0 over a blob"
+  },
+  "0x006233a0": {
+   "name": "riffReadChunkData(file)",
+   "evidence": "(HANDLE, buf, size, offset); DirectX sample ReadChunkData"
+  },
+  "0x00623410": {
+   "name": "cube::XAudio2Engine::reapFinishedVoices",
+   "evidence": "vtable slot 0; for each source voice in list +0xc: GetState(+0x64), if BuffersQueued==0 DestroyVoice(+0x48) and unlink; called every frame by GameController::update at 0x48b367"
+  },
+  "0x00623530": {
+   "name": "cube::XAudio2Engine::init",
+   "evidence": "CoInitializeEx; CoCreateInstance(CLSID {5a508685-a254-4fba-9b82-9a24b00306af} = XAudio2 2.7 CLSID_XAudio2, IID {8bcf1f58-9fe7-4583-8ac6-e2adc465c8bb} = IID_IXAudio2); IXAudio2::Initialize(+0x14)(0, XAUDIO2_DEFAULT_PROCESSOR); CreateMasteringVoice(+0x28) into +8; allocates two cube::Music (0x1e02f0 bytes) at +0x24/+0x28; WinMain shows 'Could not initialize XAudio2' on false"
+  },
+  "0x00623600": {
+   "name": "cube::XAudio2Engine::isMusicPlaying",
+   "evidence": "vtable slot 4: returns Music[0]+0x1e0010 (playing flag)"
+  },
+  "0x00623610": {
+   "name": "cube::XAudio2Engine::playSound",
+   "evidence": "vtable slot 6 (soundId, volume, pan, pitch, unused; ret 0x14): if volume>0 look up Sound* by id, CreateSourceVoice(+0x20, wfx=sound+4, maxFreqRatio 2.0), SetVolume(+0x30), SubmitSourceBuffer(+0x54, XAUDIO2_BUFFER at sound+0x2c), Start(+0x4c), SetFrequencyRatio(+0x68, pitch); the pan argument is ignored"
+  },
+  "0x00623710": {
+   "name": "cube::Music::play",
+   "evidence": "(path, loop): stops and destroys the old voice, fopen(path,'rb'), ov_open, ov_info, builds a 16-bit PCM WAVEFORMATEX, decodes 0xa0000 bytes with ov_read into one of three ring buffers at +8 + i*0xa0000, CreateSourceVoice, SubmitSourceBuffer, Start, SetVolume; +0x1e0011 = loop"
+  },
+  "0x00623980": {
+   "name": "cube::XAudio2Engine::playMusic",
+   "evidence": "vtable slot 1 (path, secondPath, loop): if second path empty stops Music[1] (+0x28) then Music::play(path); else plays both tracks; no caller found in the client"
+  },
+  "0x00623a00": {
+   "name": "cube::XAudio2Engine::setMusicVolumes",
+   "evidence": "vtable slot 5 (vol0, vol1): stores Music+0x1e0018 and SetVolume(+0x30) on each track's voice; WinMain calls (musicVolume*0.01, 0); update calls it every frame at 0x48c432 with (musicVolume*k, fade)"
+  },
+  "0x00623a60": {
+   "name": "cube::XAudio2Engine::loadSound",
+   "evidence": "vtable slot 7 (name) -> id: name->id map at +0x1c; on miss reads RIFF/WAVE ('RIFF','WAVE','fmt ','data' fourccs) from the blob DB (cube::Database::getBlobVec + decodeBlob) or from a file (CreateFileW) when no DB; allocates a 0x50-byte Sound (WAVEFORMATEX at +4, XAUDIO2_BUFFER at +0x2c: Flags=0x40 END_OF_STREAM, AudioBytes +0x30, pAudioData +0x34); ids from counter +0x30"
+  },
+  "0x00623e60": {
+   "name": "cube::XAudio2Engine::stopMusic",
+   "evidence": "vtable slot 3: Stop(+0x50), ov_clear, clear playing flags on both Music tracks"
+  },
+  "0x00623ee0": {
+   "name": "cube::Music::stream",
+   "evidence": "if playing and GetState BuffersQueued<2: refills the next 0xa0000-byte buffer with ov_read, loops via 0x626740(vf,0) when +0x1e0011, marks end-of-stream (flag 0x40) otherwise; ring index (i+1)%3"
+  },
+  "0x006240b0": {
+   "name": "cube::XAudio2Engine::streamMusic",
+   "evidence": "vtable slot 2: Music::stream on both tracks; called every frame by update at 0x48b378"
+  },
+  "0x00625a60": {
+   "name": "ov_clear",
+   "evidence": "called on +0x1e0020 when stopping a track"
+  },
+  "0x00626740": {
+   "name": "ov_pcm_seek",
+   "evidence": "(vf, 0) called to loop a track (tentative: could be ov_raw_seek)"
+  },
+  "0x00626a70": {
+   "name": "ov_info",
+   "evidence": "(vf, -1) returning vorbis_info*; channels at +4, rate at +8"
+  },
+  "0x00626de0": {
+   "name": "ov_read",
+   "evidence": "(vf, buf, len, bigendian=0, word=2, sgned=1, &bitstream): the libvorbisfile signature"
+  },
+  "0x006271b0": {
+   "name": "ov_open",
+   "evidence": "(FILE*, OggVorbis_File*, NULL, 0) from Music::play; libvorbisfile, statically linked (codec at 0x6cf000..0x6d2000)"
+  },
+  "0x00627260": {
+   "name": "plasma::Widget::Widget",
+   "evidence": "writes NamedObject, Deformer then Widget vftables; (Engine*, Node*, wstring name); node->+0x40 = this; object size 0x160 (operator_new(0x160) in 0x006503e0/0x00659740)"
+  },
+  "0x00627450": {
+   "name": "plasma::Widget::Widget(copy)",
+   "evidence": "copy ctor (const Widget&, Node*): copies rect/matrix fields; called from every clone slot 40"
+  },
+  "0x006276a0": {
+   "name": "plasma::Widget::~Widget",
+   "evidence": "restores Widget vftables, frees connection map at +0x150, releases +0x3c"
+  },
+  "0x00627850": {
+   "name": "plasma::NamedObject::`scalar deleting destructor`",
+   "evidence": "NamedObject slot 0; name wstring at +0xc"
+  },
+  "0x00627dc0": {
+   "name": "plasma::Widget::clone",
+   "evidence": "slot 40; operator_new(0x160) + copy ctor 0x00627450"
+  },
+  "0x00627e40": {
+   "name": "plasma::Widget::deformPoint",
+   "evidence": "Deformer sub-vtable (this+0x24) slot 0 (out*, in*, Node*): 9-slice style stretch of shape points from the authored rect to the current widget rect; tentative"
+  },
+  "0x00628f40": {
+   "name": "plasma::Widget::setEnabled",
+   "evidence": "slot 41 (bool); stores +0x15c, fires \"widget:enable\"/\"widget:disable\""
+  },
+  "0x0062a690": {
+   "name": "plasma::Widget::onDragBegin",
+   "evidence": "slot 35; flags bit0/1 movable: records cursor and translation (+0x98..+0xa4) when an ancestor widget is hovered"
+  },
+  "0x0062a780": {
+   "name": "plasma::Widget::onDragEnd",
+   "evidence": "slot 36; releases mouse capture when movable"
+  },
+  "0x0062a7b0": {
+   "name": "plasma::Widget::onMouseWheel",
+   "evidence": "slot 39; flag bit1 (scrollable y): translation.y += engine+0x100 (wheel) * 10, fires event 0x11"
+  },
+  "0x0062a8b0": {
+   "name": "plasma::Widget::update",
+   "evidence": "slot 7; stores engine viewport size (+0x10c/+0x110) at +0x138, recomputes size, fires \"widget:disable\" when +0x15c==0, then 0x0062b920"
+  },
+  "0x0062a9e0": {
+   "name": "plasma::Widget::onMousePress",
+   "evidence": "slot 11; flag bit7 (resizable): compares cursor (engine+0xd4/+0xd8) with edges, sets resize edge bytes +0x14c/+0x14d, captures mouse via 0x0064efe0"
+  },
+  "0x0062abe0": {
+   "name": "plasma::Widget::onMouseRelease",
+   "evidence": "slot 12; releases capture (0x00659cf0) if engine+0xc8 is this node; clears +0x14c"
+  },
+  "0x0062ac20": {
+   "name": "plasma::Widget::onMouseDrag",
+   "evidence": "slot 21; edge-resize while engine+0xf4 bit0, drag-move (flags bit0/1 = movable x/y) while engine+0xf4 bit2; writes Transformation translation key; fires event 0x11"
+  },
+  "0x0062af10": {
+   "name": "plasma::Widget::onParentResized",
+   "evidence": "slot 9 (offset*, sizeDelta*); anchoring by +0x130 (h: 1=right, 2=centre) and +0x12c (v), stretch flags +0x128 bits 2/3"
+  },
+  "0x0062b350": {
+   "name": "plasma::Widget::onViewportResized",
+   "evidence": "slot 8; if no ancestor widget, calls slot 9 with (0,0) and viewport-size delta, stores new viewport size at +0x138"
+  },
+  "0x0062e180": {
+   "name": "plasma::Widget::deformPoint2",
+   "evidence": "Deformer sub-vtable slot 1; same maths as 0x00627e40 with axis order swapped; tentative"
+  },
+  "0x00630470": {
+   "name": "plasma::Node::Node",
+   "evidence": "writes Node vftable; size 0xf0 (0x0064f4e0)"
+  },
+  "0x006306e0": {
+   "name": "plasma::Node::~Node",
+   "evidence": "Node vftable writer"
+  },
+  "0x006309e0": {
+   "name": "plasma::Node::`scalar deleting destructor`",
+   "evidence": "Node slot 0"
+  },
+  "0x00637700": {
+   "name": "plasma::Edit::Edit",
+   "evidence": "vftable writer; size 0x17c (0x0064f200)"
+  },
+  "0x00637760": {
+   "name": "plasma::Edit::`scalar deleting destructor`",
+   "evidence": "slot 0"
+  },
+  "0x00637790": {
+   "name": "plasma::Edit::clone",
+   "evidence": "slot 40; new 0x17c"
+  },
+  "0x006378e0": {
+   "name": "plasma::Edit::update",
+   "evidence": "slot 1"
+  },
+  "0x00637c50": {
+   "name": "plasma::Edit::containsPoint",
+   "evidence": "slot 5; always true"
+  },
+  "0x00637c60": {
+   "name": "plasma::FloatFilter::accept",
+   "evidence": "EditFilter slot 0"
+  },
+  "0x00637d10": {
+   "name": "plasma::IntegerFilter::accept",
+   "evidence": "EditFilter slot 0: optional leading \"-\" then digits"
+  },
+  "0x00637d90": {
+   "name": "plasma::UnsignedFloatFilter::accept",
+   "evidence": "EditFilter slot 0"
+  },
+  "0x00637e20": {
+   "name": "plasma::UnsignedIntegerFilter::accept",
+   "evidence": "EditFilter slot 0"
+  },
+  "0x00637f00": {
+   "name": "plasma::Edit::onChar",
+   "evidence": "slot 26 (wchar); inserts into the text, applies EditFilter"
+  },
+  "0x006380c0": {
+   "name": "plasma::Edit::onKeyDown",
+   "evidence": "slot 24 (key), ret 4; caret movement/deletion"
+  },
+  "0x00638fa0": {
+   "name": "plasma::FontEngine::FontEngine",
+   "evidence": "writes FontEngine vftable; size 0x3c (Engine ctor 0x0064d0f0)"
+  },
+  "0x00639090": {
+   "name": "plasma::FontEngine::~FontEngine",
+   "evidence": "vftable writer"
+  },
+  "0x00639800": {
+   "name": "plasma::FontEngine::getFont",
+   "evidence": "lock, map lookup, creates ScalableFont (0x124) on miss"
+  },
+  "0x0063c2b0": {
+   "name": "plasma::SmoothMeshShape::SmoothMeshShape",
+   "evidence": "writes SmoothMeshShape vftable; size 0xc34 (0x00650260)"
+  },
+  "0x0063c7f0": {
+   "name": "plasma::SmoothMeshShape::~SmoothMeshShape",
+   "evidence": "vftable writer"
+  },
+  "0x00640e20": {
+   "name": "plasma::SmoothMeshShape::clone",
+   "evidence": "Shape slot 13; factory 0x00650260 then copies attributes"
+  },
+  "0x00641280": {
+   "name": "plasma::SmoothMeshShape::draw",
+   "evidence": "Shape slot 2 (target): under lock +0xc1c draws Drawings +0xc18 (flag bit4), +0xc10 fill (unless bit2), +0xc14 stroke (bit1) through Drawing vtable slot 2"
+  },
+  "0x00641aa0": {
+   "name": "plasma::SmoothMeshShape::getBounds",
+   "evidence": "Shape slot 8; Drawing::expandBounds 0x00674690 on each drawing"
+  },
+  "0x00642410": {
+   "name": "plasma::SmoothMeshShape::isEmpty",
+   "evidence": "Shape slot 17: +0xb30 == +0xb34"
+  },
+  "0x00642430": {
+   "name": "plasma::SmoothMeshShape::containsPoint",
+   "evidence": "Shape slot 4; Drawing::containsPoint 0x006747f0"
+  },
+  "0x006424b0": {
+   "name": "plasma::SmoothMeshShape::intersectsRect",
+   "evidence": "Shape slot 3; Drawing::intersectsRect 0x00674970 on each drawing"
+  },
+  "0x00642580": {
+   "name": "plasma::Attribute::getKeyCount",
+   "evidence": "slot 1: (+0x50 - +0x4c) / 4"
+  },
+  "0x00642ad0": {
+   "name": "plasma::QuadMesh::subdivide",
+   "evidence": "9 KB, called by plasma::SmoothMeshShape vtable slot 1 (0x00644fa0); calls 0x00671f80"
+  },
+  "0x00644fa0": {
+   "name": "plasma::SmoothMeshShape::rebuild",
+   "evidence": "Shape slot 1 (15.7 KB): subdivision/smoothing then 0x00648d60 builds the fill, stroke and extrusion Drawings"
+  },
+  "0x00648d60": {
+   "name": "plasma::SmoothMeshShape::buildDrawings",
+   "evidence": "called only by 0x00644fa0; calls Drawing::tessellate 0x00675690 and Drawing::tessellateWithFringe 0x00673090"
+  },
+  "0x0064d0f0": {
+   "name": "plasma::Engine::Engine",
+   "evidence": "base ctor called first in D3D9Engine ctor"
+  },
+  "0x0064e2b0": {
+   "name": "plasma::Engine::`scalar deleting destructor'",
+   "evidence": "plasma::Engine vtable slot 0"
+  },
+  "0x0064f080": {
+   "name": "plasma::Engine::createButton",
+   "evidence": "operator_new + Button ctor; alphabetical factory block 0x0064f080-0x006503e0"
+  },
+  "0x0064f100": {
+   "name": "plasma::Engine::createCurveShape",
+   "evidence": "operator_new + CurveShape ctor; alphabetical factory block 0x0064f080-0x006503e0"
+  },
+  "0x0064f180": {
+   "name": "plasma::Engine::createDisplay",
+   "evidence": "operator_new + Display ctor; alphabetical factory block 0x0064f080-0x006503e0"
+  },
+  "0x0064f200": {
+   "name": "plasma::Engine::createEdit",
+   "evidence": "operator_new + Edit ctor; alphabetical factory block 0x0064f080-0x006503e0"
+  },
+  "0x0064f280": {
+   "name": "plasma::Engine::createGenericShape",
+   "evidence": "operator_new + GenericShape ctor; alphabetical factory block 0x0064f080-0x006503e0"
+  },
+  "0x0064f300": {
+   "name": "plasma::Engine::createListWidget",
+   "evidence": "operator_new + ListWidget ctor; alphabetical factory block 0x0064f080-0x006503e0"
+  },
+  "0x0064f380": {
+   "name": "plasma::Engine::createMeshShape",
+   "evidence": "operator_new + MeshShape ctor; alphabetical factory block 0x0064f080-0x006503e0"
+  },
+  "0x0064f400": {
+   "name": "plasma::Engine::createMovie",
+   "evidence": "operator_new + Movie ctor; alphabetical factory block 0x0064f080-0x006503e0"
+  },
+  "0x0064f4e0": {
+   "name": "plasma::Engine::createNode",
+   "evidence": "new Node(0xf0) + Transformation(0x234) + Display(0x210); about 60 callers incl. GameController ctor"
+  },
+  "0x0064f650": {
+   "name": "plasma::Engine::createPixelFont",
+   "evidence": "operator_new + PixelFont ctor; alphabetical factory block 0x0064f080-0x006503e0"
+  },
+  "0x0064fd30": {
+   "name": "plasma::Engine::createPlasmaFont",
+   "evidence": "operator_new + PlasmaFont ctor; alphabetical factory block 0x0064f080-0x006503e0"
+  },
+  "0x006500d0": {
+   "name": "plasma::Engine::createPopUpButton",
+   "evidence": "operator_new + PopUpButton ctor; alphabetical factory block 0x0064f080-0x006503e0"
+  },
+  "0x00650160": {
+   "name": "plasma::Engine::createScrollButton",
+   "evidence": "operator_new + ScrollButton ctor; alphabetical factory block 0x0064f080-0x006503e0"
+  },
+  "0x006501e0": {
+   "name": "plasma::Engine::createScrollSlider",
+   "evidence": "operator_new + ScrollSlider ctor; alphabetical factory block 0x0064f080-0x006503e0"
+  },
+  "0x00650260": {
+   "name": "plasma::Engine::createSmoothMeshShape",
+   "evidence": "operator_new + SmoothMeshShape ctor; alphabetical factory block 0x0064f080-0x006503e0"
+  },
+  "0x006502e0": {
+   "name": "plasma::Engine::createTextShape",
+   "evidence": "operator_new + TextShape ctor; alphabetical factory block 0x0064f080-0x006503e0"
+  },
+  "0x00650360": {
+   "name": "plasma::Engine::createTransformation",
+   "evidence": "operator_new + Transformation ctor; alphabetical factory block 0x0064f080-0x006503e0"
+  },
+  "0x006503e0": {
+   "name": "plasma::Engine::createWidget",
+   "evidence": "operator_new + Widget ctor; alphabetical factory block 0x0064f080-0x006503e0"
+  },
+  "0x00650e80": {
+   "name": "plasma::Engine::createGlyphShapes",
+   "evidence": "builds SmoothMeshShapes from FreeType outlines (FT_CURVE_TAG_CUBIC string); tentative"
+  },
+  "0x00652710": {
+   "name": "plasma::Engine::injectChar",
+   "evidence": "focused widget slot +0x68; WM_CHAR"
+  },
+  "0x00652730": {
+   "name": "plasma::Engine::injectKeyDown",
+   "evidence": "(vk): stores key at +0xf8, emits the key signal, forwards to the focused widget (+0xcc) slot +0x60 when its enabled byte +0x15c is set; called from WndProc on WM_KEYDOWN (tentative class: ecx is the engine global)"
+  },
+  "0x00652790": {
+   "name": "plasma::Engine::injectKeyUp",
+   "evidence": "same shape, focused widget slot +0x64; WM_KEYUP"
+  },
+  "0x006531e0": {
+   "name": "plasma::Engine::hasTextFocus",
+   "evidence": "checked by GameController key handlers before acting on keys (tentative)"
+  },
+  "0x00653770": {
+   "name": "plasma::Engine::loadFile",
+   "evidence": "opens file; extension PLA -> 0x006555d0, PLG/PLD/PLX -> PlxReader 0x006816c0 + 0x00681c70; called 5x from GameController ctor"
+  },
+  "0x006555d0": {
+   "name": "plasma::PlaReader::read",
+   "evidence": "the .pla branch of loadFile; uses the 0x00654000..0x00659740 constructors"
+  },
+  "0x0065a900": {
+   "name": "plasma::ScalableFont::ScalableFont",
+   "evidence": "writes ScalableFont vftable; size 0x124 (FontEngine::getFont 0x00639800)"
+  },
+  "0x0065ab10": {
+   "name": "plasma::ScalableFont::~ScalableFont",
+   "evidence": "vftable writer"
+  },
+  "0x00661050": {
+   "name": "plasma::Texture::Texture",
+   "evidence": "writes Texture vftable; base of D3D9Texture (0x0068bb90)"
+  },
+  "0x006611d0": {
+   "name": "plasma::Texture::~Texture",
+   "evidence": "vftable writer"
+  },
+  "0x00661480": {
+   "name": "plasma::Attribute::Attribute",
+   "evidence": "writes Attribute vftable; base of every keyed attribute"
+  },
+  "0x00661570": {
+   "name": "plasma::Attribute::~Attribute",
+   "evidence": "vftable writer"
+  },
+  "0x00662730": {
+   "name": "plasma::Object::Object",
+   "evidence": "writes Object vftable; (Engine*) stored at +4; base of every plasma object"
+  },
+  "0x00662760": {
+   "name": "plasma::Object::~Object",
+   "evidence": "Object vftable writer called from NamedObject dtor"
+  },
+  "0x006627a0": {
+   "name": "plasma::Object::`scalar deleting destructor`",
+   "evidence": "Object slot 0"
+  },
+  "0x006627f0": {
+   "name": "plasma::ScrollSlider::ScrollSlider",
+   "evidence": "vftable writer; size 0x254"
+  },
+  "0x00662830": {
+   "name": "plasma::ScrollSlider::`scalar deleting destructor`",
+   "evidence": "slot 0"
+  },
+  "0x00662a00": {
+   "name": "plasma::ScrollSlider::clone",
+   "evidence": "slot 40; new 0x254"
+  },
+  "0x00662b80": {
+   "name": "plasma::ScrollSlider::onMouseDrag",
+   "evidence": "slot 21; Widget::onMouseDrag then clamps the thumb along the track"
+  },
+  "0x00662db0": {
+   "name": "plasma::ScrollSlider::onParentResized",
+   "evidence": "slot 9; Widget::onParentResized then 0x00662860 (re-clamp)"
+  },
+  "0x00663240": {
+   "name": "plasma::TextShape::TextShape",
+   "evidence": "writes TextShape vftable; size 0x21c (0x006502e0)"
+  },
+  "0x00663560": {
+   "name": "plasma::TextShape::~TextShape",
+   "evidence": "vftable writer"
+  },
+  "0x00663c60": {
+   "name": "plasma::TextShape::clone",
+   "evidence": "Shape slot 13; factory 0x006502e0"
+  },
+  "0x00663da0": {
+   "name": "plasma::TextShape::draw",
+   "evidence": "Shape slot 2; under FontEngine lock"
+  },
+  "0x00664770": {
+   "name": "plasma::TextShape::rebuild",
+   "evidence": "Shape slot 1; resolves the font through FontEngine::getFont 0x00639800"
+  },
+  "0x00664a10": {
+   "name": "plasma::Keyable::Keyable",
+   "evidence": "writes Keyable vftable; base ctor of Shape, Transformation, Display"
+  },
+  "0x00664ad0": {
+   "name": "plasma::Keyable::~Keyable",
+   "evidence": "vftable writer"
+  },
+  "0x00664b70": {
+   "name": "plasma::Keyable::`scalar deleting destructor`",
+   "evidence": "slot 0"
+  },
+  "0x00664d60": {
+   "name": "plasma::Button::Button",
+   "evidence": "writes Button vftable; size 0x238 (0x0064f080)"
+  },
+  "0x00664f50": {
+   "name": "plasma::Button::Button(copy)",
+   "evidence": "copy ctor used by clone slots (0x00665550 new 0x238)"
+  },
+  "0x00665160": {
+   "name": "plasma::Button::~Button",
+   "evidence": "vftable writer, dtor"
+  },
+  "0x00665370": {
+   "name": "plasma::Button::`scalar deleting destructor`",
+   "evidence": "slot 0"
+  },
+  "0x00665550": {
+   "name": "plasma::Button::clone",
+   "evidence": "slot 40; new 0x238 + copy ctor"
+  },
+  "0x006655d0": {
+   "name": "plasma::Button::update",
+   "evidence": "slot 7; calls Widget::update 0x0062a8b0 first"
+  },
+  "0x006659d0": {
+   "name": "plasma::Button::onMouseDoubleClick",
+   "evidence": "slot 13; jumps to slot 11 (press)"
+  },
+  "0x006659e0": {
+   "name": "plasma::Button::onMousePress",
+   "evidence": "slot 11; captures mouse, starts auto-repeat (+0x230=-500 ms, +0x234=150 ms), toggle/radio groups (+0x22c type 1/2, +0x229 checked), fires press event (+0x160/+0x1c0)"
+  },
+  "0x00665ac0": {
+   "name": "plasma::Button::onMouseRelease",
+   "evidence": "slot 12; releases capture, fires release event (+0x178/+0x1d8)"
+  },
+  "0x00665b00": {
+   "name": "plasma::Button::onMouseEnter",
+   "evidence": "slot 22; fires hover event (+0x190/+0x1f0)"
+  },
+  "0x00665b30": {
+   "name": "plasma::Button::onMouseLeave",
+   "evidence": "slot 23; fires leave event (+0x1a8/+0x208)"
+  },
+  "0x00665b60": {
+   "name": "plasma::Button::tick",
+   "evidence": "slot 27; while pressed accumulates engine+0xe4 (frame ms) and fires repeat event 0x15, interval shrinking by 10 ms down to 50 ms"
+  },
+  "0x00666580": {
+   "name": "plasma::MeshShape::MeshShape",
+   "evidence": "writes MeshShape vftable and constructs its keyed attributes inline; size 0x8e4 (0x0064f380)"
+  },
+  "0x006674b0": {
+   "name": "plasma::MeshShape::~MeshShape",
+   "evidence": "vftable writer"
+  },
+  "0x00668ea0": {
+   "name": "plasma::Attribute::addKey",
+   "evidence": "slot 2: push_back of the working value, returns the new index"
+  },
+  "0x00669060": {
+   "name": "plasma::MeshShape::getSize",
+   "evidence": "Shape slot 7 returns +0x880 (Vec2); tentative"
+  },
+  "0x00669080": {
+   "name": "plasma::MeshShape::getPosition",
+   "evidence": "Shape slot 6 returns +0x878 (Vec2)"
+  },
+  "0x006690a0": {
+   "name": "plasma::MeshShape::clone",
+   "evidence": "Shape slot 13; factory 0x0064f380"
+  },
+  "0x00669310": {
+   "name": "plasma::Attribute::removeKey",
+   "evidence": "slot 4 (i): erase"
+  },
+  "0x00669630": {
+   "name": "plasma::Attribute::loadKey",
+   "evidence": "slot 3 (i): working slot (index +0x20) = key[i]"
+  },
+  "0x00669c70": {
+   "name": "plasma::ContinuousAttribute<float>::interpolate",
+   "evidence": "slot 6; tentative"
+  },
+  "0x0066a950": {
+   "name": "plasma::ContinuousAttribute<Vector3>::interpolate",
+   "evidence": "slot 6; tentative"
+  },
+  "0x0066b020": {
+   "name": "plasma::Attribute::storeKey",
+   "evidence": "slot 5 (i): key[i] = working slot"
+  },
+  "0x0066b1f0": {
+   "name": "plasma::MeshShape::invalidateAppearance",
+   "evidence": "Shape slot 11: attribute at +0x5c vtable slot 3 (1); tentative"
+  },
+  "0x0066be80": {
+   "name": "plasma::MeshShape::invalidateGeometry",
+   "evidence": "Shape slot 10: attribute at +0x5c vtable slot 5 (1); tentative"
+  },
+  "0x0066cc10": {
+   "name": "std::for_each<QuadEdge>_accumulate",
+   "evidence": "serial loop calling 0x0066ec30 per 0x4c-byte edge"
+  },
+  "0x0066cc90": {
+   "name": "std::for_each<QuadFace>_accumulate",
+   "evidence": "serial loop calling 0x0066f1d0 per 0x7c-byte face"
+  },
+  "0x0066df80": {
+   "name": "parallel_for_each<QuadVertex*>_resetAccumulators",
+   "evidence": "Concurrency parallel_for_each wrapper -> 0x0066dcb0 -> 0x0066cd60 (_Parallel_chunk_helper, _Schedule/_RunAndWait)"
+  },
+  "0x0066dff0": {
+   "name": "parallel_for_each<QuadVertex*>_vertexPoints",
+   "evidence": "-> 0x0066dd80 -> 0x0066d070; body 0x0066f380"
+  },
+  "0x0066e060": {
+   "name": "parallel_for_each<QuadEdge>_edgePoints",
+   "evidence": "-> 0x0066de00 -> 0x0066d380; body 0x0066eef0; QuadEdge is 0x4c bytes"
+  },
+  "0x0066e0d0": {
+   "name": "parallel_for_each<QuadEdge>_finish",
+   "evidence": "-> 0x0066de80 -> 0x0066d690; body 0x0066f280"
+  },
+  "0x0066e140": {
+   "name": "parallel_for_each<QuadFace>_facePoints",
+   "evidence": "-> 0x0066df00 -> 0x0066d9a0; body 0x0066ed80; QuadFace is 0x7c bytes"
+  },
+  "0x00671f80": {
+   "name": "plasma::QuadMesh::subdivisionStep",
+   "evidence": "(t): 7 passes over concurrent_vectors: parallel vertices reset, parallel faces, parallel edges (1-t,t), serial edges (0x0066cc10), serial faces (0x0066cc90), parallel vertices (t,1-t), parallel edges"
+  },
+  "0x00672a00": {
+   "name": "plasma::Drawing::Drawing",
+   "evidence": "writes Drawing vftable; base ctor of D3D9Drawing 0x0068a970"
+  },
+  "0x00672ba0": {
+   "name": "plasma::Drawing::~Drawing",
+   "evidence": "vftable writer"
+  },
+  "0x00673090": {
+   "name": "plasma::Drawing::tessellateWithFringe",
+   "evidence": "tessellate() then, per outline contour at +0x100, emits screen-space edge quads (anti-alias fringe) using the matrix argument and signed area"
+  },
+  "0x006751d0": {
+   "name": "plasma::Drawing::tessCombineCallback",
+   "evidence": "GLU_TESS_COMBINE_DATA: weights 4 vertices into new position/uv/colour/colour2 entries, returns new index"
+  },
+  "0x00675670": {
+   "name": "plasma::Drawing::tessVertexCallback",
+   "evidence": "GLU_TESS_VERTEX_DATA: push index into +0x34"
+  },
+  "0x00675690": {
+   "name": "plasma::Drawing::tessellate",
+   "evidence": "gluNewTess; callbacks VERTEX_DATA 0x00675670, COMBINE_DATA 0x006751d0, EDGE_FLAG 0x00675660 (no-op, forces GL_TRIANGLES); WINDING_RULE = NONZERO; one contour per vector<int> at +0x40, vertex xy from +4"
+  },
+  "0x00675800": {
+   "name": "plasma::Drawing::update",
+   "evidence": "plasma::Drawing vtable slot 1; called first by D3D9Drawing::update"
+  },
+  "0x00677290": {
+   "name": "plasma::StaticMeshShape::StaticMeshShape",
+   "evidence": "writes StaticMeshShape vftable; size 0x78 (0x00641180)"
+  },
+  "0x006772c0": {
+   "name": "plasma::StaticMeshShape::`scalar deleting destructor`",
+   "evidence": "slot 0"
+  },
+  "0x00677bc0": {
+   "name": "plasma::Movie::Movie",
+   "evidence": "writes Movie vftable; size 0x34 (0x0064f400)"
+  },
+  "0x00677ce0": {
+   "name": "plasma::Movie::`scalar deleting destructor`",
+   "evidence": "slot 0"
+  },
+  "0x00678080": {
+   "name": "plasma::Transformation::Transformation",
+   "evidence": "writes Transformation vftable (Keyable base); size 0x234 (0x00650360); keyed translation/rotation/pivot/deformation"
+  },
+  "0x00678370": {
+   "name": "plasma::Transformation::~Transformation",
+   "evidence": "vftable writer"
+  },
+  "0x006784f0": {
+   "name": "plasma::Transformation::`scalar deleting destructor`",
+   "evidence": "slot 0"
+  },
+  "0x00678550": {
+   "name": "plasma::Transformation::clone",
+   "evidence": "Keyable slot 2: factory 0x00650360 then copies the attributes"
+  },
+  "0x00678600": {
+   "name": "plasma::Transformation::evaluate",
+   "evidence": "Keyable slot 1 (2282 bytes, sin/cos): builds the node matrix from the current keys; tentative"
+  },
+  "0x00678ef0": {
+   "name": "plasma::Display::Display",
+   "evidence": "writes Display vftable; size 0x210 (0x0064f180); visibility/clipping/fill/stroke colour/blur"
+  },
+  "0x006792a0": {
+   "name": "plasma::Display::~Display",
+   "evidence": "vftable writer"
+  },
+  "0x00679460": {
+   "name": "plasma::Display::`scalar deleting destructor`",
+   "evidence": "slot 0"
+  },
+  "0x00679490": {
+   "name": "plasma::Display::clone",
+   "evidence": "Keyable slot 2: factory 0x0064f180 then copies attributes"
+  },
+  "0x00679e80": {
+   "name": "plasma::CurveShape::CurveShape",
+   "evidence": "writes CurveShape vftable; size 0x3f8 (0x0064f100)"
+  },
+  "0x0067a470": {
+   "name": "plasma::CurveShape::~CurveShape",
+   "evidence": "vftable writer"
+  },
+  "0x0067a930": {
+   "name": "plasma::CurveShape::clone",
+   "evidence": "Shape slot 13; factory 0x0064f100"
+  },
+  "0x0067bd60": {
+   "name": "plasma::CurveShape::rebuild",
+   "evidence": "Shape slot 1 (3984 bytes)"
+  },
+  "0x0067cff0": {
+   "name": "plasma::GenericShape::GenericShape",
+   "evidence": "writes GenericShape vftable; size 0x8c (0x0064f280); instances another source by GenericShape.source"
+  },
+  "0x0067d0b0": {
+   "name": "plasma::GenericShape::`scalar deleting destructor`",
+   "evidence": "slot 0 / vftable writer"
+  },
+  "0x0067d1b0": {
+   "name": "plasma::GenericShape::clone",
+   "evidence": "Shape slot 13; factory 0x0064f280"
+  },
+  "0x0067d450": {
+   "name": "plasma::ScrollButton::ScrollButton",
+   "evidence": "vftable writer; size 0x24c"
+  },
+  "0x0067d4a0": {
+   "name": "plasma::ScrollButton::`scalar deleting destructor`",
+   "evidence": "slot 0"
+  },
+  "0x0067d4d0": {
+   "name": "plasma::ScrollButton::clone",
+   "evidence": "slot 40; new 0x24c"
+  },
+  "0x0067d9f0": {
+   "name": "plasma::ListWidget::ListWidget",
+   "evidence": "vftable writer; size 0x160"
+  },
+  "0x0067da20": {
+   "name": "plasma::ListWidget::`scalar deleting destructor`",
+   "evidence": "slot 0"
+  },
+  "0x0067da50": {
+   "name": "plasma::ListWidget::clone",
+   "evidence": "slot 40; new 0x160"
+  },
+  "0x0067dae0": {
+   "name": "plasma::PopUpButton::PopUpButton",
+   "evidence": "vftable writer; size 0x240"
+  },
+  "0x0067db20": {
+   "name": "plasma::PopUpButton::`scalar deleting destructor`",
+   "evidence": "slot 0"
+  },
+  "0x0067db50": {
+   "name": "plasma::PopUpButton::clone",
+   "evidence": "slot 40; new 0x240"
+  },
+  "0x0067dd70": {
+   "name": "plasma::PopUpButton::slot30",
+   "evidence": "only PopUpButton overrides slot 30; opens the pop-up list (calls 0x006653a0, 0x006326a0); tentative"
+  },
+  "0x0067e210": {
+   "name": "plasma::PlasmaFont::PlasmaFont",
+   "evidence": "writes PlasmaFont vftable; size 0x70 (0x0064fd30)"
+  },
+  "0x0067e2a0": {
+   "name": "plasma::PlasmaFont::~PlasmaFont",
+   "evidence": "vftable writer"
+  },
+  "0x0067e440": {
+   "name": "plasma::PlasmaFont::getCellSize",
+   "evidence": "Font slot 3: (+0x60, +0x64) * 0.005 * size(+0x4c); tentative"
+  },
+  "0x0067f290": {
+   "name": "plasma::PixelFont::PixelFont",
+   "evidence": "writes PixelFont vftable; size 0x74 (0x0064f650)"
+  },
+  "0x0067f330": {
+   "name": "plasma::PixelFont::~PixelFont",
+   "evidence": "vftable writer"
+  },
+  "0x0067f400": {
+   "name": "plasma::PixelFont::getOffset",
+   "evidence": "Font slot 4: returns +0x6c/+0x70; tentative"
+  },
+  "0x0067f420": {
+   "name": "plasma::PixelFont::getCellSize",
+   "evidence": "Font slot 3: returns +0x64/+0x68; tentative"
+  },
+  "0x00681220": {
+   "name": "plasma::ChunkReader::readInt",
+   "evidence": "read 4 bytes"
+  },
+  "0x00681240": {
+   "name": "plasma::ChunkReader::readFloat",
+   "evidence": "read 4 bytes"
+  },
+  "0x006816c0": {
+   "name": "plasma::PlxReader::PlxReader",
+   "evidence": "constructed in loadFile"
+  },
+  "0x00681c70": {
+   "name": "plasma::PlxReader::read",
+   "evidence": "chunk loop: PlasmaGraphics (version<=1), Seal (key selection), Texture, TextShape, SmoothMeshShape, GenericShape, Transformation, Display, Widget, Button, ListWidget, Edit, ScrollButton, ScrollSlider, PopUpButton, Node, pageWidth/pageHeight/dpi/unit/pageColor; else skip"
+  },
+  "0x00683070": {
+   "name": "plasma::PlxReader::readButton",
+   "evidence": "Button.type; creates Button via 0x0064f080"
+  },
+  "0x00683270": {
+   "name": "plasma::PlxReader::readDisplay",
+   "evidence": "Display.* field tags"
+  },
+  "0x00683750": {
+   "name": "plasma::PlxReader::readEdit",
+   "evidence": "Edit chunk"
+  },
+  "0x00683870": {
+   "name": "plasma::PlxReader::readGenericShape",
+   "evidence": "GenericShape.* field tags"
+  },
+  "0x00683de0": {
+   "name": "plasma::PlxReader::readListWidget",
+   "evidence": "ListWidget chunk"
+  },
+  "0x00683f00": {
+   "name": "plasma::PlxReader::readNode",
+   "evidence": "Node.* field tags; first Node is the root"
+  },
+  "0x00684770": {
+   "name": "plasma::PlxReader::readPopUpButton",
+   "evidence": "Button.type"
+  },
+  "0x00684970": {
+   "name": "plasma::PlxReader::readScrollButton",
+   "evidence": "ScrollButton.direction, Button.type"
+  },
+  "0x00684c30": {
+   "name": "plasma::PlxReader::readScrollSlider",
+   "evidence": "ScrollSlider.direction, Button.type"
+  },
+  "0x00684ef0": {
+   "name": "plasma::PlxReader::readSmoothMeshShape",
+   "evidence": "SmoothMeshShape.* field tags"
+  },
+  "0x00685b10": {
+   "name": "plasma::PlxReader::readTextShape",
+   "evidence": "TextShape.* field tags"
+  },
+  "0x00686820": {
+   "name": "plasma::PlxReader::readTexture",
+   "evidence": "Texture.* field tags"
+  },
+  "0x00686ff0": {
+   "name": "plasma::PlxReader::readTransformation",
+   "evidence": "Transformation.* field tags"
+  },
+  "0x00687440": {
+   "name": "plasma::PlxReader::readWidget",
+   "evidence": "Widget chunk"
+  },
+  "0x00687b10": {
+   "name": "plasma::hashString64",
+   "evidence": "h = 0x0003ffffffffffe5; h = h*31 + byte (u64); key = hash(\"PlasmaXGraphics\") = 0xfb3a260b5ec7cd5c"
+  },
+  "0x00687b80": {
+   "name": "plasma::Shape::Shape",
+   "evidence": "writes Shape vftable; base ctor of TextShape, MeshShape, StaticMeshShape, CurveShape, GenericShape"
+  },
+  "0x00687c20": {
+   "name": "plasma::Shape::~Shape",
+   "evidence": "vftable writer"
+  },
+  "0x00687c60": {
+   "name": "plasma::Shape::`scalar deleting destructor`",
+   "evidence": "slot 0"
+  },
+  "0x00687cf0": {
+   "name": "plasma::zeroVector2Stub",
+   "evidence": "shared stub: writes (0,0) to out param (Widget slots 2,3; Shape slots 6,7)"
+  },
+  "0x00687d20": {
+   "name": "plasma::Font::Font",
+   "evidence": "writes Font vftable; base of PixelFont and PlasmaFont"
+  },
+  "0x00687ec0": {
+   "name": "plasma::Font::~Font",
+   "evidence": "vftable writer"
+  },
+  "0x006880c0": {
+   "name": "plasma::plxDecrypt",
+   "evidence": "out[t] = in[i] - keybyte[t & 7], t = (i + key_lo % n) % n; key = u64; verified on gui.plx"
+  },
+  "0x00688180": {
+   "name": "plasma::ChunkReader::enterChunk",
+   "evidence": "int32 size; pushes end offset"
+  },
+  "0x00688220": {
+   "name": "plasma::ChunkReader::readTag",
+   "evidence": "int32 id; id 0 defines a new (encrypted) name then re-reads; returns the name"
+  },
+  "0x00688490": {
+   "name": "plasma::ChunkReader::leaveChunk",
+   "evidence": "checks position == end, pops"
+  },
+  "0x00688510": {
+   "name": "plasma::ChunkReader::readString",
+   "evidence": "int32 length + bytes"
+  },
+  "0x006886f0": {
+   "name": "plasma::ChunkReader::skipChunk",
+   "evidence": "int32 size; seekg forward"
+  },
+  "0x006887a0": {
+   "name": "plasma::D3D9Engine::D3D9Engine",
+   "evidence": "writes plasma::D3D9Engine::vftable after base ctor 0x0064d0f0; device stored at +0x2c0; allocated with operator_new(0x2d0) in initDirect3D"
+  },
+  "0x00688af0": {
+   "name": "plasma::D3D9Engine::`scalar deleting destructor'",
+   "evidence": "D3D9Engine vtable slot 0"
+  },
+  "0x00688b60": {
+   "name": "plasma::D3D9Engine::beginFrame",
+   "evidence": "vtable slot 19: 2D render states (CULL none, LIGHTING off, ZENABLE off, STENCIL off, alpha blend SRCALPHA/INVSRCALPHA, separate alpha ONE/INVSRCALPHA), sampler 1 address mode, ortho projection at +0x264 from viewport +0x10c/+0x110, GetRenderTarget(0) into +0x2cc, optional Clear"
+  },
+  "0x00688db0": {
+   "name": "plasma::D3D9Engine::pushTransform",
+   "evidence": "vtable slot 21: pushes +0x224 onto std::list at +0x2b0, multiplies by node matrix at (arg+0x38)+0x1b0"
+  },
+  "0x00688e70": {
+   "name": "plasma::D3D9Engine::bindWidgetShader",
+   "evidence": "vtable slot 16: widget bind matrices, textureEnabled/filter/opacity/brightness/contrast/saturation PS constants, SetVertexDeclaration(+0x19c), SetVertexShader(+0x194), SetPixelShader(+0x198)"
+  },
+  "0x00689130": {
+   "name": "plasma::D3D9Engine::beginRenderSurface",
+   "evidence": "vtable slot 25: (surface,pos,size,scale,pixelSnap) binds the surface, pushes the projection (+0x264) onto list +0x2a8 and builds an ortho projection for the rect"
+  },
+  "0x00689660": {
+   "name": "plasma::D3D9Engine::createDrawing",
+   "evidence": "vtable slot 12: operator_new(0x140) + D3D9Drawing ctor 0x0068a970"
+  },
+  "0x006896d0": {
+   "name": "plasma::D3D9Engine::createRenderSurface",
+   "evidence": "vtable slot 13: operator_new(0x4c) + D3D9RenderSurface ctor 0x0068bf70 (base returns null)"
+  },
+  "0x00689740": {
+   "name": "plasma::D3D9Engine::createTexture",
+   "evidence": "vtable slot 2: operator_new(0x60) + D3D9Texture ctor 0x0068bb90"
+  },
+  "0x006897c0": {
+   "name": "plasma::D3D9Engine::drawCaret",
+   "evidence": "vtable slot 3: blinks on (+0xe8 ms / 500) & 1; FVF 0x42, BLENDOP SUBTRACT, DrawPrimitiveUP(D3DPT_LINELIST, 1)"
+  },
+  "0x00689950": {
+   "name": "plasma::D3D9Engine::drawInvertedRect",
+   "evidence": "vtable slot 4: FVF 0x42, BLENDOP SUBTRACT, DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2) of a black-alpha rect (text selection highlight)"
+  },
+  "0x00689af0": {
+   "name": "plasma::D3D9Engine::drawTexturedRect",
+   "evidence": "vtable slot 5: (pos,size,uvPos,uvSize,color) builds 4 x 48-byte GUI vertices, DrawPrimitiveUP(TRIANGLEFAN, 2, stride 0x30)"
+  },
+  "0x00689d50": {
+   "name": "plasma::D3D9Engine::drawColoredRect",
+   "evidence": "vtable slot 6: sets textureEnabled/widgetDeformationEnabled bool constants false, DrawPrimitiveUP(TRIANGLEFAN, 2, stride 0x30)"
+  },
+  "0x00689f30": {
+   "name": "plasma::D3D9Engine::drawQuad",
+   "evidence": "fills dynamic VB +0x2c4 (4 x 48 B), Proj constant, SetStreamSource(stride 0x30), SetIndices(+0x2c8), DrawIndexedPrimitive(TRIANGLELIST, 4 verts, 2 prims); used by render-surface compositing"
+  },
+  "0x0068a250": {
+   "name": "plasma::D3D9Engine::endFrame",
+   "evidence": "vtable slot 20: releases the back-buffer surface at +0x2cc"
+  },
+  "0x0068a260": {
+   "name": "plasma::D3D9Engine::popTransform",
+   "evidence": "vtable slot 22: restores +0x224 from the list tail at +0x2b0"
+  },
+  "0x0068a2c0": {
+   "name": "plasma::D3D9Engine::endRenderSurface",
+   "evidence": "vtable slot 26: ends surface, pops projection list +0x2a8 into +0x264"
+  },
+  "0x0068a330": {
+   "name": "plasma::D3D9Engine::getTransform",
+   "evidence": "vtable slot 14: copies the 4x4 at +0x224 out"
+  },
+  "0x0068a350": {
+   "name": "plasma::D3D9Engine::init",
+   "evidence": "vtable slot 1 (base returns true); CreateVertexDeclaration (48-byte GUI vertex), CreateVertexShader 0x00720558/0x007212c0, CreatePixelShader x7, constant register table +0x1c4..+0x208, dynamic quad VB 0xc0 bytes, static quad IB (INDEX32, 0,1,2,2,3,0)"
+  },
+  "0x0068a6b0": {
+   "name": "plasma::D3D9Engine::onResetDevice",
+   "evidence": "recreates quad VB (CreateVertexBuffer 0xc0, DYNAMIC|WRITEONLY, DEFAULT) and each D3D9Drawing's buffers (0x0068b6a0); called after Reset"
+  },
+  "0x0068a710": {
+   "name": "plasma::D3D9Engine::onLostDevice",
+   "evidence": "releases quad VB +0x2c4, textures in vector +0x38, D3D9RenderSurface (RTTI dynamic_cast) resources, every D3D9Drawing's buffers (0x0068ab30); called before IDirect3DDevice9::Reset"
+  },
+  "0x0068a7e0": {
+   "name": "plasma::D3D9Engine::setTransform",
+   "evidence": "vtable slot 15: copies a 4x4 into +0x224"
+  },
+  "0x0068a800": {
+   "name": "plasma::D3D9Engine::uploadMatrices",
+   "evidence": "vtable slot 18: SetVertexShaderConstantF of Proj (+0x264), WorldView (+0x224) and NormalMatrix (inverse-transpose via 0x0058c440) with transpose helper 0x004490f0"
+  },
+  "0x0068a910": {
+   "name": "plasma::D3D9Engine::uploadProjection",
+   "evidence": "SetVertexShaderConstantF from the projection matrix (tentative)"
+  },
+  "0x0068a970": {
+   "name": "plasma::D3D9Drawing::D3D9Drawing",
+   "evidence": "base plasma::Drawing ctor 0x00672a00, writes plasma::D3D9Drawing::vftable, engine at +0x124, registers in engine list +0x2b8; size 0x140"
+  },
+  "0x0068ab00": {
+   "name": "plasma::D3D9Drawing::`scalar deleting destructor'",
+   "evidence": "D3D9Drawing vtable slot 0"
+  },
+  "0x0068ab30": {
+   "name": "plasma::D3D9Drawing::onLostDevice",
+   "evidence": "releases VB +0x128 and IB +0x12c"
+  },
+  "0x0068ab70": {
+   "name": "plasma::D3D9Drawing::draw",
+   "evidence": "vtable slot 2: binds widget shader state, mask/texture samplers, VS/PS constants, SetStreamSource(stride 0x30), SetIndices, DrawIndexedPrimitive(TRIANGLELIST)"
+  },
+  "0x0068b6a0": {
+   "name": "plasma::D3D9Drawing::onResetDevice",
+   "evidence": "recreates VB/IB from CPU copies +0x130/+0x134"
+  },
+  "0x0068b7f0": {
+   "name": "plasma::D3D9Drawing::update",
+   "evidence": "vtable slot 1: base update 0x00675800, then (re)creates VB (n*0x30, DYNAMIC|WRITEONLY, DEFAULT) and IB (INDEX32) and fills interleaved pos/color/uv0/uv1/uv2 48-byte vertices; keeps CPU copies at +0x130/+0x134 for device reset"
+  },
+  "0x0068bb90": {
+   "name": "plasma::D3D9Texture::D3D9Texture",
+   "evidence": "base ctor 0x00661050, writes plasma::D3D9Texture::vftable, engine at +0x5c, IDirect3DTexture9* at +0x58; size 0x60"
+  },
+  "0x0068bc10": {
+   "name": "plasma::D3D9Texture::`scalar deleting destructor'",
+   "evidence": "D3D9Texture vtable slot 0; releases +0x58"
+  },
+  "0x0068bc90": {
+   "name": "plasma::D3D9Texture::bind",
+   "evidence": "vtable slot 1 (stage): SetTexture, sampler MAG/MIN/MIP filter from +0x34/+0x38, ADDRESSU/V from +0x3c/+0x40"
+  },
+  "0x0068bde0": {
+   "name": "plasma::D3D9Texture::upload",
+   "evidence": "vtable slot 2 (pixels): CreateTexture(w +0x44, h +0x48, levels, 0, A8R8G8B8 or R8G8B8, MANAGED), LockRect, RGBA->BGRA swizzle copy"
+  },
+  "0x0068bf70": {
+   "name": "plasma::D3D9RenderSurface::D3D9RenderSurface",
+   "evidence": "operator_new(0x4c) in createRenderSurface; engine at +0x34; size 0x4c"
+  },
+  "0x0068bfc0": {
+   "name": "plasma::D3D9RenderSurface::`scalar deleting destructor'",
+   "evidence": "D3D9RenderSurface vtable slot 0"
+  },
+  "0x0068c050": {
+   "name": "plasma::D3D9RenderSurface::bindTexture",
+   "evidence": "vtable slot 4: SetTexture(stage, +0x38) and three sampler states"
+  },
+  "0x0068c0c0": {
+   "name": "plasma::D3D9RenderSurface::clearRect",
+   "evidence": "vtable slot 8: projects the rect through the engine transforms, IDirect3DDevice9::Clear(1 rect, TARGET|ZBUFFER|STENCIL)"
+  },
+  "0x0068c6e0": {
+   "name": "plasma::D3D9RenderSurface::clear",
+   "evidence": "vtable slot 9: IDirect3DDevice9::Clear"
+  },
+  "0x0068c770": {
+   "name": "plasma::D3D9RenderSurface::end",
+   "evidence": "vtable slot 3: restores saved render target and depth surface"
+  },
+  "0x0068c7c0": {
+   "name": "plasma::D3D9RenderSurface::drawCopy",
+   "evidence": "vtable slot 5: engine VS +0x1a0 with PS +0x1a4/+0x1ac, SetVertexDeclaration +0x19c (tentative role)"
+  },
+  "0x0068cad0": {
+   "name": "plasma::D3D9RenderSurface::drawBlurred",
+   "evidence": "vtable slot 6: engine blur pixel shaders +0x1b4 (ps_3_0) / +0x1b8 (ps_2_0) with blurScale constant (tentative role)"
+  },
+  "0x0068cf10": {
+   "name": "plasma::D3D9RenderSurface::drawScaled",
+   "evidence": "vtable slot 7: engine PS +0x1a4/+0x1a8/+0x1ac with textureScale constant (tentative role)"
+  },
+  "0x0068d290": {
+   "name": "plasma::D3D9RenderSurface::begin",
+   "evidence": "vtable slot 2: saves current render target/depth surface, SetRenderTarget/SetDepthStencilSurface to own"
+  },
+  "0x0068d350": {
+   "name": "plasma::D3D9RenderSurface::resize",
+   "evidence": "vtable slot 1 (w,h): CreateTexture RENDERTARGET A8R8G8B8 DEFAULT into +0x38, GetSurfaceLevel into +0x3c, CreateDepthStencilSurface D24S8 into +0x40"
+  },
+  "0x0068e1e0": {
+   "name": "entry",
+   "evidence": "CRT WinMainCRTStartup: initterm, skips argv[0] in _acmdln, calls WinMain(0x400000, 0, cmdline, showMode)"
+  }
+ }
+}

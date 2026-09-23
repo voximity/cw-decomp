@@ -1,0 +1,16 @@
+[package]
+name = "cw-math"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Bit-exact math primitives of Cube World Alpha: value noise, MSVC rand, fixed-point positions"
+
+[features]
+default = []
+# Use the platform C library for transcendental functions instead of the deterministic ports.
+# Faster, but results can differ in the last bit between Windows, Linux and macOS, which breaks
+# Tier A reproducibility. Off by default: accuracy over native performance.
+native-libm = []
+
+[dependencies]

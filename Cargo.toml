@@ -1,0 +1,12 @@
+[workspace]
+resolver = "3"
+members = ["crates/cw-formats", "crates/cw-cli", "crates/cw-math", "crates/cw-world", "crates/cw-net", "crates/cw-sim", "crates/cw-server", "crates/cw-render", "crates/cw-ui", "crates/cw-client"]
+
+[workspace.package]
+edition = "2024"
+rust-version = "1.97"
+license = "MIT OR Apache-2.0"
+
+[workspace.dependencies]
+thiserror = "2"
+rusqlite = { version = "0.38", features = ["bundled"] }

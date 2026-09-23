@@ -1,0 +1,7 @@
+# Server.exe, seed 26879, first ServerUpdate after the first join (player level 1 at the world
+# spawn): the four mission records of activateRegionMissions(512, 512), in order.
+# cell_x cell_y words[0..5] b40 b41 tail[0..4]
+4100 4102 0 20260 5 43 1 0 0 0 19 32803 32819
+4101 4102 0 1665 5 43 1 0 0 0 19 32812 32819
+4098 4103 0 4116 1 108 1 0 0 0 0 32788 32826
+4102 4097 0 567 1 119 1 0 0 0 0 32820 32781

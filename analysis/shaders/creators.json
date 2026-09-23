@@ -1,0 +1,226 @@
+{
+  "0x006fd928": {
+    "creator": "0x00447e10",
+    "creator_class": "cube::CubeShader",
+    "creator_note": "CubeShader::init (called from 0x004c8720); device vtable +0x16c CreateVertexShader / +0x1a8 CreatePixelShader",
+    "vertex_declaration": "cube (0x00447e10): stride 8; [0] UBYTE4 POSITION0 @0 (xyz = block position, w = face index 0..5); [1] D3DCOLOR COLOR0 @4",
+    "object_field": "CubeShader+0x04",
+    "bound_by": [
+      "0x00447d10",
+      "0x00447d50",
+      "0x00447d90",
+      "0x00447dd0"
+    ],
+    "paired_with": [
+      "01",
+      "02",
+      "03",
+      "05"
+    ],
+    "use": "world vertex shader: every block mesh (terrain, creatures, items, sky quad, water, clouds)"
+  },
+  "0x006feb50": {
+    "creator": "0x00447e10",
+    "creator_class": "cube::CubeShader",
+    "creator_note": "CubeShader::init (called from 0x004c8720); device vtable +0x16c CreateVertexShader / +0x1a8 CreatePixelShader",
+    "vertex_declaration": "cube (0x00447e10): stride 8; [0] UBYTE4 POSITION0 @0 (xyz = block position, w = face index 0..5); [1] D3DCOLOR COLOR0 @4",
+    "object_field": "CubeShader+0x08",
+    "bound_by": [
+      "0x00447d10"
+    ],
+    "paired_with": [
+      "00"
+    ],
+    "use": "opaque/alpha world geometry: blocks, creatures, items (20 call sites)"
+  },
+  "0x006fefa0": {
+    "creator": "0x00447e10",
+    "creator_class": "cube::CubeShader",
+    "creator_note": "CubeShader::init (called from 0x004c8720); device vtable +0x16c CreateVertexShader / +0x1a8 CreatePixelShader",
+    "vertex_declaration": "cube (0x00447e10): stride 8; [0] UBYTE4 POSITION0 @0 (xyz = block position, w = face index 0..5); [1] D3DCOLOR COLOR0 @4",
+    "object_field": "CubeShader+0x0c",
+    "bound_by": [
+      "0x00447d90"
+    ],
+    "paired_with": [
+      "00"
+    ],
+    "use": "sky background (GameController::render 0x004adeb1, DrawPrimitiveUP fan)"
+  },
+  "0x006ff1d0": {
+    "creator": "0x00447e10",
+    "creator_class": "cube::CubeShader",
+    "creator_note": "CubeShader::init (called from 0x004c8720); device vtable +0x16c CreateVertexShader / +0x1a8 CreatePixelShader",
+    "vertex_declaration": "cube (0x00447e10): stride 8; [0] UBYTE4 POSITION0 @0 (xyz = block position, w = face index 0..5); [1] D3DCOLOR COLOR0 @4",
+    "object_field": "CubeShader+0x14",
+    "bound_by": [
+      "0x00447dd0"
+    ],
+    "paired_with": [
+      "00"
+    ],
+    "use": "water surface (GameController::render 0x004ba157, per-zone second mesh, cull none)"
+  },
+  "0x006ff5c0": {
+    "creator": "0x00447e10",
+    "creator_class": "cube::CubeShader",
+    "creator_note": "CubeShader::init (called from 0x004c8720); device vtable +0x16c CreateVertexShader / +0x1a8 CreatePixelShader",
+    "vertex_declaration": "cube (0x00447e10): stride 8; [0] UBYTE4 POSITION0 @0 (xyz = block position, w = face index 0..5); [1] D3DCOLOR COLOR0 @4",
+    "object_field": "CubeShader+0x18",
+    "bound_by": [],
+    "paired_with": [
+      "00"
+    ],
+    "use": "created but never bound (no SetPixelShader site pushes CubeShader+0x18)"
+  },
+  "0x006ff7c8": {
+    "creator": "0x00447e10",
+    "creator_class": "cube::CubeShader",
+    "creator_note": "CubeShader::init (called from 0x004c8720); device vtable +0x16c CreateVertexShader / +0x1a8 CreatePixelShader",
+    "vertex_declaration": "cube (0x00447e10): stride 8; [0] UBYTE4 POSITION0 @0 (xyz = block position, w = face index 0..5); [1] D3DCOLOR COLOR0 @4",
+    "object_field": "CubeShader+0x10",
+    "bound_by": [
+      "0x00447d50"
+    ],
+    "paired_with": [
+      "00"
+    ],
+    "use": "clouds (GameController::render 0x004b1489, 7x7 drifting cloud grid)"
+  },
+  "0x00720558": {
+    "creator": "0x0068a350",
+    "creator_class": "plasma::D3D9Engine",
+    "creator_note": "D3D9Engine vtable slot 1 (0x00722588), device init of the GUI/2D shader set",
+    "vertex_declaration": "gui (0x0068a350): stride 48; FLOAT2 POSITION0 @0, FLOAT4 COLOR0 @8, FLOAT2 TEXCOORD0 @24, FLOAT2 TEXCOORD1 @32, FLOAT2 TEXCOORD2 @40",
+    "object_field": "D3D9Engine+0x194",
+    "bound_by": [
+      "0x00688e70",
+      "0x0068ab70"
+    ],
+    "paired_with": [
+      "07"
+    ],
+    "use": "GUI widget / vector shape vertex shader"
+  },
+  "0x00720e28": {
+    "creator": "0x0068a350",
+    "creator_class": "plasma::D3D9Engine",
+    "creator_note": "D3D9Engine vtable slot 1 (0x00722588), device init of the GUI/2D shader set",
+    "vertex_declaration": "gui (0x0068a350): stride 48; FLOAT2 POSITION0 @0, FLOAT4 COLOR0 @8, FLOAT2 TEXCOORD0 @24, FLOAT2 TEXCOORD1 @32, FLOAT2 TEXCOORD2 @40",
+    "object_field": "D3D9Engine+0x198",
+    "bound_by": [
+      "0x00688e70",
+      "0x0068ab70"
+    ],
+    "paired_with": [
+      "06"
+    ],
+    "use": "GUI widget pixel shader: colour, texture with brightness/contrast/saturation, mask modes"
+  },
+  "0x007212c0": {
+    "creator": "0x0068a350",
+    "creator_class": "plasma::D3D9Engine",
+    "creator_note": "D3D9Engine vtable slot 1 (0x00722588), device init of the GUI/2D shader set",
+    "vertex_declaration": "gui (0x0068a350): stride 48; FLOAT2 POSITION0 @0, FLOAT4 COLOR0 @8, FLOAT2 TEXCOORD0 @24, FLOAT2 TEXCOORD1 @32, FLOAT2 TEXCOORD2 @40",
+    "object_field": "D3D9Engine+0x1a0",
+    "bound_by": [
+      "0x0068c7c0",
+      "0x0068cad0",
+      "0x0068cf10"
+    ],
+    "paired_with": [
+      "09",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14"
+    ],
+    "use": "screen-space quad vertex shader for D3D9RenderSurface draws"
+  },
+  "0x00721420": {
+    "creator": "0x0068a350",
+    "creator_class": "plasma::D3D9Engine",
+    "creator_note": "D3D9Engine vtable slot 1 (0x00722588), device init of the GUI/2D shader set",
+    "vertex_declaration": "gui (0x0068a350): stride 48; FLOAT2 POSITION0 @0, FLOAT4 COLOR0 @8, FLOAT2 TEXCOORD0 @24, FLOAT2 TEXCOORD1 @32, FLOAT2 TEXCOORD2 @40",
+    "object_field": "D3D9Engine+0x1a4",
+    "bound_by": [
+      "0x0068c7c0",
+      "0x0068cf10"
+    ],
+    "paired_with": [
+      "08"
+    ],
+    "use": "render-surface blit (filter 1)"
+  },
+  "0x00721530": {
+    "creator": "0x0068a350",
+    "creator_class": "plasma::D3D9Engine",
+    "creator_note": "D3D9Engine vtable slot 1 (0x00722588), device init of the GUI/2D shader set",
+    "vertex_declaration": "gui (0x0068a350): stride 48; FLOAT2 POSITION0 @0, FLOAT4 COLOR0 @8, FLOAT2 TEXCOORD0 @24, FLOAT2 TEXCOORD1 @32, FLOAT2 TEXCOORD2 @40",
+    "object_field": "D3D9Engine+0x1a8",
+    "bound_by": [
+      "0x0068cf10"
+    ],
+    "paired_with": [
+      "08"
+    ],
+    "use": "render-surface 2x2 box downsample (filter 2)"
+  },
+  "0x00721778": {
+    "creator": "0x0068a350",
+    "creator_class": "plasma::D3D9Engine",
+    "creator_note": "D3D9Engine vtable slot 1 (0x00722588), device init of the GUI/2D shader set",
+    "vertex_declaration": "gui (0x0068a350): stride 48; FLOAT2 POSITION0 @0, FLOAT4 COLOR0 @8, FLOAT2 TEXCOORD0 @24, FLOAT2 TEXCOORD1 @32, FLOAT2 TEXCOORD2 @40",
+    "object_field": "D3D9Engine+0x1ac",
+    "bound_by": [
+      "0x0068cf10"
+    ],
+    "paired_with": [
+      "08"
+    ],
+    "use": "render-surface 3x3 box downsample (filter 3)"
+  },
+  "0x00721a98": {
+    "creator": "0x0068a350",
+    "creator_class": "plasma::D3D9Engine",
+    "creator_note": "D3D9Engine vtable slot 1 (0x00722588), device init of the GUI/2D shader set",
+    "vertex_declaration": "gui (0x0068a350): stride 48; FLOAT2 POSITION0 @0, FLOAT4 COLOR0 @8, FLOAT2 TEXCOORD0 @24, FLOAT2 TEXCOORD1 @32, FLOAT2 TEXCOORD2 @40",
+    "object_field": "D3D9Engine+0x1b0",
+    "bound_by": [
+      "0x0068cf10"
+    ],
+    "paired_with": [
+      "08"
+    ],
+    "use": "render-surface 4x4 box downsample (filter 4)"
+  },
+  "0x00721f00": {
+    "creator": "0x0068a350",
+    "creator_class": "plasma::D3D9Engine",
+    "creator_note": "D3D9Engine vtable slot 1 (0x00722588), device init of the GUI/2D shader set",
+    "vertex_declaration": "gui (0x0068a350): stride 48; FLOAT2 POSITION0 @0, FLOAT4 COLOR0 @8, FLOAT2 TEXCOORD0 @24, FLOAT2 TEXCOORD1 @32, FLOAT2 TEXCOORD2 @40",
+    "object_field": "D3D9Engine+0x1b8",
+    "bound_by": [
+      "0x0068cad0"
+    ],
+    "paired_with": [
+      "08"
+    ],
+    "use": "render-surface vertical 9-tap Gaussian blur (flag false)"
+  },
+  "0x00722270": {
+    "creator": "0x0068a350",
+    "creator_class": "plasma::D3D9Engine",
+    "creator_note": "D3D9Engine vtable slot 1 (0x00722588), device init of the GUI/2D shader set",
+    "vertex_declaration": "gui (0x0068a350): stride 48; FLOAT2 POSITION0 @0, FLOAT4 COLOR0 @8, FLOAT2 TEXCOORD0 @24, FLOAT2 TEXCOORD1 @32, FLOAT2 TEXCOORD2 @40",
+    "object_field": "D3D9Engine+0x1b4",
+    "bound_by": [
+      "0x0068cad0"
+    ],
+    "paired_with": [
+      "08"
+    ],
+    "use": "render-surface horizontal 9-tap Gaussian blur (flag true)"
+  }
+}

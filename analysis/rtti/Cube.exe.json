@@ -1,0 +1,5192 @@
+{
+ "binary": "Cube.exe",
+ "type_descriptors": 194,
+ "classes": {
+  "std::basic_stringbuf<char,std::char_traits<char>,std::allocator<char>_>": {
+   "mangled": ".?AV?$basic_stringbuf@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@",
+   "td": "0x007650a0",
+   "vtables": [
+    {
+     "address": "0x006fc9fc",
+     "col": "0x00746074",
+     "methods": [
+      "0x00404540",
+      "0x0068d5e6",
+      "0x0068d5ec",
+      "0x0040d540",
+      "0x0040d7a0",
+      "0x0068d5fe",
+      "0x0040e3c0",
+      "0x0068d60a",
+      "0x0068d610",
+      "0x0068d616",
+      "0x0040dbd0",
+      "0x0040de80",
+      "0x0068d5f8",
+      "0x0068d604",
+      "0x0068d5f2"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "std::std::D::DU?$char_traits::?$basic_streambuf"
+   ],
+   "all_bases": [
+    "std::std::D::DU?$char_traits::?$basic_streambuf"
+   ]
+  },
+  "std::basic_stringstream<char,std::char_traits<char>,std::allocator<char>_>": {
+   "mangled": ".?AV?$basic_stringstream@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@",
+   "td": "0x00765130",
+   "vtables": [
+    {
+     "address": "0x006fca3c",
+     "col": "0x007460f4",
+     "methods": [
+      "0x00404483",
+      "0x0040503c",
+      "0x00405054"
+     ],
+     "col_offset": 104
+    }
+   ],
+   "bases": [
+    "std::std::D::DU?$char_traits::?$basic_iostream"
+   ],
+   "all_bases": [
+    "std::std::D::DU?$char_traits::?$basic_iostream",
+    "std::std::D::DU?$char_traits::?$basic_istream",
+    "std::std::D::DU?$char_traits::?$basic_ios",
+    "std::ios_base",
+    "std::H::?$_Iosb",
+    "std::std::D::DU?$char_traits::?$basic_ostream",
+    "std::std::D::DU?$char_traits::?$basic_ios",
+    "std::ios_base",
+    "std::H::?$_Iosb"
+   ]
+  },
+  "std::basic_filebuf<char,std::char_traits<char>_>": {
+   "mangled": ".?AV?$basic_filebuf@DU?$char_traits@D@std@@@std@@",
+   "td": "0x007652a4",
+   "vtables": [
+    {
+     "address": "0x006fca84",
+     "col": "0x00746368",
+     "methods": [
+      "0x00404490",
+      "0x004090a0",
+      "0x0040b540",
+      "0x0040d350",
+      "0x0040d710",
+      "0x0068d5fe",
+      "0x0040e380",
+      "0x0040e190",
+      "0x0068d610",
+      "0x0068d616",
+      "0x0040dad0",
+      "0x0040dda0",
+      "0x0040dfa0",
+      "0x0040e160",
+      "0x0040cc00"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "std::std::D::DU?$char_traits::?$basic_streambuf"
+   ],
+   "all_bases": [
+    "std::std::D::DU?$char_traits::?$basic_streambuf"
+   ]
+  },
+  "std::basic_ifstream<char,std::char_traits<char>_>": {
+   "mangled": ".?AV?$basic_ifstream@DU?$char_traits@D@std@@@std@@",
+   "td": "0x007652e0",
+   "vtables": [
+    {
+     "address": "0x006fcac4",
+     "col": "0x007463b4",
+     "methods": [
+      "0x0040447b",
+      "0x00405048",
+      "0x0068d5e0"
+     ],
+     "col_offset": 112
+    }
+   ],
+   "bases": [
+    "std::std::D::DU?$char_traits::?$basic_istream"
+   ],
+   "all_bases": [
+    "std::std::D::DU?$char_traits::?$basic_istream",
+    "std::std::D::DU?$char_traits::?$basic_ios",
+    "std::ios_base",
+    "std::H::?$_Iosb"
+   ]
+  },
+  "abstr::Machine": {
+   "mangled": ".?AVMachine@abstr@@",
+   "td": "0x0076531c",
+   "vtables": [
+    {
+     "address": "0x006fc9d4",
+     "col": "0x0074640c",
+     "methods": [
+      "0x004045f0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "std::error_category": {
+   "mangled": ".?AVerror_category@std@@",
+   "td": "0x00765358",
+   "vtables": [
+    {
+     "address": "0x006fc920",
+     "col": "0x00746488",
+     "methods": [
+      "0x00404620",
+      "0x0068d662",
+      "0x0068d662",
+      "0x0040c710",
+      "0x0040c730",
+      "0x0040c750"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "std::_Generic_error_category": {
+   "mangled": ".?AV_Generic_error_category@std@@",
+   "td": "0x0076537c",
+   "vtables": [
+    {
+     "address": "0x006fc93c",
+     "col": "0x007464d0",
+     "methods": [
+      "0x00404620",
+      "0x0040d210",
+      "0x0040d0c0",
+      "0x0040c710",
+      "0x0040c730",
+      "0x0040c750"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "std::error_category"
+   ],
+   "all_bases": [
+    "std::error_category"
+   ]
+  },
+  "std::_Iostream_error_category": {
+   "mangled": ".?AV_Iostream_error_category@std@@",
+   "td": "0x007653a8",
+   "vtables": [
+    {
+     "address": "0x006fc970",
+     "col": "0x0074651c",
+     "methods": [
+      "0x00404620",
+      "0x0040d220",
+      "0x0040d140",
+      "0x0040c710",
+      "0x0040c730",
+      "0x0040c750"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "std::_Generic_error_category"
+   ],
+   "all_bases": [
+    "std::_Generic_error_category",
+    "std::error_category"
+   ]
+  },
+  "std::_System_error_category": {
+   "mangled": ".?AV_System_error_category@std@@",
+   "td": "0x007653d4",
+   "vtables": [
+    {
+     "address": "0x006fc9b0",
+     "col": "0x0074656c",
+     "methods": [
+      "0x00404620",
+      "0x0040d230",
+      "0x0040d190",
+      "0x0040c6d0",
+      "0x0040c730",
+      "0x0040c750"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x00723fd8",
+     "col": "0x0074656c",
+     "methods": [],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "std::_Generic_error_category"
+   ],
+   "all_bases": [
+    "std::_Generic_error_category",
+    "std::error_category"
+   ]
+  },
+  "abstr::HelperCmpClass": {
+   "mangled": ".?AVHelperCmpClass@abstr@@",
+   "td": "0x00765400",
+   "vtables": [
+    {
+     "address": "0x006fca60",
+     "col": "0x007465bc",
+     "methods": [
+      "0x0040cbe0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "abstr::HelperIdentityClass": {
+   "mangled": ".?AVHelperIdentityClass@abstr@@",
+   "td": "0x00765424",
+   "vtables": [
+    {
+     "address": "0x006fca68",
+     "col": "0x00746604",
+     "methods": [
+      "0x0040cbd0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "abstr::Method0<abstr::Machine,int>": {
+   "mangled": ".?AV?$Method0@VMachine@abstr@@H@abstr@@",
+   "td": "0x0076544c",
+   "vtables": [
+    {
+     "address": "0x006fcb50",
+     "col": "0x0074664c",
+     "methods": [
+      "0x005858c0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "abstr::Function"
+   ],
+   "all_bases": [
+    "abstr::Function"
+   ]
+  },
+  "std::basic_stringbuf<wchar_t,std::char_traits<wchar_t>,std::allocator<wchar_t>_>": {
+   "mangled": ".?AV?$basic_stringbuf@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@",
+   "td": "0x007654a8",
+   "vtables": [
+    {
+     "address": "0x006fccb4",
+     "col": "0x00746698",
+     "methods": [
+      "0x0040f020",
+      "0x0068d61c",
+      "0x0068d622",
+      "0x004114c0",
+      "0x004116d0",
+      "0x0068d634",
+      "0x00411c80",
+      "0x0068d640",
+      "0x0068d646",
+      "0x0068d64c",
+      "0x00411760",
+      "0x00411950",
+      "0x0068d62e",
+      "0x0068d63a",
+      "0x0068d628"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "std::std::_W::_WU?$char_traits::?$basic_streambuf"
+   ],
+   "all_bases": [
+    "std::std::_W::_WU?$char_traits::?$basic_streambuf"
+   ]
+  },
+  "std::basic_stringstream<wchar_t,std::char_traits<wchar_t>,std::allocator<wchar_t>_>": {
+   "mangled": ".?AV?$basic_stringstream@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@",
+   "td": "0x00765538",
+   "vtables": [
+    {
+     "address": "0x006fccf4",
+     "col": "0x00746718",
+     "methods": [
+      "0x0040f00b",
+      "0x0040f0f3",
+      "0x0040f0ff"
+     ],
+     "col_offset": 104
+    }
+   ],
+   "bases": [
+    "std::std::_W::_WU?$char_traits::?$basic_iostream"
+   ],
+   "all_bases": [
+    "std::std::_W::_WU?$char_traits::?$basic_iostream",
+    "std::std::_W::_WU?$char_traits::?$basic_istream",
+    "std::std::_W::_WU?$char_traits::?$basic_ios",
+    "std::ios_base",
+    "std::H::?$_Iosb",
+    "std::std::_W::_WU?$char_traits::?$basic_ostream",
+    "std::std::_W::_WU?$char_traits::?$basic_ios",
+    "std::ios_base",
+    "std::H::?$_Iosb"
+   ]
+  },
+  "cube::AdaptionWidget": {
+   "mangled": ".?AVAdaptionWidget@cube@@",
+   "td": "0x007656bc",
+   "vtables": [
+    {
+     "address": "0x006fcbd4",
+     "col": "0x00746938",
+     "methods": [
+      "0x00428a30",
+      "0x0040f8f0",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00411330",
+      "0x00687d10",
+      "0x004114b0",
+      "0x0062a8b0",
+      "0x0062b350",
+      "0x0062af10",
+      "0x00411410",
+      "0x0062a9e0",
+      "0x0062abe0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062ac20",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x00627dc0",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x006fcc84",
+     "col": "0x00746a20",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::Widget"
+   ],
+   "all_bases": [
+    "plasma::Widget",
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "plasma::IntegerFilter": {
+   "mangled": ".?AVIntegerFilter@plasma@@",
+   "td": "0x00765720",
+   "vtables": [
+    {
+     "address": "0x006fcc90",
+     "col": "0x00746a68",
+     "methods": [
+      "0x00637d10"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::EditFilter"
+   ],
+   "all_bases": [
+    "plasma::EditFilter"
+   ]
+  },
+  "plasma::UnsignedIntegerFilter": {
+   "mangled": ".?AVUnsignedIntegerFilter@plasma@@",
+   "td": "0x00765744",
+   "vtables": [
+    {
+     "address": "0x006fcc98",
+     "col": "0x00746ab4",
+     "methods": [
+      "0x00637e20"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::EditFilter"
+   ],
+   "all_bases": [
+    "plasma::EditFilter"
+   ]
+  },
+  "plasma::FloatFilter": {
+   "mangled": ".?AVFloatFilter@plasma@@",
+   "td": "0x00765770",
+   "vtables": [
+    {
+     "address": "0x006fcca0",
+     "col": "0x00746b00",
+     "methods": [
+      "0x00637c60"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::EditFilter"
+   ],
+   "all_bases": [
+    "plasma::EditFilter"
+   ]
+  },
+  "plasma::UnsignedFloatFilter": {
+   "mangled": ".?AVUnsignedFloatFilter@plasma@@",
+   "td": "0x00765794",
+   "vtables": [
+    {
+     "address": "0x006fcca8",
+     "col": "0x00746b4c",
+     "methods": [
+      "0x00637d90"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::EditFilter"
+   ],
+   "all_bases": [
+    "plasma::EditFilter"
+   ]
+  },
+  "cube::CharacterPreviewWidget": {
+   "mangled": ".?AVCharacterPreviewWidget@cube@@",
+   "td": "0x007657d0",
+   "vtables": [
+    {
+     "address": "0x006fcedc",
+     "col": "0x00746b98",
+     "methods": [
+      "0x00428a30",
+      "0x00425450",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00411330",
+      "0x004c59a0",
+      "0x004114b0",
+      "0x0062a8b0",
+      "0x0062b350",
+      "0x0062af10",
+      "0x004114b0",
+      "0x0062a9e0",
+      "0x0062abe0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062ac20",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x00627dc0",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x006fcf8c",
+     "col": "0x00746bf0",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180",
+      "0x0065004e"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::Widget"
+   ],
+   "all_bases": [
+    "plasma::Widget",
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "cube::CharacterStyleWidget": {
+   "mangled": ".?AVCharacterStyleWidget@cube@@",
+   "td": "0x00765834",
+   "vtables": [
+    {
+     "address": "0x006fd0e4",
+     "col": "0x00746c38",
+     "methods": [
+      "0x00428a30",
+      "0x00428e40",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00411330",
+      "0x00687d10",
+      "0x004114b0",
+      "0x0062a8b0",
+      "0x0062b350",
+      "0x0062af10",
+      "0x0042bb00",
+      "0x0062a9e0",
+      "0x0062abe0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062ac20",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x00627dc0",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x006fd194",
+     "col": "0x00746c90",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180",
+      "0x0065006c"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::Widget"
+   ],
+   "all_bases": [
+    "plasma::Widget",
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "plasma::Widget::MemberFunctionConnection<cube::CharacterStyleWidget>": {
+   "mangled": ".?AV?$MemberFunctionConnection@VCharacterStyleWidget@cube@@@Widget@plasma@@",
+   "td": "0x00765860",
+   "vtables": [
+    {
+     "address": "0x006fd2fc",
+     "col": "0x00746ca4",
+     "methods": [
+      "0x004c2040"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Widget::Connection"
+   ],
+   "all_bases": [
+    "plasma::Widget::Connection"
+   ]
+  },
+  "cube::CombatBehavior": {
+   "mangled": ".?AVCombatBehavior@cube@@",
+   "td": "0x007658d0",
+   "vtables": [
+    {
+     "address": "0x006fd310",
+     "col": "0x00746d24",
+     "methods": [
+      "0x0042cb20",
+      "0x0042efc0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "cube::Behavior"
+   ],
+   "all_bases": [
+    "cube::Behavior"
+   ]
+  },
+  "cube::BlueprintPreviewWidget": {
+   "mangled": ".?AVBlueprintPreviewWidget@cube@@",
+   "td": "0x00765904",
+   "vtables": [
+    {
+     "address": "0x006fd364",
+     "col": "0x00746d70",
+     "methods": [
+      "0x0042f5e0",
+      "0x0042f910",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00411330",
+      "0x00687d10",
+      "0x004114b0",
+      "0x0062a8b0",
+      "0x0062b350",
+      "0x0062af10",
+      "0x004348f0",
+      "0x0062a9e0",
+      "0x0062abe0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062ac20",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x00627dc0",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x006fd414",
+     "col": "0x00746dc8",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180",
+      "0x00610062"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::Widget"
+   ],
+   "all_bases": [
+    "plasma::Widget",
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "cube::CharacterWidget": {
+   "mangled": ".?AVCharacterWidget@cube@@",
+   "td": "0x00765940",
+   "vtables": [
+    {
+     "address": "0x006fd5b4",
+     "col": "0x00746ddc",
+     "methods": [
+      "0x00428a30",
+      "0x00434e30",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00411330",
+      "0x00687d10",
+      "0x004114b0",
+      "0x0062a8b0",
+      "0x0062b350",
+      "0x0062af10",
+      "0x004114b0",
+      "0x0062a9e0",
+      "0x0062abe0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062ac20",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x00627dc0",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x006fd664",
+     "col": "0x00746e34",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::Widget"
+   ],
+   "all_bases": [
+    "plasma::Widget",
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "cube::ChatWidget": {
+   "mangled": ".?AVChatWidget@cube@@",
+   "td": "0x00765974",
+   "vtables": [
+    {
+     "address": "0x006fd78c",
+     "col": "0x00746e48",
+     "methods": [
+      "0x00439590",
+      "0x00439730",
+      "0x00687cf0",
+      "0x00439660",
+      "0x0043a000",
+      "0x00687d10",
+      "0x004114b0",
+      "0x0062a8b0",
+      "0x0062b350",
+      "0x0062af10",
+      "0x004114b0",
+      "0x0062a9e0",
+      "0x0062abe0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062ac20",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x00627dc0",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x006fd83c",
+     "col": "0x00746ea0",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::Widget"
+   ],
+   "all_bases": [
+    "plasma::Widget",
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "cube::CompanionBehavior": {
+   "mangled": ".?AVCompanionBehavior@cube@@",
+   "td": "0x00765994",
+   "vtables": [
+    {
+     "address": "0x006fd868",
+     "col": "0x00746eb4",
+     "methods": [
+      "0x0043ace0",
+      "0x0043b450"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "cube::Behavior"
+   ],
+   "all_bases": [
+    "cube::Behavior"
+   ]
+  },
+  "cube::Controller": {
+   "mangled": ".?AVController@cube@@",
+   "td": "0x007659bc",
+   "vtables": [
+    {
+     "address": "0x006fd87c",
+     "col": "0x00746f00",
+     "methods": [
+      "0x0043b550",
+      "0x0043a000",
+      "0x0043b5c0",
+      "0x0043b5d0",
+      "0x00663b50",
+      "0x00675660",
+      "0x00663b50",
+      "0x0043b580",
+      "0x0043b5a0",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::Creature": {
+   "mangled": ".?AVCreature@cube@@",
+   "td": "0x007659dc",
+   "vtables": [
+    {
+     "address": "0x006fd8cc",
+     "col": "0x00746f48",
+     "methods": [
+      "0x0043c840"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::CubeShader": {
+   "mangled": ".?AVCubeShader@cube@@",
+   "td": "0x007659f8",
+   "vtables": [
+    {
+     "address": "0x006ffa60",
+     "col": "0x00746f90",
+     "methods": [
+      "0x00447ce0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::Database": {
+   "mangled": ".?AVDatabase@cube@@",
+   "td": "0x00765a18",
+   "vtables": [
+    {
+     "address": "0x006ffb1c",
+     "col": "0x00746fd8",
+     "methods": [
+      "0x004493c0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::EnchantWidget": {
+   "mangled": ".?AVEnchantWidget@cube@@",
+   "td": "0x00765a44",
+   "vtables": [
+    {
+     "address": "0x006ffc9c",
+     "col": "0x00747020",
+     "methods": [
+      "0x00428a30",
+      "0x0044ea30",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00411330",
+      "0x00687d10",
+      "0x004114b0",
+      "0x0062a8b0",
+      "0x0062b350",
+      "0x0062af10",
+      "0x00450b90",
+      "0x0062a9e0",
+      "0x0062abe0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062ac20",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x00627dc0",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x006ffd4c",
+     "col": "0x00747078",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180",
+      "0x00640049",
+      "0x006e0065",
+      "0x00690074",
+      "0x00690066",
+      "0x00610063",
+      "0x00690074",
+      "0x006e006f"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::Widget"
+   ],
+   "all_bases": [
+    "plasma::Widget",
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "cube::Field": {
+   "mangled": ".?AVField@cube@@",
+   "td": "0x00765a68",
+   "vtables": [
+    {
+     "address": "0x006ffd90",
+     "col": "0x0074708c",
+     "methods": [
+      "0x00624700"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::GameController": {
+   "mangled": ".?AVGameController@cube@@",
+   "td": "0x00765bec",
+   "vtables": [
+    {
+     "address": "0x006ffdc8",
+     "col": "0x007470d4",
+     "methods": [
+      "0x0046d340",
+      "0x0047f1d0",
+      "0x0047e1b0",
+      "0x0047e9d0",
+      "0x00482a40",
+      "0x00482a00",
+      "0x0047ea00",
+      "0x0047b600",
+      "0x0047ddd0",
+      "0x0047ef40",
+      "0x00488ee0",
+      "0x004ac260",
+      "0x00650074"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "cube::Controller"
+   ],
+   "all_bases": [
+    "cube::Controller"
+   ]
+  },
+  "cube::ChunkBuffer": {
+   "mangled": ".?AUChunkBuffer@cube@@",
+   "td": "0x00765c10",
+   "vtables": [
+    {
+     "address": "0x006ffdb0",
+     "col": "0x00747120",
+     "methods": [
+      "0x0046d2f0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::Chunk": {
+   "mangled": ".?AUChunk@cube@@",
+   "td": "0x00765c30",
+   "vtables": [
+    {
+     "address": "0x006ffdb8",
+     "col": "0x00747168",
+     "methods": [
+      "0x0046d260"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::WorldInfo": {
+   "mangled": ".?AUWorldInfo@cube@@",
+   "td": "0x00765c4c",
+   "vtables": [
+    {
+     "address": "0x006ffdc0",
+     "col": "0x007471b0",
+     "methods": [
+      "0x0046d3b0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "std::_Func_base<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>": {
+   "mangled": ".?AV?$_Func_base@XU_Nil@std@@U12@U12@U12@U12@U12@U12@@std@@",
+   "td": "0x00765c70",
+   "vtables": [
+    {
+     "address": "0x0070295c",
+     "col": "0x007471f8",
+     "methods": [
+      "0x0068d662",
+      "0x0068d662",
+      "0x0068d662",
+      "0x0068d662",
+      "0x0068d662",
+      "0x0046d2c0",
+      "0x0068d662"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "plasma::Widget::MemberFunctionConnection<cube::GameController>": {
+   "mangled": ".?AV?$MemberFunctionConnection@VGameController@cube@@@Widget@plasma@@",
+   "td": "0x00765cb8",
+   "vtables": [
+    {
+     "address": "0x0070297c",
+     "col": "0x00747240",
+     "methods": [
+      "0x0046f480"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Widget::Connection"
+   ],
+   "all_bases": [
+    "plasma::Widget::Connection"
+   ]
+  },
+  "std::_Func_impl<std::_Callable_obj<<lambda_1ffef8671b5d330b7078b5ff273ee5fb>,0>,std::allocator<std::_Func_class<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>_>,void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>": {
+   "mangled": ".?AV?$_Func_impl@U?$_Callable_obj@V<lambda_1ffef8671b5d330b7078b5ff273ee5fb>@@$0A@@std@@V?$allocator@V?$_Func_class@XU_Nil@std@@U12@U12@U12@U12@U12@U12@@std@@@2@XU_Nil@2@U42@U42@U42@U42@U42@U42@@std@@",
+   "td": "0x00765d08",
+   "vtables": [
+    {
+     "address": "0x00702984",
+     "col": "0x0074728c",
+     "methods": [
+      "0x0046e050",
+      "0x0046e050",
+      "0x0046db70",
+      "0x0046ea20",
+      "0x0046da90",
+      "0x0046d2c0",
+      "0x0046dca0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "std::_Func_base<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>"
+   ],
+   "all_bases": [
+    "std::_Func_base<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>"
+   ]
+  },
+  "std::_Func_impl<std::_Callable_obj<<lambda_29209b183b27224642a038ec1f3692c5>,0>,std::allocator<std::_Func_class<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>_>,void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>": {
+   "mangled": ".?AV?$_Func_impl@U?$_Callable_obj@V<lambda_29209b183b27224642a038ec1f3692c5>@@$0A@@std@@V?$allocator@V?$_Func_class@XU_Nil@std@@U12@U12@U12@U12@U12@U12@@std@@@2@XU_Nil@2@U42@U42@U42@U42@U42@U42@@std@@",
+   "td": "0x00765de0",
+   "vtables": [
+    {
+     "address": "0x007029a4",
+     "col": "0x007472d8",
+     "methods": [
+      "0x0046da50",
+      "0x0046da50",
+      "0x0046db80",
+      "0x0046ea30",
+      "0x0046da90",
+      "0x0046d2c0",
+      "0x0046dca0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "std::_Func_base<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>"
+   ],
+   "all_bases": [
+    "std::_Func_base<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>"
+   ]
+  },
+  "std::_Func_impl<std::_Callable_obj<<lambda_fdf816e424f0da55b18915c89c349fdd>,0>,std::allocator<std::_Func_class<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>_>,void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>": {
+   "mangled": ".?AV?$_Func_impl@U?$_Callable_obj@V<lambda_fdf816e424f0da55b18915c89c349fdd>@@$0A@@std@@V?$allocator@V?$_Func_class@XU_Nil@std@@U12@U12@U12@U12@U12@U12@@std@@@2@XU_Nil@2@U42@U42@U42@U42@U42@U42@@std@@",
+   "td": "0x00765eb8",
+   "vtables": [
+    {
+     "address": "0x007029c4",
+     "col": "0x00747324",
+     "methods": [
+      "0x0046e0d0",
+      "0x0046e0d0",
+      "0x0046dba0",
+      "0x0046ea50",
+      "0x0046da90",
+      "0x0046d2c0",
+      "0x0046dca0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "std::_Func_base<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>"
+   ],
+   "all_bases": [
+    "std::_Func_base<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>"
+   ]
+  },
+  "std::_Func_impl<std::_Callable_obj<<lambda_ff38bf9ea15b41cb34bc5dae16af8ab3>,0>,std::allocator<std::_Func_class<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>_>,void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>": {
+   "mangled": ".?AV?$_Func_impl@U?$_Callable_obj@V<lambda_ff38bf9ea15b41cb34bc5dae16af8ab3>@@$0A@@std@@V?$allocator@V?$_Func_class@XU_Nil@std@@U12@U12@U12@U12@U12@U12@@std@@@2@XU_Nil@2@U42@U42@U42@U42@U42@U42@@std@@",
+   "td": "0x00765f90",
+   "vtables": [
+    {
+     "address": "0x007029e4",
+     "col": "0x00747370",
+     "methods": [
+      "0x0046e110",
+      "0x0046e110",
+      "0x0046dbb0",
+      "0x0046ea60",
+      "0x0046da90",
+      "0x0046d2c0",
+      "0x0046dca0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "std::_Func_base<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>"
+   ],
+   "all_bases": [
+    "std::_Func_base<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>"
+   ]
+  },
+  "std::_Func_impl<std::_Callable_obj<<lambda_864084cd43f09ea2a93402c86ee87b29>,0>,std::allocator<std::_Func_class<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>_>,void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>": {
+   "mangled": ".?AV?$_Func_impl@U?$_Callable_obj@V<lambda_864084cd43f09ea2a93402c86ee87b29>@@$0A@@std@@V?$allocator@V?$_Func_class@XU_Nil@std@@U12@U12@U12@U12@U12@U12@@std@@@2@XU_Nil@2@U42@U42@U42@U42@U42@U42@@std@@",
+   "td": "0x00766068",
+   "vtables": [
+    {
+     "address": "0x00702a04",
+     "col": "0x007473bc",
+     "methods": [
+      "0x0046e090",
+      "0x0046e090",
+      "0x0046db90",
+      "0x0046ea40",
+      "0x0046da90",
+      "0x0046d2c0",
+      "0x0046dca0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "std::_Func_base<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>"
+   ],
+   "all_bases": [
+    "std::_Func_base<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>"
+   ]
+  },
+  "cube::InventoryWidget": {
+   "mangled": ".?AVInventoryWidget@cube@@",
+   "td": "0x0076617c",
+   "vtables": [
+    {
+     "address": "0x00702bb4",
+     "col": "0x00747408",
+     "methods": [
+      "0x004c2010",
+      "0x004c2050",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00411330",
+      "0x004c59a0",
+      "0x004114b0",
+      "0x0062a8b0",
+      "0x0062b350",
+      "0x0062af10",
+      "0x004c5d50",
+      "0x0062a9e0",
+      "0x0062abe0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062ac20",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x00627dc0",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x00702c64",
+     "col": "0x00747460",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::Widget"
+   ],
+   "all_bases": [
+    "plasma::Widget",
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "plasma::Widget::MemberFunctionConnection<cube::InventoryWidget>": {
+   "mangled": ".?AV?$MemberFunctionConnection@VInventoryWidget@cube@@@Widget@plasma@@",
+   "td": "0x007661a0",
+   "vtables": [
+    {
+     "address": "0x00702d34",
+     "col": "0x00747474",
+     "methods": [
+      "0x004c2040"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Widget::Connection"
+   ],
+   "all_bases": [
+    "plasma::Widget::Connection"
+   ]
+  },
+  "cube::LookAtPlayerBehavior": {
+   "mangled": ".?AVLookAtPlayerBehavior@cube@@",
+   "td": "0x007661f0",
+   "vtables": [
+    {
+     "address": "0x00702d60",
+     "col": "0x007474c0",
+     "methods": [
+      "0x004c8140",
+      "0x004c83d0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "cube::Behavior"
+   ],
+   "all_bases": [
+    "cube::Behavior"
+   ]
+  },
+  "cube::MapOverlayWidget": {
+   "mangled": ".?AVMapOverlayWidget@cube@@",
+   "td": "0x0076625c",
+   "vtables": [
+    {
+     "address": "0x00702fe4",
+     "col": "0x0074750c",
+     "methods": [
+      "0x00428a30",
+      "0x004c9680",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00411330",
+      "0x00687d10",
+      "0x004114b0",
+      "0x0062a8b0",
+      "0x0062b350",
+      "0x0062af10",
+      "0x004114b0",
+      "0x0062a9e0",
+      "0x0062abe0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062ac20",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x00627dc0",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x00703094",
+     "col": "0x00747564",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::Widget"
+   ],
+   "all_bases": [
+    "plasma::Widget",
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "std::basic_ofstream<char,std::char_traits<char>_>": {
+   "mangled": ".?AV?$basic_ofstream@DU?$char_traits@D@std@@@std@@",
+   "td": "0x00766280",
+   "vtables": [
+    {
+     "address": "0x007030a0",
+     "col": "0x00747578",
+     "methods": [
+      "0x004cb2b5",
+      "0x0068d65c",
+      "0x004cb301"
+     ],
+     "col_offset": 96
+    }
+   ],
+   "bases": [
+    "std::std::D::DU?$char_traits::?$basic_ostream"
+   ],
+   "all_bases": [
+    "std::std::D::DU?$char_traits::?$basic_ostream",
+    "std::std::D::DU?$char_traits::?$basic_ios",
+    "std::ios_base",
+    "std::H::?$_Iosb"
+   ]
+  },
+  "cube::ObjectiveWidget": {
+   "mangled": ".?AVObjectiveWidget@cube@@",
+   "td": "0x007662cc",
+   "vtables": [
+    {
+     "address": "0x007030dc",
+     "col": "0x007475d0",
+     "methods": [
+      "0x004ce240",
+      "0x004114b0",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00411330",
+      "0x00687d10",
+      "0x004114b0",
+      "0x0062a8b0",
+      "0x0062b350",
+      "0x0062af10",
+      "0x004114b0",
+      "0x0062a9e0",
+      "0x0062abe0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062ac20",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x00627dc0",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x0070318c",
+     "col": "0x00747628",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::Widget"
+   ],
+   "all_bases": [
+    "plasma::Widget",
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "cube::OptionsWidget": {
+   "mangled": ".?AVOptionsWidget@cube@@",
+   "td": "0x00766300",
+   "vtables": [
+    {
+     "address": "0x0070330c",
+     "col": "0x0074763c",
+     "methods": [
+      "0x004ce240",
+      "0x004d0230",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00411330",
+      "0x00687d10",
+      "0x004114b0",
+      "0x0062a8b0",
+      "0x0062b350",
+      "0x0062af10",
+      "0x004d46d0",
+      "0x0062a9e0",
+      "0x0062abe0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062ac20",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x00627dc0",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x007033bc",
+     "col": "0x00747694",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::Widget"
+   ],
+   "all_bases": [
+    "plasma::Widget",
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "plasma::Widget::MemberFunctionConnection<cube::OptionsWidget>": {
+   "mangled": ".?AV?$MemberFunctionConnection@VOptionsWidget@cube@@@Widget@plasma@@",
+   "td": "0x00766328",
+   "vtables": [
+    {
+     "address": "0x00703574",
+     "col": "0x007476a8",
+     "methods": [
+      "0x004c2040"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Widget::Connection"
+   ],
+   "all_bases": [
+    "plasma::Widget::Connection"
+   ]
+  },
+  "cube::PreviewWidget": {
+   "mangled": ".?AVPreviewWidget@cube@@",
+   "td": "0x00766388",
+   "vtables": [
+    {
+     "address": "0x00703594",
+     "col": "0x007476f4",
+     "methods": [
+      "0x004d5070",
+      "0x004d50a0",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00411330",
+      "0x00687d10",
+      "0x004114b0",
+      "0x0062a8b0",
+      "0x0062b350",
+      "0x0062af10",
+      "0x004114b0",
+      "0x0062a9e0",
+      "0x0062abe0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062ac20",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x00627dc0",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x00703644",
+     "col": "0x0074774c",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::Widget"
+   ],
+   "all_bases": [
+    "plasma::Widget",
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "cube::QuestTextNode": {
+   "mangled": ".?AUQuestTextNode@cube@@",
+   "td": "0x007663b4",
+   "vtables": [
+    {
+     "address": "0x007039a0",
+     "col": "0x00747794",
+     "methods": [
+      "0x004da700"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::QuestText": {
+   "mangled": ".?AVQuestText@cube@@",
+   "td": "0x007663d8",
+   "vtables": [
+    {
+     "address": "0x007039a8",
+     "col": "0x007477dc",
+     "methods": [
+      "0x004da670"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::RandomInteractionBehavior": {
+   "mangled": ".?AVRandomInteractionBehavior@cube@@",
+   "td": "0x00766408",
+   "vtables": [
+    {
+     "address": "0x007039d0",
+     "col": "0x00747824",
+     "methods": [
+      "0x004db130",
+      "0x004dbef0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "cube::Behavior"
+   ],
+   "all_bases": [
+    "cube::Behavior"
+   ]
+  },
+  "cube::RandomWalkBehavior": {
+   "mangled": ".?AVRandomWalkBehavior@cube@@",
+   "td": "0x00766438",
+   "vtables": [
+    {
+     "address": "0x007039e8",
+     "col": "0x00747870",
+     "methods": [
+      "0x004dbf20",
+      "0x004dc1e0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "cube::Behavior"
+   ],
+   "all_bases": [
+    "cube::Behavior"
+   ]
+  },
+  "cube::SequentialBehavior": {
+   "mangled": ".?AVSequentialBehavior@cube@@",
+   "td": "0x00766460",
+   "vtables": [
+    {
+     "address": "0x00703a00",
+     "col": "0x007478bc",
+     "methods": [
+      "0x004dc390",
+      "0x004dc400",
+      "0x004dc360"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "cube::Behavior"
+   ],
+   "all_bases": [
+    "cube::Behavior"
+   ]
+  },
+  "cube::SkillWidget": {
+   "mangled": ".?AVSkillWidget@cube@@",
+   "td": "0x00766498",
+   "vtables": [
+    {
+     "address": "0x00703a34",
+     "col": "0x00747908",
+     "methods": [
+      "0x00428a30",
+      "0x004dd810",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00411330",
+      "0x00687d10",
+      "0x004114b0",
+      "0x0062a8b0",
+      "0x0062b350",
+      "0x0062af10",
+      "0x004114b0",
+      "0x0062a9e0",
+      "0x0062abe0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062ac20",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x00627dc0",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x00703ae4",
+     "col": "0x00747960",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180",
+      "0x006b0053",
+      "0x006c0069"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::Widget"
+   ],
+   "all_bases": [
+    "plasma::Widget",
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "cube::SpawnLocationBehavior": {
+   "mangled": ".?AVSpawnLocationBehavior@cube@@",
+   "td": "0x007664b8",
+   "vtables": [
+    {
+     "address": "0x00703b58",
+     "col": "0x00747974",
+     "methods": [
+      "0x004dfad0",
+      "0x004e0050"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "cube::Behavior"
+   ],
+   "all_bases": [
+    "cube::Behavior"
+   ]
+  },
+  "cube::Speech": {
+   "mangled": ".?AVSpeech@cube@@",
+   "td": "0x007664e4",
+   "vtables": [
+    {
+     "address": "0x00703b70",
+     "col": "0x007479c0",
+     "methods": [
+      "0x004e3450"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::SpeechWidget": {
+   "mangled": ".?AVSpeechWidget@cube@@",
+   "td": "0x00766510",
+   "vtables": [
+    {
+     "address": "0x00703e34",
+     "col": "0x00747a08",
+     "methods": [
+      "0x004e5f60",
+      "0x004e5f90",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00411330",
+      "0x00687d10",
+      "0x004114b0",
+      "0x0062a8b0",
+      "0x0062b350",
+      "0x0062af10",
+      "0x004114b0",
+      "0x0062a9e0",
+      "0x0062abe0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062ac20",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x00627dc0",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x00703ee4",
+     "col": "0x00747a60",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::Widget"
+   ],
+   "all_bases": [
+    "plasma::Widget",
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "cube::Sprite": {
+   "mangled": ".?AVSprite@cube@@",
+   "td": "0x00766530",
+   "vtables": [
+    {
+     "address": "0x00703ef8",
+     "col": "0x00747a74",
+     "methods": [
+      "0x004e6c30"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::SpriteManager": {
+   "mangled": ".?AVSpriteManager@cube@@",
+   "td": "0x0076654c",
+   "vtables": [
+    {
+     "address": "0x00703f10",
+     "col": "0x00747abc",
+     "methods": [
+      "0x004ec340"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::SpriteWidget": {
+   "mangled": ".?AVSpriteWidget@cube@@",
+   "td": "0x00766580",
+   "vtables": [
+    {
+     "address": "0x00711f24",
+     "col": "0x00747b04",
+     "methods": [
+      "0x00428a30",
+      "0x0051c3d0",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00411330",
+      "0x004c59a0",
+      "0x004114b0",
+      "0x0062a8b0",
+      "0x0062b350",
+      "0x0062af10",
+      "0x004114b0",
+      "0x0062a9e0",
+      "0x0062abe0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062ac20",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x00627dc0",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x00711fd4",
+     "col": "0x00747b5c",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::Widget"
+   ],
+   "all_bases": [
+    "plasma::Widget",
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "cube::StartMenuWidget": {
+   "mangled": ".?AVStartMenuWidget@cube@@",
+   "td": "0x00767408",
+   "vtables": [
+    {
+     "address": "0x0071a124",
+     "col": "0x00747b70",
+     "methods": [
+      "0x00428a30",
+      "0x00583320",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00411330",
+      "0x00687d10",
+      "0x004114b0",
+      "0x0062a8b0",
+      "0x0062b350",
+      "0x0062af10",
+      "0x004114b0",
+      "0x0062a9e0",
+      "0x0062abe0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062ac20",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x00627dc0",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x0071a1d4",
+     "col": "0x00747bc8",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::Widget"
+   ],
+   "all_bases": [
+    "plasma::Widget",
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "cube::StatisticsWidget": {
+   "mangled": ".?AVStatisticsWidget@cube@@",
+   "td": "0x0076743c",
+   "vtables": [
+    {
+     "address": "0x0071a22c",
+     "col": "0x00747bdc",
+     "methods": [
+      "0x00428a30",
+      "0x00583be0",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00411330",
+      "0x00687d10",
+      "0x004114b0",
+      "0x0062a8b0",
+      "0x0062b350",
+      "0x0062af10",
+      "0x004114b0",
+      "0x0062a9e0",
+      "0x0062abe0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062ac20",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x00627dc0",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x0071a2dc",
+     "col": "0x00747c34",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::Widget"
+   ],
+   "all_bases": [
+    "plasma::Widget",
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "abstr::Method0<cube::System,int>": {
+   "mangled": ".?AV?$Method0@VSystem@cube@@H@abstr@@",
+   "td": "0x007674a0",
+   "vtables": [
+    {
+     "address": "0x0071a4e4",
+     "col": "0x00747c48",
+     "methods": [
+      "0x005858c0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "abstr::Function"
+   ],
+   "all_bases": [
+    "abstr::Function"
+   ]
+  },
+  "abstr::Method1<cube::System,int,std::basic_string<char,std::char_traits<char>,std::allocator<char>_>_>": {
+   "mangled": ".?AV?$Method1@VSystem@cube@@HV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@abstr@@",
+   "td": "0x007674d0",
+   "vtables": [
+    {
+     "address": "0x0071a4ec",
+     "col": "0x00747c94",
+     "methods": [
+      "0x00585990"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "abstr::Function"
+   ],
+   "all_bases": [
+    "abstr::Function"
+   ]
+  },
+  "abstr::Method1<cube::System,void,int>": {
+   "mangled": ".?AV?$Method1@VSystem@cube@@XH@abstr@@",
+   "td": "0x0076753c",
+   "vtables": [
+    {
+     "address": "0x0071a4f4",
+     "col": "0x00747ce0",
+     "methods": [
+      "0x00585ad0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "abstr::Function"
+   ],
+   "all_bases": [
+    "abstr::Function"
+   ]
+  },
+  "abstr::Method3<cube::System,void,int,int,int>": {
+   "mangled": ".?AV?$Method3@VSystem@cube@@XHHH@abstr@@",
+   "td": "0x0076756c",
+   "vtables": [
+    {
+     "address": "0x0071a4fc",
+     "col": "0x00747d2c",
+     "methods": [
+      "0x00585e60"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "abstr::Function"
+   ],
+   "all_bases": [
+    "abstr::Function"
+   ]
+  },
+  "abstr::Method2<cube::System,int,int,int>": {
+   "mangled": ".?AV?$Method2@VSystem@cube@@HHH@abstr@@",
+   "td": "0x007675a0",
+   "vtables": [
+    {
+     "address": "0x0071a504",
+     "col": "0x00747d78",
+     "methods": [
+      "0x00585c00"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "abstr::Function"
+   ],
+   "all_bases": [
+    "abstr::Function"
+   ]
+  },
+  "abstr::Method1<cube::System,int,int>": {
+   "mangled": ".?AV?$Method1@VSystem@cube@@HH@abstr@@",
+   "td": "0x007675d0",
+   "vtables": [
+    {
+     "address": "0x0071a50c",
+     "col": "0x00747dc4",
+     "methods": [
+      "0x00585970"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "abstr::Function"
+   ],
+   "all_bases": [
+    "abstr::Function"
+   ]
+  },
+  "abstr::Method2<cube::System,void,int,int>": {
+   "mangled": ".?AV?$Method2@VSystem@cube@@XHH@abstr@@",
+   "td": "0x00767600",
+   "vtables": [
+    {
+     "address": "0x0071a514",
+     "col": "0x00747e10",
+     "methods": [
+      "0x00585d40"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "abstr::Function"
+   ],
+   "all_bases": [
+    "abstr::Function"
+   ]
+  },
+  "abstr::Method1<cube::System,std::basic_string<char,std::char_traits<char>,std::allocator<char>_>,std::basic_string<char,struct_std::char_traits<char>,class_std::allocator<char>_>_>": {
+   "mangled": ".?AV?$Method1@VSystem@cube@@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V34@@abstr@@",
+   "td": "0x00767630",
+   "vtables": [
+    {
+     "address": "0x0071a51c",
+     "col": "0x00747e5c",
+     "methods": [
+      "0x005859d0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "abstr::Function"
+   ],
+   "all_bases": [
+    "abstr::Function"
+   ]
+  },
+  "abstr::Method1<cube::System,std::basic_string<char,std::char_traits<char>,std::allocator<char>_>,int>": {
+   "mangled": ".?AV?$Method1@VSystem@cube@@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@H@abstr@@",
+   "td": "0x007676a0",
+   "vtables": [
+    {
+     "address": "0x0071a524",
+     "col": "0x00747ea8",
+     "methods": [
+      "0x005859b0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "abstr::Function"
+   ],
+   "all_bases": [
+    "abstr::Function"
+   ]
+  },
+  "abstr::Method0<cube::System,std::basic_string<char,std::char_traits<char>,std::allocator<char>_>_>": {
+   "mangled": ".?AV?$Method0@VSystem@cube@@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@abstr@@",
+   "td": "0x00767710",
+   "vtables": [
+    {
+     "address": "0x0071a52c",
+     "col": "0x00747ef4",
+     "methods": [
+      "0x00585950"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "abstr::Function"
+   ],
+   "all_bases": [
+    "abstr::Function"
+   ]
+  },
+  "abstr::Method2<cube::System,std::basic_string<char,std::char_traits<char>,std::allocator<char>_>,std::basic_string<char,struct_std::char_traits<char>,class_std::allocator<char>_>,std::basic_string<char,struct_std::char_traits<char>,class_std::allocator<char>_>_>": {
+   "mangled": ".?AV?$Method2@VSystem@cube@@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V34@V34@@abstr@@",
+   "td": "0x00767780",
+   "vtables": [
+    {
+     "address": "0x0071a534",
+     "col": "0x00747f40",
+     "methods": [
+      "0x00585d20"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "abstr::Function"
+   ],
+   "all_bases": [
+    "abstr::Function"
+   ]
+  },
+  "abstr::Method2<cube::System,void,std::basic_string<char,std::char_traits<char>,std::allocator<char>_>,std::basic_string<char,struct_std::char_traits<char>,class_std::allocator<char>_>_>": {
+   "mangled": ".?AV?$Method2@VSystem@cube@@XV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V34@@abstr@@",
+   "td": "0x007677f8",
+   "vtables": [
+    {
+     "address": "0x0071a53c",
+     "col": "0x00747f8c",
+     "methods": [
+      "0x00585dd0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "abstr::Function"
+   ],
+   "all_bases": [
+    "abstr::Function"
+   ]
+  },
+  "abstr::Method1<cube::System,void,std::basic_string<char,std::char_traits<char>,std::allocator<char>_>_>": {
+   "mangled": ".?AV?$Method1@VSystem@cube@@XV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@abstr@@",
+   "td": "0x00767868",
+   "vtables": [
+    {
+     "address": "0x0071a544",
+     "col": "0x00747fd8",
+     "methods": [
+      "0x00585be0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "abstr::Function"
+   ],
+   "all_bases": [
+    "abstr::Function"
+   ]
+  },
+  "abstr::Method2<cube::System,int,std::basic_string<char,std::char_traits<char>,std::allocator<char>_>,std::basic_string<char,struct_std::char_traits<char>,class_std::allocator<char>_>_>": {
+   "mangled": ".?AV?$Method2@VSystem@cube@@HV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V34@@abstr@@",
+   "td": "0x007678d8",
+   "vtables": [
+    {
+     "address": "0x0071a54c",
+     "col": "0x00748024",
+     "methods": [
+      "0x00585c90"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "abstr::Function"
+   ],
+   "all_bases": [
+    "abstr::Function"
+   ]
+  },
+  "cube::SystemWidget": {
+   "mangled": ".?AVSystemWidget@cube@@",
+   "td": "0x00767958",
+   "vtables": [
+    {
+     "address": "0x0071a564",
+     "col": "0x00748070",
+     "methods": [
+      "0x00428a30",
+      "0x00587710",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00411330",
+      "0x00687d10",
+      "0x004114b0",
+      "0x0062a8b0",
+      "0x0062b350",
+      "0x0062af10",
+      "0x004114b0",
+      "0x0062a9e0",
+      "0x0062abe0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062ac20",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x00627dc0",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x0071a614",
+     "col": "0x007480c8",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::Widget"
+   ],
+   "all_bases": [
+    "plasma::Widget",
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "cube::VoxelWidget": {
+   "mangled": ".?AVVoxelWidget@cube@@",
+   "td": "0x00767988",
+   "vtables": [
+    {
+     "address": "0x0071a664",
+     "col": "0x007480dc",
+     "methods": [
+      "0x005881b0",
+      "0x00588500",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00411330",
+      "0x00687d10",
+      "0x004114b0",
+      "0x0062a8b0",
+      "0x0062b350",
+      "0x0062af10",
+      "0x004114b0",
+      "0x0062a9e0",
+      "0x0062abe0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062ac20",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x00627dc0",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x0071a714",
+     "col": "0x00748134",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::Widget"
+   ],
+   "all_bases": [
+    "plasma::Widget",
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "cube::WalkPathBehavior": {
+   "mangled": ".?AVWalkPathBehavior@cube@@",
+   "td": "0x007679a8",
+   "vtables": [
+    {
+     "address": "0x0071a770",
+     "col": "0x00748148",
+     "methods": [
+      "0x0058d050",
+      "0x0058d630"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "cube::Behavior"
+   ],
+   "all_bases": [
+    "cube::Behavior"
+   ]
+  },
+  "cube::World": {
+   "mangled": ".?AVWorld@cube@@",
+   "td": "0x007679cc",
+   "vtables": [
+    {
+     "address": "0x0071a794",
+     "col": "0x00748194",
+     "methods": [
+      "0x005946c0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::Spawn": {
+   "mangled": ".?AUSpawn@cube@@",
+   "td": "0x007679e8",
+   "vtables": [
+    {
+     "address": "0x0071dbec",
+     "col": "0x007481dc",
+     "methods": [
+      "0x005addb0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::House": {
+   "mangled": ".?AVHouse@cube@@",
+   "td": "0x00767a04",
+   "vtables": [
+    {
+     "address": "0x0071dc24",
+     "col": "0x00748224",
+     "methods": [
+      "0x005aee10"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::Region": {
+   "mangled": ".?AURegion@cube@@",
+   "td": "0x00767a20",
+   "vtables": [
+    {
+     "address": "0x0071dccc",
+     "col": "0x0074826c",
+     "methods": [
+      "0x005c3fb0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::Dungeon": {
+   "mangled": ".?AVDungeon@cube@@",
+   "td": "0x00767a3c",
+   "vtables": [
+    {
+     "address": "0x0071dcd4",
+     "col": "0x007482b4",
+     "methods": [
+      "0x005c3f80"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::ZoneTile": {
+   "mangled": ".?AVZoneTile@cube@@",
+   "td": "0x00767a58",
+   "vtables": [
+    {
+     "address": "0x0071dfbc",
+     "col": "0x007482fc",
+     "methods": [
+      "0x005fbb00"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::WorldMap": {
+   "mangled": ".?AVWorldMap@cube@@",
+   "td": "0x00767a74",
+   "vtables": [
+    {
+     "address": "0x0071dfcc",
+     "col": "0x00748344",
+     "methods": [
+      "0x005fbad0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::LandscapeTile": {
+   "mangled": ".?AULandscapeTile@cube@@",
+   "td": "0x00767a90",
+   "vtables": [
+    {
+     "address": "0x0071dfc4",
+     "col": "0x0074838c",
+     "methods": [
+      "0x005fbaa0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::WorldPreviewWidget": {
+   "mangled": ".?AVWorldPreviewWidget@cube@@",
+   "td": "0x00767ac4",
+   "vtables": [
+    {
+     "address": "0x0071e09c",
+     "col": "0x007483d4",
+     "methods": [
+      "0x00428a30",
+      "0x00605ae0",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00411330",
+      "0x004c59a0",
+      "0x004114b0",
+      "0x0062a8b0",
+      "0x0062b350",
+      "0x0062af10",
+      "0x004114b0",
+      "0x0062a9e0",
+      "0x0062abe0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062ac20",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x00627dc0",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x0071e14c",
+     "col": "0x0074842c",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180",
+      "0x0065004e"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::Widget"
+   ],
+   "all_bases": [
+    "plasma::Widget",
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "cube::Music": {
+   "mangled": ".?AVMusic@cube@@",
+   "td": "0x00767b28",
+   "vtables": [
+    {
+     "address": "0x0071e22c",
+     "col": "0x00748474",
+     "methods": [
+      "0x00623060"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::XAudio2Engine": {
+   "mangled": ".?AVXAudio2Engine@cube@@",
+   "td": "0x00767b44",
+   "vtables": [
+    {
+     "address": "0x0071e23c",
+     "col": "0x007484bc",
+     "methods": [
+      "0x00623410",
+      "0x00623980",
+      "0x006240b0",
+      "0x00623e60",
+      "0x00623600",
+      "0x00623a00",
+      "0x00623610",
+      "0x00623a60",
+      "0x006230d0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "cube::Audio"
+   ],
+   "all_bases": [
+    "cube::Audio"
+   ]
+  },
+  "cube::XAudio2Engine::Sound": {
+   "mangled": ".?AUSound@XAudio2Engine@cube@@",
+   "td": "0x00767b68",
+   "vtables": [
+    {
+     "address": "0x0071e234",
+     "col": "0x00748508",
+     "methods": [
+      "0x006230a0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::Zone": {
+   "mangled": ".?AVZone@cube@@",
+   "td": "0x00767b90",
+   "vtables": [
+    {
+     "address": "0x0071e280",
+     "col": "0x00748550",
+     "methods": [
+      "0x00624760"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "plasma::NamedObject": {
+   "mangled": ".?AVNamedObject@plasma@@",
+   "td": "0x0076567c",
+   "vtables": [
+    {
+     "address": "0x0071e710",
+     "col": "0x00748598",
+     "methods": [
+      "0x00627850"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Object"
+   ],
+   "all_bases": [
+    "plasma::Object"
+   ]
+  },
+  "plasma::Deformer": {
+   "mangled": ".?AVDeformer@plasma@@",
+   "td": "0x007656e0",
+   "vtables": [
+    {
+     "address": "0x0071e718",
+     "col": "0x007485ac",
+     "methods": [
+      "0x0068d662",
+      "0x0068d662"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "plasma::Widget": {
+   "mangled": ".?AVWidget@plasma@@",
+   "td": "0x0076547c",
+   "vtables": [
+    {
+     "address": "0x0071e724",
+     "col": "0x007485c0",
+     "methods": [
+      "0x00428a30",
+      "0x004114b0",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00411330",
+      "0x00687d10",
+      "0x004114b0",
+      "0x0062a8b0",
+      "0x0062b350",
+      "0x0062af10",
+      "0x004114b0",
+      "0x0062a9e0",
+      "0x0062abe0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062ac20",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x00627dc0",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x0071e7d4",
+     "col": "0x007485d4",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180",
+      "0x00690077",
+      "0x00670064"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::NamedObject",
+    "plasma::Deformer"
+   ],
+   "all_bases": [
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "plasma::Node": {
+   "mangled": ".?AVNode@plasma@@",
+   "td": "0x00768c38",
+   "vtables": [
+    {
+     "address": "0x0071e82c",
+     "col": "0x007485e8",
+     "methods": [
+      "0x006309e0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::NamedObject"
+   ],
+   "all_bases": [
+    "plasma::NamedObject",
+    "plasma::Object"
+   ]
+  },
+  "plasma::Edit": {
+   "mangled": ".?AVEdit@plasma@@",
+   "td": "0x00768c64",
+   "vtables": [
+    {
+     "address": "0x0071e83c",
+     "col": "0x00748638",
+     "methods": [
+      "0x00637760",
+      "0x006378e0",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00411330",
+      "0x00637c50",
+      "0x004114b0",
+      "0x00637e80",
+      "0x0062b350",
+      "0x0062af10",
+      "0x004114b0",
+      "0x00638370",
+      "0x006384f0",
+      "0x00638320",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00638500",
+      "0x004114b0",
+      "0x004114b0",
+      "0x006380c0",
+      "0x00675660",
+      "0x00637f00",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x00637790",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x0071e8ec",
+     "col": "0x00748690",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::Widget"
+   ],
+   "all_bases": [
+    "plasma::Widget",
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "plasma::FontEngine": {
+   "mangled": ".?AVFontEngine@plasma@@",
+   "td": "0x00768c90",
+   "vtables": [
+    {
+     "address": "0x0071e8f8",
+     "col": "0x007486a4",
+     "methods": [
+      "0x006391b0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "plasma::ContinuousArrayAttribute<plasma::Vector<4,float>_>": {
+   "mangled": ".?AV?$ContinuousArrayAttribute@V?$Vector@$03M@plasma@@@plasma@@",
+   "td": "0x00768ce0",
+   "vtables": [
+    {
+     "address": "0x0071e90c",
+     "col": "0x00748720",
+     "methods": [
+      "0x0063d7f0",
+      "0x00642580",
+      "0x0063df60",
+      "0x00641b30",
+      "0x00641440",
+      "0x00642870",
+      "0x00641b70"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Attribute"
+   ],
+   "all_bases": [
+    "plasma::Attribute"
+   ]
+  },
+  "plasma::SmoothMeshShape": {
+   "mangled": ".?AVSmoothMeshShape@plasma@@",
+   "td": "0x00768d28",
+   "vtables": [
+    {
+     "address": "0x0071e92c",
+     "col": "0x0074876c",
+     "methods": [
+      "0x0063d820",
+      "0x00644fa0",
+      "0x00641280",
+      "0x006424b0",
+      "0x00642430",
+      "0x0043a000",
+      "0x00669080",
+      "0x00669060",
+      "0x00641aa0",
+      "0x00669460",
+      "0x0066be80",
+      "0x0066b1f0",
+      "0x0066c8f0",
+      "0x00640e20",
+      "0x00675660",
+      "0x00641320",
+      "0x00641660",
+      "0x00642410",
+      "0x00668b60",
+      "0x0066be90"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::MeshShape"
+   ],
+   "all_bases": [
+    "plasma::MeshShape",
+    "plasma::Shape",
+    "plasma::Keyable",
+    "plasma::NamedObject",
+    "plasma::Object"
+   ]
+  },
+  "plasma::Engine": {
+   "mangled": ".?AVEngine@plasma@@",
+   "td": "0x00768ea8",
+   "vtables": [
+    {
+     "address": "0x0071e9d4",
+     "col": "0x00748888",
+     "methods": [
+      "0x0064e2b0",
+      "0x0043a000",
+      "0x0068d662",
+      "0x0068d662",
+      "0x0068d662",
+      "0x0068d662",
+      "0x0068d662",
+      "0x006509e0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0068d662",
+      "0x0068d662",
+      "0x00650150",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x0068d662",
+      "0x0068d662",
+      "0x0068d662",
+      "0x0068d662",
+      "0x0068d662",
+      "0x0068d662",
+      "0x0067f440",
+      "0x004114b0",
+      "0x006509d0",
+      "0x006f0072"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::ObjectManager"
+   ],
+   "all_bases": [
+    "plasma::ObjectManager"
+   ]
+  },
+  "plasma::DiscreteAttribute<int>": {
+   "mangled": ".?AV?$DiscreteAttribute@H@plasma@@",
+   "td": "0x00768ee8",
+   "vtables": [
+    {
+     "address": "0x0071e98c",
+     "col": "0x00748908",
+     "methods": [
+      "0x0064e260",
+      "0x00642580",
+      "0x00668ea0",
+      "0x00669630",
+      "0x00669310",
+      "0x0066b020",
+      "0x006531a0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Attribute"
+   ],
+   "all_bases": [
+    "plasma::Attribute"
+   ]
+  },
+  "plasma::ContinuousAttribute<plasma::Vector<4,float>_>": {
+   "mangled": ".?AV?$ContinuousAttribute@V?$Vector@$03M@plasma@@@plasma@@",
+   "td": "0x00768f18",
+   "vtables": [
+    {
+     "address": "0x0071e9ac",
+     "col": "0x00748954",
+     "methods": [
+      "0x0064e260",
+      "0x00653200",
+      "0x0064ea80",
+      "0x00650e30",
+      "0x00650aa0",
+      "0x00659d20",
+      "0x00652de0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Attribute"
+   ],
+   "all_bases": [
+    "plasma::Attribute"
+   ]
+  },
+  "plasma::ObjectManager": {
+   "mangled": ".?AVObjectManager@plasma@@",
+   "td": "0x00768ec4",
+   "vtables": [
+    {
+     "address": "0x0071e9cc",
+     "col": "0x007489a0",
+     "methods": [
+      "0x0064e2e0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "plasma::ScalableFont": {
+   "mangled": ".?AVScalableFont@plasma@@",
+   "td": "0x00768f70",
+   "vtables": [
+    {
+     "address": "0x0071ebb0",
+     "col": "0x007489b4",
+     "methods": [
+      "0x0065ade0",
+      "0x00410044"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "plasma::Texture": {
+   "mangled": ".?AVTexture@plasma@@",
+   "td": "0x00768fa4",
+   "vtables": [
+    {
+     "address": "0x0071ebc0",
+     "col": "0x007489fc",
+     "methods": [
+      "0x00661230",
+      "0x0068d662",
+      "0x0068d662"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::NamedObject"
+   ],
+   "all_bases": [
+    "plasma::NamedObject",
+    "plasma::Object"
+   ]
+  },
+  "plasma::Attribute": {
+   "mangled": ".?AVAttribute@plasma@@",
+   "td": "0x00768cc0",
+   "vtables": [
+    {
+     "address": "0x0071ebd0",
+     "col": "0x00748a4c",
+     "methods": [
+      "0x00661910",
+      "0x0068d662",
+      "0x0068d662",
+      "0x0068d662",
+      "0x0068d662",
+      "0x0068d662",
+      "0x0068d662"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "plasma::Object": {
+   "mangled": ".?AVObject@plasma@@",
+   "td": "0x007656a0",
+   "vtables": [
+    {
+     "address": "0x0071ebf0",
+     "col": "0x00748a60",
+     "methods": [
+      "0x006627a0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "plasma::ScrollSlider": {
+   "mangled": ".?AVScrollSlider@plasma@@",
+   "td": "0x00768e84",
+   "vtables": [
+    {
+     "address": "0x0071ebfc",
+     "col": "0x00748a74",
+     "methods": [
+      "0x00662830",
+      "0x004114b0",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00411330",
+      "0x00687d10",
+      "0x004114b0",
+      "0x00662aa0",
+      "0x0062b350",
+      "0x00662db0",
+      "0x004114b0",
+      "0x00662b10",
+      "0x00665ac0",
+      "0x006659d0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00662b80",
+      "0x00665b00",
+      "0x00665b30",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x00665b60",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x00662a00",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x0071ecac",
+     "col": "0x00748b14",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::Button"
+   ],
+   "all_bases": [
+    "plasma::Button",
+    "plasma::Widget",
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "plasma::TextShape": {
+   "mangled": ".?AVTextShape@plasma@@",
+   "td": "0x00765ab4",
+   "vtables": [
+    {
+     "address": "0x0071ecdc",
+     "col": "0x00748b28",
+     "methods": [
+      "0x00663770",
+      "0x00664770",
+      "0x00663da0",
+      "0x00664260",
+      "0x00664210",
+      "0x00411330",
+      "0x00663c40",
+      "0x00663c20",
+      "0x00663fe0",
+      "0x00663fe0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00664a00",
+      "0x00663c60",
+      "0x00664920",
+      "0x00675660",
+      "0x004114b0",
+      "0x00411330",
+      "0x00663b50"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Shape"
+   ],
+   "all_bases": [
+    "plasma::Shape",
+    "plasma::Keyable",
+    "plasma::NamedObject",
+    "plasma::Object"
+   ]
+  },
+  "plasma::DiscreteAttribute<std::basic_string<wchar_t,std::char_traits<wchar_t>,std::allocator<wchar_t>_>_>": {
+   "mangled": ".?AV?$DiscreteAttribute@V?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@@plasma@@",
+   "td": "0x00769010",
+   "vtables": [
+    {
+     "address": "0x0071ecb8",
+     "col": "0x00748b80",
+     "methods": [
+      "0x00663710",
+      "0x00664680",
+      "0x00663b60",
+      "0x00663ff0",
+      "0x00663f70",
+      "0x006646a0",
+      "0x006640c0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Attribute"
+   ],
+   "all_bases": [
+    "plasma::Attribute"
+   ]
+  },
+  "plasma::Keyable": {
+   "mangled": ".?AVKeyable@plasma@@",
+   "td": "0x00768d70",
+   "vtables": [
+    {
+     "address": "0x0071ed74",
+     "col": "0x00748bcc",
+     "methods": [
+      "0x00664b70",
+      "0x00675660"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::NamedObject"
+   ],
+   "all_bases": [
+    "plasma::NamedObject",
+    "plasma::Object"
+   ]
+  },
+  "plasma::Button": {
+   "mangled": ".?AVButton@plasma@@",
+   "td": "0x00768fe4",
+   "vtables": [
+    {
+     "address": "0x0071ed84",
+     "col": "0x00748be0",
+     "methods": [
+      "0x00665370",
+      "0x004114b0",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00411330",
+      "0x00687d10",
+      "0x004114b0",
+      "0x006655d0",
+      "0x0062b350",
+      "0x0062af10",
+      "0x004114b0",
+      "0x006659e0",
+      "0x00665ac0",
+      "0x006659d0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062ac20",
+      "0x00665b00",
+      "0x00665b30",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x00665b60",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x00665550",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x0071ee34",
+     "col": "0x00748bf4",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::Widget"
+   ],
+   "all_bases": [
+    "plasma::Widget",
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "plasma::MeshShape": {
+   "mangled": ".?AVMeshShape@plasma@@",
+   "td": "0x00768d50",
+   "vtables": [
+    {
+     "address": "0x0071f034",
+     "col": "0x00748c08",
+     "methods": [
+      "0x00667da0",
+      "0x00675660",
+      "0x00675660",
+      "0x00663fe0",
+      "0x0066ac20",
+      "0x0043a000",
+      "0x00669080",
+      "0x00669060",
+      "0x00663fe0",
+      "0x00669460",
+      "0x0066be80",
+      "0x0066b1f0",
+      "0x0066c8f0",
+      "0x006690a0",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x00411330",
+      "0x00668b60",
+      "0x0066be90"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Shape"
+   ],
+   "all_bases": [
+    "plasma::Shape",
+    "plasma::Keyable",
+    "plasma::NamedObject",
+    "plasma::Object"
+   ]
+  },
+  "plasma::ContinuousArrayAttribute<plasma::Vector<2,float>_>": {
+   "mangled": ".?AV?$ContinuousArrayAttribute@V?$Vector@$01M@plasma@@@plasma@@",
+   "td": "0x007690a0",
+   "vtables": [
+    {
+     "address": "0x0071ef74",
+     "col": "0x00748c1c",
+     "methods": [
+      "0x00667d70",
+      "0x00642580",
+      "0x00668de0",
+      "0x00669600",
+      "0x00641440",
+      "0x0066aff0",
+      "0x00669850"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Attribute"
+   ],
+   "all_bases": [
+    "plasma::Attribute"
+   ]
+  },
+  "plasma::ContinuousArrayAttribute<float>": {
+   "mangled": ".?AV?$ContinuousArrayAttribute@M@plasma@@",
+   "td": "0x007690e8",
+   "vtables": [
+    {
+     "address": "0x0071ef94",
+     "col": "0x00748c68",
+     "methods": [
+      "0x00667d40",
+      "0x00642580",
+      "0x00668d20",
+      "0x006695d0",
+      "0x00641440",
+      "0x0066afc0",
+      "0x00669720"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Attribute"
+   ],
+   "all_bases": [
+    "plasma::Attribute"
+   ]
+  },
+  "plasma::ContinuousAttribute<plasma::Vector<2,float>_>": {
+   "mangled": ".?AV?$ContinuousAttribute@V?$Vector@$01M@plasma@@@plasma@@",
+   "td": "0x00769120",
+   "vtables": [
+    {
+     "address": "0x0071efb4",
+     "col": "0x00748cb4",
+     "methods": [
+      "0x0064e260",
+      "0x0066ada0",
+      "0x00668fb0",
+      "0x006696a0",
+      "0x006693c0",
+      "0x0066b090",
+      "0x0066a7c0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Attribute"
+   ],
+   "all_bases": [
+    "plasma::Attribute"
+   ]
+  },
+  "plasma::ContinuousAttribute<plasma::Vector<3,float>_>": {
+   "mangled": ".?AV?$ContinuousAttribute@V?$Vector@$02M@plasma@@@plasma@@",
+   "td": "0x00769168",
+   "vtables": [
+    {
+     "address": "0x0071efd4",
+     "col": "0x00748d00",
+     "methods": [
+      "0x0064e260",
+      "0x0066adb0",
+      "0x00669000",
+      "0x006696d0",
+      "0x00669410",
+      "0x0066b0c0",
+      "0x0066a950"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Attribute"
+   ],
+   "all_bases": [
+    "plasma::Attribute"
+   ]
+  },
+  "plasma::ContinuousAttribute<plasma::Matrix<float>_>": {
+   "mangled": ".?AV?$ContinuousAttribute@V?$Matrix@M@plasma@@@plasma@@",
+   "td": "0x007691b0",
+   "vtables": [
+    {
+     "address": "0x0071eff4",
+     "col": "0x00748d4c",
+     "methods": [
+      "0x0064e260",
+      "0x0066ad90",
+      "0x00668ef0",
+      "0x00669660",
+      "0x00669350",
+      "0x0066b050",
+      "0x00669d30"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Attribute"
+   ],
+   "all_bases": [
+    "plasma::Attribute"
+   ]
+  },
+  "plasma::ContinuousAttribute<float>": {
+   "mangled": ".?AV?$ContinuousAttribute@M@plasma@@",
+   "td": "0x007691f0",
+   "vtables": [
+    {
+     "address": "0x0071f014",
+     "col": "0x00748d98",
+     "methods": [
+      "0x0064e260",
+      "0x00642580",
+      "0x00668ea0",
+      "0x00669630",
+      "0x00669310",
+      "0x0066b020",
+      "0x00669c70"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Attribute"
+   ],
+   "all_bases": [
+    "plasma::Attribute"
+   ]
+  },
+  "std::bad_alloc": {
+   "mangled": ".?AVbad_alloc@std@@",
+   "td": "0x00769248",
+   "vtables": [
+    {
+     "address": "0x0071f210",
+     "col": "0x00748de4",
+     "methods": [
+      "0x00671230",
+      "0x0068e40e"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "std::exception"
+   ],
+   "all_bases": [
+    "std::exception"
+   ]
+  },
+  "Concurrency::details::_UnrealizedChore": {
+   "mangled": ".?AV_UnrealizedChore@details@Concurrency@@",
+   "td": "0x00769264",
+   "vtables": [
+    {
+     "address": "0x0071f240",
+     "col": "0x00748e30",
+     "methods": [
+      "0x00671200"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "Concurrency::details::_Chore",
+    "Concurrency::details::_AllocBase"
+   ],
+   "all_bases": [
+    "Concurrency::details::_Chore",
+    "Concurrency::details::_AllocBase"
+   ]
+  },
+  "Concurrency::missing_wait": {
+   "mangled": ".?AVmissing_wait@Concurrency@@",
+   "td": "0x00769220",
+   "vtables": [
+    {
+     "address": "0x0071f22c",
+     "col": "0x00748f04",
+     "methods": [
+      "0x00671260",
+      "0x0068e40e"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "std::exception"
+   ],
+   "all_bases": [
+    "std::exception"
+   ]
+  },
+  "Concurrency::details::_Chore": {
+   "mangled": ".?AU_Chore@details@Concurrency@@",
+   "td": "0x00769298",
+   "vtables": [
+    {
+     "address": "0x0071f238",
+     "col": "0x00748f50",
+     "methods": [
+      "0x006711d0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "Concurrency::task_handle<Concurrency::_Parallel_chunk_helper<Concurrency::details::_Vector_iterator<Concurrency::concurrent_vector<plasma::QuadVertex*,std::allocator<plasma::QuadVertex*>_>,plasma::QuadVertex*>,int,<lambda_c31a3785b8ee29a1ce8445e019cbe6ee>,Concurrency::auto_partitioner,1>_>": {
+   "mangled": ".?AV?$task_handle@V?$_Parallel_chunk_helper@V?$_Vector_iterator@V?$concurrent_vector@PAUQuadVertex@plasma@@V?$allocator@PAUQuadVertex@plasma@@@std@@@Concurrency@@PAUQuadVertex@plasma@@@details@Concurrency@@HV<lambda_c31a3785b8ee29a1ce8445e019cbe6ee>@@Vauto_partitioner@3@$00@Concurrency@@@Concurrency@@",
+   "td": "0x007692f8",
+   "vtables": [
+    {
+     "address": "0x0071f250",
+     "col": "0x00748f64",
+     "methods": [
+      "0x00670f50"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "Concurrency::details::_UnrealizedChore"
+   ],
+   "all_bases": [
+    "Concurrency::details::_UnrealizedChore",
+    "Concurrency::details::_Chore",
+    "Concurrency::details::_AllocBase"
+   ]
+  },
+  "Concurrency::details::_MallocaArrayHolder<Concurrency::task_handle<Concurrency::_Parallel_chunk_helper<Concurrency::details::_Vector_iterator<Concurrency::concurrent_vector<plasma::QuadVertex*,std::allocator<plasma::QuadVertex*>_>,plasma::QuadVertex*>,int,<lambda_c31a3785b8ee29a1ce8445e019cbe6ee>,Concurrency::auto_partitioner,1>_>_>": {
+   "mangled": ".?AV?$_MallocaArrayHolder@V?$task_handle@V?$_Parallel_chunk_helper@V?$_Vector_iterator@V?$concurrent_vector@PAUQuadVertex@plasma@@V?$allocator@PAUQuadVertex@plasma@@@std@@@Concurrency@@PAUQuadVertex@plasma@@@details@Concurrency@@HV<lambda_c31a3785b8ee29a1ce8445e019cbe6ee>@@Vauto_partitioner@3@$00@Concurrency@@@Concurrency@@@details@Concurrency@@",
+   "td": "0x00769430",
+   "vtables": [
+    {
+     "address": "0x0071f248",
+     "col": "0x00748fb8",
+     "methods": [
+      "0x00670d70"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "Concurrency::task_handle<Concurrency::_Parallel_chunk_helper<Concurrency::details::_Vector_iterator<Concurrency::concurrent_vector<plasma::QuadFace,std::allocator<plasma::QuadFace>_>,plasma::QuadFace>,int,<lambda_37224fa58ba67e25838a8994307bb82e>,Concurrency::auto_partitioner,1>_>": {
+   "mangled": ".?AV?$task_handle@V?$_Parallel_chunk_helper@V?$_Vector_iterator@V?$concurrent_vector@UQuadFace@plasma@@V?$allocator@UQuadFace@plasma@@@std@@@Concurrency@@UQuadFace@plasma@@@details@Concurrency@@HV<lambda_37224fa58ba67e25838a8994307bb82e>@@Vauto_partitioner@3@$00@Concurrency@@@Concurrency@@",
+   "td": "0x00769598",
+   "vtables": [
+    {
+     "address": "0x0071f260",
+     "col": "0x00749000",
+     "methods": [
+      "0x00671150"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "Concurrency::details::_UnrealizedChore"
+   ],
+   "all_bases": [
+    "Concurrency::details::_UnrealizedChore",
+    "Concurrency::details::_Chore",
+    "Concurrency::details::_AllocBase"
+   ]
+  },
+  "Concurrency::details::_MallocaArrayHolder<Concurrency::task_handle<Concurrency::_Parallel_chunk_helper<Concurrency::details::_Vector_iterator<Concurrency::concurrent_vector<plasma::QuadFace,std::allocator<plasma::QuadFace>_>,plasma::QuadFace>,int,<lambda_37224fa58ba67e25838a8994307bb82e>,Concurrency::auto_partitioner,1>_>_>": {
+   "mangled": ".?AV?$_MallocaArrayHolder@V?$task_handle@V?$_Parallel_chunk_helper@V?$_Vector_iterator@V?$concurrent_vector@UQuadFace@plasma@@V?$allocator@UQuadFace@plasma@@@std@@@Concurrency@@UQuadFace@plasma@@@details@Concurrency@@HV<lambda_37224fa58ba67e25838a8994307bb82e>@@Vauto_partitioner@3@$00@Concurrency@@@Concurrency@@@details@Concurrency@@",
+   "td": "0x007696c8",
+   "vtables": [
+    {
+     "address": "0x0071f258",
+     "col": "0x00749054",
+     "methods": [
+      "0x00670e30"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "Concurrency::task_handle<Concurrency::_Parallel_chunk_helper<Concurrency::details::_Vector_iterator<Concurrency::concurrent_vector<plasma::QuadEdge,std::allocator<plasma::QuadEdge>_>,plasma::QuadEdge>,int,<lambda_9843e8019373a7557d3f3e498d32c258>,Concurrency::auto_partitioner,1>_>": {
+   "mangled": ".?AV?$task_handle@V?$_Parallel_chunk_helper@V?$_Vector_iterator@V?$concurrent_vector@UQuadEdge@plasma@@V?$allocator@UQuadEdge@plasma@@@std@@@Concurrency@@UQuadEdge@plasma@@@details@Concurrency@@HV<lambda_9843e8019373a7557d3f3e498d32c258>@@Vauto_partitioner@3@$00@Concurrency@@@Concurrency@@",
+   "td": "0x00769820",
+   "vtables": [
+    {
+     "address": "0x0071f270",
+     "col": "0x0074909c",
+     "methods": [
+      "0x00671050"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "Concurrency::details::_UnrealizedChore"
+   ],
+   "all_bases": [
+    "Concurrency::details::_UnrealizedChore",
+    "Concurrency::details::_Chore",
+    "Concurrency::details::_AllocBase"
+   ]
+  },
+  "Concurrency::details::_MallocaArrayHolder<Concurrency::task_handle<Concurrency::_Parallel_chunk_helper<Concurrency::details::_Vector_iterator<Concurrency::concurrent_vector<plasma::QuadEdge,std::allocator<plasma::QuadEdge>_>,plasma::QuadEdge>,int,<lambda_9843e8019373a7557d3f3e498d32c258>,Concurrency::auto_partitioner,1>_>_>": {
+   "mangled": ".?AV?$_MallocaArrayHolder@V?$task_handle@V?$_Parallel_chunk_helper@V?$_Vector_iterator@V?$concurrent_vector@UQuadEdge@plasma@@V?$allocator@UQuadEdge@plasma@@@std@@@Concurrency@@UQuadEdge@plasma@@@details@Concurrency@@HV<lambda_9843e8019373a7557d3f3e498d32c258>@@Vauto_partitioner@3@$00@Concurrency@@@Concurrency@@@details@Concurrency@@",
+   "td": "0x00769950",
+   "vtables": [
+    {
+     "address": "0x0071f268",
+     "col": "0x007490f0",
+     "methods": [
+      "0x00670dd0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "Concurrency::task_handle<Concurrency::_Parallel_chunk_helper<Concurrency::details::_Vector_iterator<Concurrency::concurrent_vector<plasma::QuadVertex*,std::allocator<plasma::QuadVertex*>_>,plasma::QuadVertex*>,int,<lambda_fe4ce4a6aaf0318c62c756eaccc0431b>,Concurrency::auto_partitioner,1>_>": {
+   "mangled": ".?AV?$task_handle@V?$_Parallel_chunk_helper@V?$_Vector_iterator@V?$concurrent_vector@PAUQuadVertex@plasma@@V?$allocator@PAUQuadVertex@plasma@@@std@@@Concurrency@@PAUQuadVertex@plasma@@@details@Concurrency@@HV<lambda_fe4ce4a6aaf0318c62c756eaccc0431b>@@Vauto_partitioner@3@$00@Concurrency@@@Concurrency@@",
+   "td": "0x00769aa8",
+   "vtables": [
+    {
+     "address": "0x0071f280",
+     "col": "0x00749138",
+     "methods": [
+      "0x00670fd0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "Concurrency::details::_UnrealizedChore"
+   ],
+   "all_bases": [
+    "Concurrency::details::_UnrealizedChore",
+    "Concurrency::details::_Chore",
+    "Concurrency::details::_AllocBase"
+   ]
+  },
+  "Concurrency::details::_MallocaArrayHolder<Concurrency::task_handle<Concurrency::_Parallel_chunk_helper<Concurrency::details::_Vector_iterator<Concurrency::concurrent_vector<plasma::QuadVertex*,std::allocator<plasma::QuadVertex*>_>,plasma::QuadVertex*>,int,<lambda_fe4ce4a6aaf0318c62c756eaccc0431b>,Concurrency::auto_partitioner,1>_>_>": {
+   "mangled": ".?AV?$_MallocaArrayHolder@V?$task_handle@V?$_Parallel_chunk_helper@V?$_Vector_iterator@V?$concurrent_vector@PAUQuadVertex@plasma@@V?$allocator@PAUQuadVertex@plasma@@@std@@@Concurrency@@PAUQuadVertex@plasma@@@details@Concurrency@@HV<lambda_fe4ce4a6aaf0318c62c756eaccc0431b>@@Vauto_partitioner@3@$00@Concurrency@@@Concurrency@@@details@Concurrency@@",
+   "td": "0x00769be0",
+   "vtables": [
+    {
+     "address": "0x0071f278",
+     "col": "0x0074918c",
+     "methods": [
+      "0x00670da0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "Concurrency::task_handle<Concurrency::_Parallel_chunk_helper<Concurrency::details::_Vector_iterator<Concurrency::concurrent_vector<plasma::QuadEdge,std::allocator<plasma::QuadEdge>_>,plasma::QuadEdge>,int,<lambda_e3fd6255bcf168381cb2d01c4cfc52ca>,Concurrency::auto_partitioner,1>_>": {
+   "mangled": ".?AV?$task_handle@V?$_Parallel_chunk_helper@V?$_Vector_iterator@V?$concurrent_vector@UQuadEdge@plasma@@V?$allocator@UQuadEdge@plasma@@@std@@@Concurrency@@UQuadEdge@plasma@@@details@Concurrency@@HV<lambda_e3fd6255bcf168381cb2d01c4cfc52ca>@@Vauto_partitioner@3@$00@Concurrency@@@Concurrency@@",
+   "td": "0x00769d48",
+   "vtables": [
+    {
+     "address": "0x0071f290",
+     "col": "0x007491d4",
+     "methods": [
+      "0x006710d0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "Concurrency::details::_UnrealizedChore"
+   ],
+   "all_bases": [
+    "Concurrency::details::_UnrealizedChore",
+    "Concurrency::details::_Chore",
+    "Concurrency::details::_AllocBase"
+   ]
+  },
+  "Concurrency::details::_MallocaArrayHolder<Concurrency::task_handle<Concurrency::_Parallel_chunk_helper<Concurrency::details::_Vector_iterator<Concurrency::concurrent_vector<plasma::QuadEdge,std::allocator<plasma::QuadEdge>_>,plasma::QuadEdge>,int,<lambda_e3fd6255bcf168381cb2d01c4cfc52ca>,Concurrency::auto_partitioner,1>_>_>": {
+   "mangled": ".?AV?$_MallocaArrayHolder@V?$task_handle@V?$_Parallel_chunk_helper@V?$_Vector_iterator@V?$concurrent_vector@UQuadEdge@plasma@@V?$allocator@UQuadEdge@plasma@@@std@@@Concurrency@@UQuadEdge@plasma@@@details@Concurrency@@HV<lambda_e3fd6255bcf168381cb2d01c4cfc52ca>@@Vauto_partitioner@3@$00@Concurrency@@@Concurrency@@@details@Concurrency@@",
+   "td": "0x00769e78",
+   "vtables": [
+    {
+     "address": "0x0071f288",
+     "col": "0x00749228",
+     "methods": [
+      "0x00670e00"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "Concurrency::details::_MallocaListHolder<Concurrency::task_handle<Concurrency::_Parallel_chunk_helper<Concurrency::details::_Vector_iterator<Concurrency::concurrent_vector<plasma::QuadVertex*,std::allocator<plasma::QuadVertex*>_>,plasma::QuadVertex*>,int,<lambda_c31a3785b8ee29a1ce8445e019cbe6ee>,Concurrency::auto_partitioner,1>_>_>": {
+   "mangled": ".?AV?$_MallocaListHolder@V?$task_handle@V?$_Parallel_chunk_helper@V?$_Vector_iterator@V?$concurrent_vector@PAUQuadVertex@plasma@@V?$allocator@PAUQuadVertex@plasma@@@std@@@Concurrency@@PAUQuadVertex@plasma@@@details@Concurrency@@HV<lambda_c31a3785b8ee29a1ce8445e019cbe6ee>@@Vauto_partitioner@3@$00@Concurrency@@@Concurrency@@@details@Concurrency@@",
+   "td": "0x00769fd0",
+   "vtables": [
+    {
+     "address": "0x0071f298",
+     "col": "0x00749270",
+     "methods": [
+      "0x00670e60"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "Concurrency::details::_MallocaListHolder<Concurrency::task_handle<Concurrency::_Parallel_chunk_helper<Concurrency::details::_Vector_iterator<Concurrency::concurrent_vector<plasma::QuadFace,std::allocator<plasma::QuadFace>_>,plasma::QuadFace>,int,<lambda_37224fa58ba67e25838a8994307bb82e>,Concurrency::auto_partitioner,1>_>_>": {
+   "mangled": ".?AV?$_MallocaListHolder@V?$task_handle@V?$_Parallel_chunk_helper@V?$_Vector_iterator@V?$concurrent_vector@UQuadFace@plasma@@V?$allocator@UQuadFace@plasma@@@std@@@Concurrency@@UQuadFace@plasma@@@details@Concurrency@@HV<lambda_37224fa58ba67e25838a8994307bb82e>@@Vauto_partitioner@3@$00@Concurrency@@@Concurrency@@@details@Concurrency@@",
+   "td": "0x0076a138",
+   "vtables": [
+    {
+     "address": "0x0071f2a0",
+     "col": "0x007492b8",
+     "methods": [
+      "0x00670f20"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "Concurrency::details::_MallocaListHolder<Concurrency::task_handle<Concurrency::_Parallel_chunk_helper<Concurrency::details::_Vector_iterator<Concurrency::concurrent_vector<plasma::QuadEdge,std::allocator<plasma::QuadEdge>_>,plasma::QuadEdge>,int,<lambda_9843e8019373a7557d3f3e498d32c258>,Concurrency::auto_partitioner,1>_>_>": {
+   "mangled": ".?AV?$_MallocaListHolder@V?$task_handle@V?$_Parallel_chunk_helper@V?$_Vector_iterator@V?$concurrent_vector@UQuadEdge@plasma@@V?$allocator@UQuadEdge@plasma@@@std@@@Concurrency@@UQuadEdge@plasma@@@details@Concurrency@@HV<lambda_9843e8019373a7557d3f3e498d32c258>@@Vauto_partitioner@3@$00@Concurrency@@@Concurrency@@@details@Concurrency@@",
+   "td": "0x0076a290",
+   "vtables": [
+    {
+     "address": "0x0071f2a8",
+     "col": "0x00749300",
+     "methods": [
+      "0x00670ec0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "Concurrency::details::_MallocaListHolder<Concurrency::task_handle<Concurrency::_Parallel_chunk_helper<Concurrency::details::_Vector_iterator<Concurrency::concurrent_vector<plasma::QuadVertex*,std::allocator<plasma::QuadVertex*>_>,plasma::QuadVertex*>,int,<lambda_fe4ce4a6aaf0318c62c756eaccc0431b>,Concurrency::auto_partitioner,1>_>_>": {
+   "mangled": ".?AV?$_MallocaListHolder@V?$task_handle@V?$_Parallel_chunk_helper@V?$_Vector_iterator@V?$concurrent_vector@PAUQuadVertex@plasma@@V?$allocator@PAUQuadVertex@plasma@@@std@@@Concurrency@@PAUQuadVertex@plasma@@@details@Concurrency@@HV<lambda_fe4ce4a6aaf0318c62c756eaccc0431b>@@Vauto_partitioner@3@$00@Concurrency@@@Concurrency@@@details@Concurrency@@",
+   "td": "0x0076a3e8",
+   "vtables": [
+    {
+     "address": "0x0071f2b0",
+     "col": "0x00749348",
+     "methods": [
+      "0x00670e90"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "Concurrency::details::_MallocaListHolder<Concurrency::task_handle<Concurrency::_Parallel_chunk_helper<Concurrency::details::_Vector_iterator<Concurrency::concurrent_vector<plasma::QuadEdge,std::allocator<plasma::QuadEdge>_>,plasma::QuadEdge>,int,<lambda_e3fd6255bcf168381cb2d01c4cfc52ca>,Concurrency::auto_partitioner,1>_>_>": {
+   "mangled": ".?AV?$_MallocaListHolder@V?$task_handle@V?$_Parallel_chunk_helper@V?$_Vector_iterator@V?$concurrent_vector@UQuadEdge@plasma@@V?$allocator@UQuadEdge@plasma@@@std@@@Concurrency@@UQuadEdge@plasma@@@details@Concurrency@@HV<lambda_e3fd6255bcf168381cb2d01c4cfc52ca>@@Vauto_partitioner@3@$00@Concurrency@@@Concurrency@@@details@Concurrency@@",
+   "td": "0x0076a550",
+   "vtables": [
+    {
+     "address": "0x0071f2b8",
+     "col": "0x00749390",
+     "methods": [
+      "0x00670ef0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "plasma::Drawing": {
+   "mangled": ".?AVDrawing@plasma@@",
+   "td": "0x0076a6b8",
+   "vtables": [
+    {
+     "address": "0x0071f2c0",
+     "col": "0x007493d8",
+     "methods": [
+      "0x00672e50",
+      "0x00675800",
+      "0x0068d662"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "plasma::StaticMeshShape": {
+   "mangled": ".?AVStaticMeshShape@plasma@@",
+   "td": "0x0076a6e8",
+   "vtables": [
+    {
+     "address": "0x0071f2dc",
+     "col": "0x00749420",
+     "methods": [
+      "0x006772c0",
+      "0x00675660",
+      "0x006773a0",
+      "0x00663fe0",
+      "0x00677430",
+      "0x0043a000",
+      "0x00677380",
+      "0x00677360",
+      "0x00663fe0",
+      "0x00663fe0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00664a00",
+      "0x006a1aa0",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x00411330",
+      "0x00663b50",
+      "0x00677480"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Shape"
+   ],
+   "all_bases": [
+    "plasma::Shape",
+    "plasma::Keyable",
+    "plasma::NamedObject",
+    "plasma::Object"
+   ]
+  },
+  "plasma::Movie": {
+   "mangled": ".?AVMovie@plasma@@",
+   "td": "0x0076a710",
+   "vtables": [
+    {
+     "address": "0x0071f330",
+     "col": "0x00749478",
+     "methods": [
+      "0x00677ce0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::NamedObject"
+   ],
+   "all_bases": [
+    "plasma::NamedObject",
+    "plasma::Object"
+   ]
+  },
+  "plasma::Transformation": {
+   "mangled": ".?AVTransformation@plasma@@",
+   "td": "0x0076a73c",
+   "vtables": [
+    {
+     "address": "0x0071f344",
+     "col": "0x007494c8",
+     "methods": [
+      "0x006784f0",
+      "0x00678600",
+      "0x00678550"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Keyable"
+   ],
+   "all_bases": [
+    "plasma::Keyable",
+    "plasma::NamedObject",
+    "plasma::Object"
+   ]
+  },
+  "plasma::Display": {
+   "mangled": ".?AVDisplay@plasma@@",
+   "td": "0x0076a770",
+   "vtables": [
+    {
+     "address": "0x0071f380",
+     "col": "0x0074951c",
+     "methods": [
+      "0x00679460",
+      "0x00675660",
+      "0x00679490"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Keyable"
+   ],
+   "all_bases": [
+    "plasma::Keyable",
+    "plasma::NamedObject",
+    "plasma::Object"
+   ]
+  },
+  "plasma::CurveShape": {
+   "mangled": ".?AVCurveShape@plasma@@",
+   "td": "0x00768e20",
+   "vtables": [
+    {
+     "address": "0x0071f3cc",
+     "col": "0x00749570",
+     "methods": [
+      "0x0067a8c0",
+      "0x0067bd60",
+      "0x00675660",
+      "0x00663fe0",
+      "0x0067ab30",
+      "0x0043a000",
+      "0x0067a910",
+      "0x0067a8f0",
+      "0x00663fe0",
+      "0x00663fe0",
+      "0x0066be80",
+      "0x0066b1f0",
+      "0x0067cd10",
+      "0x0067a930",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x00411330",
+      "0x00663b50",
+      "0x0067ad00"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Shape"
+   ],
+   "all_bases": [
+    "plasma::Shape",
+    "plasma::Keyable",
+    "plasma::NamedObject",
+    "plasma::Object"
+   ]
+  },
+  "plasma::GenericShape": {
+   "mangled": ".?AVGenericShape@plasma@@",
+   "td": "0x0076a7b0",
+   "vtables": [
+    {
+     "address": "0x0071f474",
+     "col": "0x007495c8",
+     "methods": [
+      "0x0067d0b0",
+      "0x0067d440",
+      "0x00675660",
+      "0x00663fe0",
+      "0x00687d10",
+      "0x0043a000",
+      "0x0067d190",
+      "0x0067d150",
+      "0x00663fe0",
+      "0x00663fe0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00664a00",
+      "0x0067d1b0",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x00411330",
+      "0x00663b50",
+      "0x0067d1f0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Shape"
+   ],
+   "all_bases": [
+    "plasma::Shape",
+    "plasma::Keyable",
+    "plasma::NamedObject",
+    "plasma::Object"
+   ]
+  },
+  "plasma::ScrollButton": {
+   "mangled": ".?AVScrollButton@plasma@@",
+   "td": "0x00768e60",
+   "vtables": [
+    {
+     "address": "0x0071f4cc",
+     "col": "0x00749620",
+     "methods": [
+      "0x0067d4a0",
+      "0x004114b0",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00411330",
+      "0x00687d10",
+      "0x004114b0",
+      "0x0067d580",
+      "0x0062b350",
+      "0x0062af10",
+      "0x004114b0",
+      "0x0067d5d0",
+      "0x00665ac0",
+      "0x006659d0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062ac20",
+      "0x00665b00",
+      "0x00665b30",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x0067d700",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x0067d4d0",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x0071f57c",
+     "col": "0x0074967c",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::Button"
+   ],
+   "all_bases": [
+    "plasma::Button",
+    "plasma::Widget",
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "plasma::ListWidget": {
+   "mangled": ".?AVListWidget@plasma@@",
+   "td": "0x00768e40",
+   "vtables": [
+    {
+     "address": "0x0071f58c",
+     "col": "0x00749690",
+     "methods": [
+      "0x0067da20",
+      "0x004114b0",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00411330",
+      "0x00687d10",
+      "0x004114b0",
+      "0x0062a8b0",
+      "0x0062b350",
+      "0x0062af10",
+      "0x004114b0",
+      "0x0062a9e0",
+      "0x0062abe0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062ac20",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x0067da50",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x0071f63c",
+     "col": "0x007496e8",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::Widget"
+   ],
+   "all_bases": [
+    "plasma::Widget",
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "plasma::PopUpButton": {
+   "mangled": ".?AVPopUpButton@plasma@@",
+   "td": "0x0076a834",
+   "vtables": [
+    {
+     "address": "0x0071f64c",
+     "col": "0x007496fc",
+     "methods": [
+      "0x0067db20",
+      "0x004114b0",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00411330",
+      "0x00687d10",
+      "0x004114b0",
+      "0x0067de20",
+      "0x0062b350",
+      "0x0062af10",
+      "0x004114b0",
+      "0x0067de60",
+      "0x0067de90",
+      "0x006659d0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062ac20",
+      "0x00665b00",
+      "0x00665b30",
+      "0x00675660",
+      "0x00675660",
+      "0x00675660",
+      "0x00665b60",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0067dd70",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a690",
+      "0x0062a780",
+      "0x004114b0",
+      "0x004114b0",
+      "0x0062a7b0",
+      "0x0067db50",
+      "0x00628f40",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    },
+    {
+     "address": "0x0071f6fc",
+     "col": "0x00749758",
+     "methods": [
+      "0x00627e40",
+      "0x0062e180"
+     ],
+     "col_offset": 36
+    }
+   ],
+   "bases": [
+    "plasma::Button"
+   ],
+   "all_bases": [
+    "plasma::Button",
+    "plasma::Widget",
+    "plasma::NamedObject",
+    "plasma::Object",
+    "plasma::Deformer"
+   ]
+  },
+  "plasma::PlasmaFont": {
+   "mangled": ".?AVPlasmaFont@plasma@@",
+   "td": "0x00768dbc",
+   "vtables": [
+    {
+     "address": "0x0071f708",
+     "col": "0x0074976c",
+     "methods": [
+      "0x0067e3d0",
+      "0x0067eed0",
+      "0x0067ebb0",
+      "0x0067e440",
+      "0x0067e400",
+      "0x0067e660"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Font"
+   ],
+   "all_bases": [
+    "plasma::Font",
+    "plasma::NamedObject",
+    "plasma::Object"
+   ]
+  },
+  "plasma::PixelFont": {
+   "mangled": ".?AVPixelFont@plasma@@",
+   "td": "0x00768ddc",
+   "vtables": [
+    {
+     "address": "0x0071f724",
+     "col": "0x007497fc",
+     "methods": [
+      "0x0067f3d0",
+      "0x0067f720",
+      "0x0067f450",
+      "0x0067f420",
+      "0x0067f400",
+      "0x0067f440"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Font"
+   ],
+   "all_bases": [
+    "plasma::Font",
+    "plasma::NamedObject",
+    "plasma::Object"
+   ]
+  },
+  "plasma::Exception": {
+   "mangled": ".?AVException@plasma@@",
+   "td": "0x0076a8b8",
+   "vtables": [
+    {
+     "address": "0x0071f740",
+     "col": "0x00749850",
+     "methods": [
+      "0x0046dca0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "plasma::IOException": {
+   "mangled": ".?AVIOException@plasma@@",
+   "td": "0x00768dfc",
+   "vtables": [
+    {
+     "address": "0x0071f748",
+     "col": "0x00749898",
+     "methods": [
+      "0x0046dca0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Exception"
+   ],
+   "all_bases": [
+    "plasma::Exception"
+   ]
+  },
+  "plasma::InvalidFileFormatException": {
+   "mangled": ".?AVInvalidFileFormatException@plasma@@",
+   "td": "0x0076a888",
+   "vtables": [
+    {
+     "address": "0x0071f750",
+     "col": "0x007498e4",
+     "methods": [
+      "0x0046dca0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::IOException"
+   ],
+   "all_bases": [
+    "plasma::IOException",
+    "plasma::Exception"
+   ]
+  },
+  "plasma::InvalidVersionException": {
+   "mangled": ".?AVInvalidVersionException@plasma@@",
+   "td": "0x0076a8d8",
+   "vtables": [
+    {
+     "address": "0x0071f770",
+     "col": "0x00749934",
+     "methods": [
+      "0x0046dca0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::IOException"
+   ],
+   "all_bases": [
+    "plasma::IOException",
+    "plasma::Exception"
+   ]
+  },
+  "plasma::InvalidDemoLicenseException": {
+   "mangled": ".?AVInvalidDemoLicenseException@plasma@@",
+   "td": "0x0076a908",
+   "vtables": [
+    {
+     "address": "0x0071f790",
+     "col": "0x00749984",
+     "methods": [
+      "0x0046dca0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::IOException"
+   ],
+   "all_bases": [
+    "plasma::IOException",
+    "plasma::Exception"
+   ]
+  },
+  "plasma::Shape": {
+   "mangled": ".?AVShape@plasma@@",
+   "td": "0x00765a98",
+   "vtables": [
+    {
+     "address": "0x007204ec",
+     "col": "0x007499d4",
+     "methods": [
+      "0x00687c60",
+      "0x00675660",
+      "0x0068d662",
+      "0x00663fe0",
+      "0x00687d10",
+      "0x0043a000",
+      "0x00687cf0",
+      "0x00687cf0",
+      "0x00663fe0",
+      "0x00663fe0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00664a00",
+      "0x006a1aa0",
+      "0x00675660",
+      "0x00675660",
+      "0x004114b0",
+      "0x00411330",
+      "0x00663b50"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Keyable"
+   ],
+   "all_bases": [
+    "plasma::Keyable",
+    "plasma::NamedObject",
+    "plasma::Object"
+   ]
+  },
+  "plasma::Font": {
+   "mangled": ".?AVFont@plasma@@",
+   "td": "0x00768da0",
+   "vtables": [
+    {
+     "address": "0x0072053c",
+     "col": "0x007499e8",
+     "methods": [
+      "0x00687f50",
+      "0x0068d662",
+      "0x0068d662",
+      "0x0068d662",
+      "0x0068d662",
+      "0x0067f440"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::NamedObject"
+   ],
+   "all_bases": [
+    "plasma::NamedObject",
+    "plasma::Object"
+   ]
+  },
+  "plasma::D3D9Engine": {
+   "mangled": ".?AVD3D9Engine@plasma@@",
+   "td": "0x0076a9c8",
+   "vtables": [
+    {
+     "address": "0x00722584",
+     "col": "0x007499fc",
+     "methods": [
+      "0x00688af0",
+      "0x0068a350",
+      "0x00689740",
+      "0x006897c0",
+      "0x00689950",
+      "0x00689af0",
+      "0x00689d50",
+      "0x006509e0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x004114b0",
+      "0x00689660",
+      "0x006896d0",
+      "0x0068a330",
+      "0x0068a7e0",
+      "0x00688e70",
+      "0x00675660",
+      "0x0068a800",
+      "0x00688b60",
+      "0x0068a250",
+      "0x00688db0",
+      "0x0068a260",
+      "0x00675660",
+      "0x00675660",
+      "0x00689130",
+      "0x0068a2c0",
+      "0x006509d0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Engine"
+   ],
+   "all_bases": [
+    "plasma::Engine",
+    "plasma::ObjectManager"
+   ]
+  },
+  "plasma::D3D9Drawing": {
+   "mangled": ".?AVD3D9Drawing@plasma@@",
+   "td": "0x0076a9f8",
+   "vtables": [
+    {
+     "address": "0x007225f8",
+     "col": "0x00749a4c",
+     "methods": [
+      "0x0068ab00",
+      "0x0068b7f0",
+      "0x0068ab70"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Drawing"
+   ],
+   "all_bases": [
+    "plasma::Drawing"
+   ]
+  },
+  "plasma::D3D9Texture": {
+   "mangled": ".?AVD3D9Texture@plasma@@",
+   "td": "0x0076aa2c",
+   "vtables": [
+    {
+     "address": "0x00722608",
+     "col": "0x00749a98",
+     "methods": [
+      "0x0068bc10",
+      "0x0068bc90",
+      "0x0068bde0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::Texture"
+   ],
+   "all_bases": [
+    "plasma::Texture",
+    "plasma::NamedObject",
+    "plasma::Object"
+   ]
+  },
+  "plasma::D3D9RenderSurface": {
+   "mangled": ".?AVD3D9RenderSurface@plasma@@",
+   "td": "0x0076a9a0",
+   "vtables": [
+    {
+     "address": "0x00722618",
+     "col": "0x00749aec",
+     "methods": [
+      "0x0068bfc0",
+      "0x0068d350",
+      "0x0068d290",
+      "0x0068c770",
+      "0x0068c050",
+      "0x0068c7c0",
+      "0x0068cad0",
+      "0x0068cf10",
+      "0x0068c0c0",
+      "0x0068c6e0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "plasma::RenderSurface"
+   ],
+   "all_bases": [
+    "plasma::RenderSurface"
+   ]
+  },
+  "type_info": {
+   "mangled": ".?AVtype_info@@",
+   "td": "0x0076aa60",
+   "vtables": [
+    {
+     "address": "0x00722644",
+     "col": "0x00749b6c",
+     "methods": [
+      "0x0068d7b6"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "plasma::RenderSurface": {
+   "mangled": ".?AVRenderSurface@plasma@@",
+   "td": "0x0076a97c",
+   "vtables": [
+    {
+     "address": "0x00737918",
+     "col": "0x00749bb4",
+     "methods": [
+      "0x006cf8a0",
+      "0x0068d662",
+      "0x0068d662",
+      "0x0068d662",
+      "0x0068d662",
+      "0x0068d662",
+      "0x0067f440",
+      "0x0067f440",
+      "0x006509e0",
+      "0x004114b0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  }
+ }
+}

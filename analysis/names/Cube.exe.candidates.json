@@ -1,0 +1,313 @@
+{
+ "binary": "Cube.exe",
+ "threshold": 0.9,
+ "note": "Names that could not be carried confidently. Keys are the Cube.exe candidate address (or the source address when there was no candidate).",
+ "candidates": {
+  "0x00549c50": {
+   "name": "main",
+   "match": null,
+   "reason": "no match found",
+   "near": [
+    "0x00488ee0 (votes 11, bytes 0.05, size 77332 vs 2242)",
+    "0x00459c40 (votes 10, bytes 0.049, size 48075 vs 2242)",
+    "0x004878a0 (votes 8, bytes 0.272, size 1262 vs 2242)",
+    "0x0046a8a0 (votes 7, bytes 0.155, size 3652 vs 2242)",
+    "0x00487520 (votes 6, bytes 0.313, size 873 vs 2242)"
+   ]
+  },
+  "0x00422e80": {
+   "name": "cube::Server::Server",
+   "match": null,
+   "reason": "no match found",
+   "near": [
+    "0x00459c40 (votes 4, bytes 0.183, size 48075 vs 262)",
+    "0x00459110 (votes 1, bytes 0.391, size 127 vs 262)",
+    "0x0062f750 (votes 1, bytes 0.386, size 174 vs 262)",
+    "0x004042e0 (votes 1, bytes 0.379, size 215 vs 262)",
+    "0x0064d770 (votes 1, bytes 0.373, size 151 vs 262)"
+   ]
+  },
+  "0x00423880": {
+   "name": "cube::Server::~Server",
+   "match": null,
+   "reason": "no match found",
+   "near": [
+    "0x004719f0 (votes 2, bytes 0.313, size 354 vs 364)",
+    "0x00469c10 (votes 2, bytes 0.231, size 2309 vs 364)",
+    "0x00650e80 (votes 2, bytes 0.225, size 5968 vs 364)",
+    "0x00587460 (votes 2, bytes 0.203, size 509 vs 364)",
+    "0x005fbc90 (votes 2, bytes 0.196, size 532 vs 364)"
+   ]
+  },
+  "0x00422910": {
+   "name": "cube::Connection::Connection",
+   "match": null,
+   "reason": "no match found",
+   "near": [
+    "0x00459c40 (votes 3, bytes 0.186, size 48075 vs 231)",
+    "0x00439300 (votes 1, bytes 0.424, size 152 vs 231)",
+    "0x004393b0 (votes 1, bytes 0.263, size 345 vs 231)",
+    "0x00488ee0 (votes 1, bytes 0.219, size 77332 vs 231)"
+   ]
+  },
+  "0x004237b0": {
+   "name": "cube::Connection::~Connection",
+   "match": null,
+   "reason": "no match found",
+   "near": [
+    "0x00488ee0 (votes 2, bytes 0.224, size 77332 vs 205)",
+    "0x00466ab0 (votes 2, bytes 0.181, size 15 vs 205)",
+    "0x00467c40 (votes 1, bytes 0.4, size 39 vs 205)",
+    "0x00403f10 (votes 1, bytes 0.351, size 72 vs 205)",
+    "0x004576f0 (votes 1, bytes 0.348, size 243 vs 205)"
+   ]
+  },
+  "0x004254a0": {
+   "name": "cube::Server::acceptLoop",
+   "match": null,
+   "reason": "no match found",
+   "near": [
+    "0x0046fc50 (votes 10, bytes 0.284, size 3421 vs 2935)",
+    "0x00488ee0 (votes 7, bytes 0.224, size 77332 vs 2935)",
+    "0x00459c40 (votes 7, bytes 0.173, size 48075 vs 2935)",
+    "0x00487520 (votes 5, bytes 0.244, size 873 vs 2935)",
+    "0x004878a0 (votes 5, bytes 0.231, size 1262 vs 2935)"
+   ]
+  },
+  "0x00426b60": {
+   "name": "lambda_Server_acceptLoop",
+   "match": null,
+   "reason": "no match found",
+   "near": []
+  },
+  "0x00426020": {
+   "name": "cube::Server::receiveLoop",
+   "match": null,
+   "reason": "no match found",
+   "near": [
+    "0x00488ee0 (votes 14, bytes 0.223, size 77332 vs 1774)",
+    "0x00469c10 (votes 11, bytes 0.215, size 2309 vs 1774)",
+    "0x0046fc50 (votes 9, bytes 0.206, size 3421 vs 1774)",
+    "0x0047e1b0 (votes 7, bytes 0.224, size 1502 vs 1774)",
+    "0x004ac260 (votes 6, bytes 0.19, size 59248 vs 1774)"
+   ]
+  },
+  "0x00426b70": {
+   "name": "lambda_Server_receiveLoop",
+   "match": null,
+   "reason": "no match found",
+   "near": []
+  },
+  "0x00423dd0": {
+   "name": "cube::Server::sendLoop",
+   "match": null,
+   "reason": "no match found",
+   "near": [
+    "0x00488ee0 (votes 16, bytes 0.225, size 77332 vs 5803)",
+    "0x00469c10 (votes 12, bytes 0.295, size 2309 vs 5803)",
+    "0x004ac260 (votes 12, bytes 0.182, size 59248 vs 5803)",
+    "0x00459c40 (votes 10, bytes 0.18, size 48075 vs 5803)",
+    "0x0046fc50 (votes 9, bytes 0.206, size 3421 vs 5803)"
+   ]
+  },
+  "0x00426b50": {
+   "name": "lambda_Server_sendLoop",
+   "match": null,
+   "reason": "no match found",
+   "near": []
+  },
+  "0x00549550": {
+   "name": "generationThread",
+   "match": null,
+   "reason": "no match found",
+   "near": [
+    "0x0046a8a0 (votes 11, bytes 0.25, size 3652 vs 1479)",
+    "0x004690a0 (votes 5, bytes 0.254, size 1234 vs 1479)",
+    "0x00469c10 (votes 5, bytes 0.165, size 2309 vs 1479)",
+    "0x00469590 (votes 4, bytes 0.246, size 1650 vs 1479)",
+    "0x0046fc50 (votes 4, bytes 0.219, size 3421 vs 1479)"
+   ]
+  },
+  "0x00549b90": {
+   "name": "lambda_generationThread",
+   "match": null,
+   "reason": "no match found",
+   "near": []
+  },
+  "0x00549b50": {
+   "name": "lambda_consoleQuitThread",
+   "match": null,
+   "reason": "no match found",
+   "near": []
+  },
+  "0x00428790": {
+   "name": "cube::Server::start",
+   "match": null,
+   "reason": "no match found",
+   "near": [
+    "0x0046fc50 (votes 4, bytes 0.22, size 3421 vs 386)",
+    "0x005fbc90 (votes 2, bytes 0.256, size 532 vs 386)",
+    "0x00587460 (votes 2, bytes 0.252, size 509 vs 386)",
+    "0x00459c40 (votes 2, bytes 0.25, size 48075 vs 386)",
+    "0x004c5bb0 (votes 2, bytes 0.226, size 401 vs 386)"
+   ]
+  },
+  "0x00413200": {
+   "name": "ByteBuffer::size",
+   "match": null,
+   "reason": "no match found",
+   "near": []
+  },
+  "0x00428160": {
+   "name": "ByteBuffer::data",
+   "match": null,
+   "reason": "no match found",
+   "near": []
+  },
+  "0x00423400": {
+   "name": "UpdateLists::UpdateLists(copy)",
+   "match": null,
+   "reason": "no match found",
+   "near": [
+    "0x00469c10 (votes 3, bytes 0.244, size 2309 vs 267)"
+   ]
+  },
+  "0x00421b10": {
+   "name": "writeBlockActions",
+   "match": null,
+   "reason": "no match found",
+   "near": [
+    "0x00661260 (votes 1, bytes 0.307, size 110 vs 111)",
+    "0x00402ed0 (votes 1, bytes 0.263, size 165 vs 111)",
+    "0x00585c90 (votes 1, bytes 0.247, size 137 vs 111)",
+    "0x00585c00 (votes 1, bytes 0.247, size 137 vs 111)",
+    "0x00405640 (votes 1, bytes 0.238, size 181 vs 111)"
+   ]
+  },
+  "0x00421b80": {
+   "name": "writeList_0x48",
+   "match": null,
+   "reason": "no match found",
+   "near": [
+    "0x00661260 (votes 2, bytes 0.3, size 110 vs 101)",
+    "0x00457ec0 (votes 2, bytes 0.253, size 169 vs 101)",
+    "0x0044d790 (votes 2, bytes 0.204, size 2431 vs 101)",
+    "0x004878a0 (votes 2, bytes 0.194, size 1262 vs 101)",
+    "0x00587350 (votes 2, bytes 0.194, size 254 vs 101)"
+   ]
+  },
+  "0x00421c60": {
+   "name": "writeList_0x18",
+   "match": null,
+   "reason": "no match found",
+   "near": [
+    "0x00661260 (votes 1, bytes 0.297, size 110 vs 115)",
+    "0x00402ed0 (votes 1, bytes 0.253, size 165 vs 115)",
+    "0x005842d0 (votes 1, bytes 0.23, size 41 vs 115)",
+    "0x00407a50 (votes 1, bytes 0.224, size 233 vs 115)",
+    "0x00457ec0 (votes 1, bytes 0.223, size 169 vs 115)"
+   ]
+  },
+  "0x00421aa0": {
+   "name": "writeShoots",
+   "match": null,
+   "reason": "no match found",
+   "near": [
+    "0x00661260 (votes 2, bytes 0.3, size 110 vs 101)",
+    "0x00457ec0 (votes 2, bytes 0.253, size 169 vs 101)",
+    "0x0044d790 (votes 2, bytes 0.213, size 2431 vs 101)",
+    "0x00587350 (votes 2, bytes 0.196, size 254 vs 101)",
+    "0x004878a0 (votes 2, bytes 0.189, size 1262 vs 101)"
+   ]
+  },
+  "0x00421d50": {
+   "name": "writeStaticEntities",
+   "match": null,
+   "reason": "no match found",
+   "near": [
+    "0x00661260 (votes 2, bytes 0.3, size 110 vs 101)",
+    "0x00457ec0 (votes 2, bytes 0.253, size 169 vs 101)",
+    "0x0040ad70 (votes 2, bytes 0.215, size 426 vs 101)",
+    "0x004878a0 (votes 2, bytes 0.197, size 1262 vs 101)",
+    "0x006050b0 (votes 2, bytes 0.192, size 845 vs 101)"
+   ]
+  },
+  "0x00421dc0": {
+   "name": "writeGroundItems",
+   "match": null,
+   "reason": "no match found",
+   "near": [
+    "0x00661260 (votes 2, bytes 0.327, size 110 vs 109)",
+    "0x00587350 (votes 2, bytes 0.274, size 254 vs 109)",
+    "0x00457ec0 (votes 2, bytes 0.247, size 169 vs 109)",
+    "0x0040ad70 (votes 2, bytes 0.22, size 426 vs 109)",
+    "0x004878a0 (votes 2, bytes 0.196, size 1262 vs 109)"
+   ]
+  },
+  "0x00421a30": {
+   "name": "writeList_0x10",
+   "match": null,
+   "reason": "no match found",
+   "near": [
+    "0x00661260 (votes 1, bytes 0.3, size 110 vs 105)",
+    "0x00402ed0 (votes 1, bytes 0.255, size 165 vs 105)",
+    "0x005842d0 (votes 1, bytes 0.241, size 41 vs 105)",
+    "0x00585c90 (votes 1, bytes 0.238, size 137 vs 105)",
+    "0x00585c00 (votes 1, bytes 0.238, size 137 vs 105)"
+   ]
+  },
+  "0x00421bf0": {
+   "name": "writePickups",
+   "match": null,
+   "reason": "no match found",
+   "near": [
+    "0x00661260 (votes 2, bytes 0.327, size 110 vs 109)",
+    "0x00457ec0 (votes 2, bytes 0.269, size 169 vs 109)",
+    "0x0044d790 (votes 2, bytes 0.201, size 2431 vs 109)",
+    "0x00587350 (votes 2, bytes 0.198, size 254 vs 109)",
+    "0x004878a0 (votes 2, bytes 0.195, size 1262 vs 109)"
+   ]
+  },
+  "0x004219c0": {
+   "name": "writePassives",
+   "match": null,
+   "reason": "no match found",
+   "near": [
+    "0x00661260 (votes 2, bytes 0.3, size 110 vs 101)",
+    "0x00457ec0 (votes 2, bytes 0.253, size 169 vs 101)",
+    "0x0044d790 (votes 2, bytes 0.217, size 2431 vs 101)",
+    "0x00587350 (votes 2, bytes 0.192, size 254 vs 101)",
+    "0x004878a0 (votes 2, bytes 0.155, size 1262 vs 101)"
+   ]
+  },
+  "0x00421ce0": {
+   "name": "writeMissions",
+   "match": null,
+   "reason": "no match found",
+   "near": [
+    "0x00661260 (votes 2, bytes 0.3, size 110 vs 101)",
+    "0x00457ec0 (votes 2, bytes 0.253, size 169 vs 101)",
+    "0x004878a0 (votes 2, bytes 0.197, size 1262 vs 101)",
+    "0x006050b0 (votes 2, bytes 0.194, size 845 vs 101)",
+    "0x0044d790 (votes 2, bytes 0.188, size 2431 vs 101)"
+   ]
+  },
+  "0x00426490": {
+   "name": "cube::Server::receiveLoop_tail",
+   "match": null,
+   "reason": "not a function in the export"
+  },
+  "0x00405550": {
+   "name": "cube::Slot::takeOne",
+   "match": null,
+   "reason": "not a function in the export"
+  },
+  "0x00409d10": {
+   "name": "modeDamageMultiplier",
+   "match": null,
+   "reason": "no match found",
+   "near": []
+  }
+ },
+ "conflicts": []
+}

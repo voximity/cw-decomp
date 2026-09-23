@@ -1,0 +1,4 @@
+# terrain-stage zone dumps from Server.exe (server_oracle.py zone --stage terrain), world seed 26879, generated in this order in one process: zx zy sha256
+32768 32768 cba485893f7a66dcc6ce2472ae786b372895f76d6ac2a6cd3c262fcbd7272b0e
+40000 20000 6c8bbf258da86e4a16ae6e59197fbd22ec58887056098131660b55db2d86f851
+19200 19200 b9cf0b5e1c6b33ac9fb6a41df6d6d8220493a7dc0040204b67ae80a16c5914dd

@@ -1,0 +1,20 @@
+[package]
+name = "cw-world"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Bit-exact port of Cube World Alpha's world generator (cube::World, Region, Zone)"
+
+[features]
+default = []
+# Forwarded to cw-math: platform transcendentals instead of the deterministic ports.
+native-libm = ["cw-math/native-libm"]
+
+[dependencies]
+cw-math = { path = "../cw-math" }
+cw-formats = { path = "../cw-formats" }
+
+[dev-dependencies]
+sha2 = "0.10"
+hex = "0.4"

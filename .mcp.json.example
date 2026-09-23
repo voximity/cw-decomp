@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "ghidra": {
+      "type": "stdio",
+      "command": "/absolute/path/to/cw-decomp/.venv/bin/pyghidra-mcp",
+      "args": ["--project-path", "/absolute/path/to/cw-decomp/analysis/project/cw.gpr"],
+      "env": { "GHIDRA_INSTALL_DIR": "/path/to/ghidra" }
+    },
+    "binaryninja": {
+      "type": "http",
+      "url": "http://127.0.0.1:24642/mcp"
+    }
+  }
+}

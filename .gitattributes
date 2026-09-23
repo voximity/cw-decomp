@@ -1,0 +1,4 @@
+* text=auto eol=lf
+
+# Binary golden-test fixtures (game save-format data) — never line-ending normalized
+*.blob binary

@@ -1,0 +1,1835 @@
+[
+  {
+    "index": 0,
+    "file": "00_vs_3_0_2fd928.bin",
+    "kind": "vs_3_0",
+    "section": ".rdata",
+    "file_offset": "0x2fc928",
+    "rva": "0x2fd928",
+    "va": "0x006fd928",
+    "size": 4648,
+    "tokens": 1162,
+    "disassembler": "d3dcompiler_47 D3DDisassemble",
+    "sha256_prefix": "c42acf58dbfdb7c5",
+    "inputs": [
+      {
+        "semantic": "position",
+        "register": "v0"
+      },
+      {
+        "semantic": "color",
+        "register": "v1"
+      }
+    ],
+    "outputs": [
+      {
+        "semantic": "position",
+        "register": "o0"
+      },
+      {
+        "semantic": "color",
+        "register": "o1"
+      },
+      {
+        "semantic": "texcoord",
+        "register": "o2"
+      },
+      {
+        "semantic": "texcoord1",
+        "register": "o3.xyz"
+      },
+      {
+        "semantic": "texcoord2",
+        "register": "o4.xyz"
+      },
+      {
+        "semantic": "texcoord3",
+        "register": "o5.xyz"
+      }
+    ],
+    "samplers": [],
+    "literal_constants": [
+      "c40, -1, -2, -3, -4",
+      "c41, 0.300000012, 1.20000005, 0, 0",
+      "c42, 0, 2, -1, 1"
+    ],
+    "instructions": 236,
+    "instruction_slots": 240,
+    "float_registers_read": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42
+    ],
+    "ctab": {
+      "creator": "Microsoft (R) HLSL Shader Compiler 9.30.9200.16384",
+      "target": "vs_3_0",
+      "version": "0xFFFE0300",
+      "flags": "0x100",
+      "constants": [
+        {
+          "name": "ambientColor",
+          "register": "c38",
+          "register_set": "FLOAT4",
+          "register_index": 38,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 4,
+          "elements": 1
+        },
+        {
+          "name": "cameraPosition",
+          "register": "c36",
+          "register_set": "FLOAT4",
+          "register_index": 36,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 3,
+          "elements": 1
+        },
+        {
+          "name": "darknessColor",
+          "register": "c37",
+          "register_set": "FLOAT4",
+          "register_index": 37,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 4,
+          "elements": 1
+        },
+        {
+          "name": "fogGradientTranslation",
+          "register": "c31",
+          "register_set": "FLOAT4",
+          "register_index": 31,
+          "register_count": 1,
+          "class": "SCALAR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 1,
+          "elements": 1
+        },
+        {
+          "name": "fogScale",
+          "register": "c30",
+          "register_set": "FLOAT4",
+          "register_index": 30,
+          "register_count": 1,
+          "class": "SCALAR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 1,
+          "elements": 1
+        },
+        {
+          "name": "lightBackColor",
+          "register": "c35",
+          "register_set": "FLOAT4",
+          "register_index": 35,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 4,
+          "elements": 1
+        },
+        {
+          "name": "lightDirection",
+          "register": "c33",
+          "register_set": "FLOAT4",
+          "register_index": 33,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 3,
+          "elements": 1
+        },
+        {
+          "name": "lightFrontColor",
+          "register": "c34",
+          "register_set": "FLOAT4",
+          "register_index": 34,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 4,
+          "elements": 1
+        },
+        {
+          "name": "materialColor",
+          "register": "c32",
+          "register_set": "FLOAT4",
+          "register_index": 32,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 4,
+          "elements": 1
+        },
+        {
+          "name": "pointLightColors",
+          "register": "c10",
+          "register_set": "FLOAT4",
+          "register_index": 10,
+          "register_count": 10,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 3,
+          "elements": 16
+        },
+        {
+          "name": "pointLightPositions",
+          "register": "c0",
+          "register_set": "FLOAT4",
+          "register_index": 0,
+          "register_count": 10,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 4,
+          "elements": 16
+        },
+        {
+          "name": "white",
+          "register": "c39",
+          "register_set": "FLOAT4",
+          "register_index": 39,
+          "register_count": 1,
+          "class": "SCALAR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 1,
+          "elements": 1
+        },
+        {
+          "name": "worldMatrix",
+          "register": "c27",
+          "register_set": "FLOAT4",
+          "register_index": 27,
+          "register_count": 3,
+          "class": "MATRIX_COLUMNS",
+          "type": "FLOAT",
+          "rows": 4,
+          "columns": 4,
+          "elements": 1
+        },
+        {
+          "name": "worldViewMatrix",
+          "register": "c24",
+          "register_set": "FLOAT4",
+          "register_index": 24,
+          "register_count": 3,
+          "class": "MATRIX_COLUMNS",
+          "type": "FLOAT",
+          "rows": 4,
+          "columns": 4,
+          "elements": 1
+        },
+        {
+          "name": "worldViewProjMatrix",
+          "register": "c20",
+          "register_set": "FLOAT4",
+          "register_index": 20,
+          "register_count": 4,
+          "class": "MATRIX_COLUMNS",
+          "type": "FLOAT",
+          "rows": 4,
+          "columns": 4,
+          "elements": 1
+        }
+      ]
+    },
+    "creator": "0x00447e10",
+    "creator_class": "cube::CubeShader",
+    "creator_note": "CubeShader::init (called from 0x004c8720); device vtable +0x16c CreateVertexShader / +0x1a8 CreatePixelShader",
+    "vertex_declaration": "cube (0x00447e10): stride 8; [0] UBYTE4 POSITION0 @0 (xyz = block position, w = face index 0..5); [1] D3DCOLOR COLOR0 @4",
+    "object_field": "CubeShader+0x04",
+    "bound_by": [
+      "0x00447d10",
+      "0x00447d50",
+      "0x00447d90",
+      "0x00447dd0"
+    ],
+    "paired_with": [
+      "01",
+      "02",
+      "03",
+      "05"
+    ],
+    "use": "world vertex shader: every block mesh (terrain, creatures, items, sky quad, water, clouds)"
+  },
+  {
+    "index": 1,
+    "file": "01_ps_3_0_2feb50.bin",
+    "kind": "ps_3_0",
+    "section": ".rdata",
+    "file_offset": "0x2fdb50",
+    "rva": "0x2feb50",
+    "va": "0x006feb50",
+    "size": 1100,
+    "tokens": 275,
+    "disassembler": "d3dcompiler_47 D3DDisassemble",
+    "sha256_prefix": "773c20c6c523a4b5",
+    "inputs": [
+      {
+        "semantic": "color",
+        "register": "v0.xyz"
+      },
+      {
+        "semantic": "texcoord",
+        "register": "v1"
+      },
+      {
+        "semantic": "texcoord1",
+        "register": "v2.xy"
+      }
+    ],
+    "outputs": [],
+    "samplers": [],
+    "literal_constants": [
+      "c5, -0.600000024, 2.5, 0.600000024, 3",
+      "c6, 1.5, -0.0250000004, 1, 2",
+      "c7, 10, 5, 0.159154937, 0.5",
+      "c8, 6.28318548, -3.14159274, 0.300000012, 1",
+      "c9, 0.800000012, 0.200000003, 0.75, 0"
+    ],
+    "instructions": 39,
+    "instruction_slots": 50,
+    "float_registers_read": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "ctab": {
+      "creator": "Microsoft (R) HLSL Shader Compiler 9.30.9200.16384",
+      "target": "ps_3_0",
+      "version": "0xFFFF0300",
+      "flags": "0x100",
+      "constants": [
+        {
+          "name": "alpha",
+          "register": "c3",
+          "register_set": "FLOAT4",
+          "register_index": 3,
+          "register_count": 1,
+          "class": "SCALAR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 1,
+          "elements": 1
+        },
+        {
+          "name": "fogColor",
+          "register": "c2",
+          "register_set": "FLOAT4",
+          "register_index": 2,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 4,
+          "elements": 1
+        },
+        {
+          "name": "shininess",
+          "register": "c4",
+          "register_set": "FLOAT4",
+          "register_index": 4,
+          "register_count": 1,
+          "class": "SCALAR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 1,
+          "elements": 1
+        },
+        {
+          "name": "skyColor1",
+          "register": "c0",
+          "register_set": "FLOAT4",
+          "register_index": 0,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 4,
+          "elements": 1
+        },
+        {
+          "name": "skyColor2",
+          "register": "c1",
+          "register_set": "FLOAT4",
+          "register_index": 1,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 4,
+          "elements": 1
+        }
+      ]
+    },
+    "creator": "0x00447e10",
+    "creator_class": "cube::CubeShader",
+    "creator_note": "CubeShader::init (called from 0x004c8720); device vtable +0x16c CreateVertexShader / +0x1a8 CreatePixelShader",
+    "vertex_declaration": "cube (0x00447e10): stride 8; [0] UBYTE4 POSITION0 @0 (xyz = block position, w = face index 0..5); [1] D3DCOLOR COLOR0 @4",
+    "object_field": "CubeShader+0x08",
+    "bound_by": [
+      "0x00447d10"
+    ],
+    "paired_with": [
+      "00"
+    ],
+    "use": "opaque/alpha world geometry: blocks, creatures, items (20 call sites)"
+  },
+  {
+    "index": 2,
+    "file": "02_ps_3_0_2fefa0.bin",
+    "kind": "ps_3_0",
+    "section": ".rdata",
+    "file_offset": "0x2fdfa0",
+    "rva": "0x2fefa0",
+    "va": "0x006fefa0",
+    "size": 556,
+    "tokens": 139,
+    "disassembler": "d3dcompiler_47 D3DDisassemble",
+    "sha256_prefix": "ca23a1ce5db5ed11",
+    "inputs": [
+      {
+        "semantic": "texcoord",
+        "register": "v0.y"
+      }
+    ],
+    "outputs": [],
+    "samplers": [],
+    "literal_constants": [
+      "c3, 0.600000024, 3, 2, 1",
+      "c4, 0.800000012, 0.200000003, 0, 0"
+    ],
+    "instructions": 17,
+    "instruction_slots": 19,
+    "float_registers_read": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "ctab": {
+      "creator": "Microsoft (R) HLSL Shader Compiler 9.30.9200.16384",
+      "target": "ps_3_0",
+      "version": "0xFFFF0300",
+      "flags": "0x100",
+      "constants": [
+        {
+          "name": "fogColor",
+          "register": "c2",
+          "register_set": "FLOAT4",
+          "register_index": 2,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 4,
+          "elements": 1
+        },
+        {
+          "name": "skyColor1",
+          "register": "c0",
+          "register_set": "FLOAT4",
+          "register_index": 0,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 4,
+          "elements": 1
+        },
+        {
+          "name": "skyColor2",
+          "register": "c1",
+          "register_set": "FLOAT4",
+          "register_index": 1,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 4,
+          "elements": 1
+        }
+      ]
+    },
+    "creator": "0x00447e10",
+    "creator_class": "cube::CubeShader",
+    "creator_note": "CubeShader::init (called from 0x004c8720); device vtable +0x16c CreateVertexShader / +0x1a8 CreatePixelShader",
+    "vertex_declaration": "cube (0x00447e10): stride 8; [0] UBYTE4 POSITION0 @0 (xyz = block position, w = face index 0..5); [1] D3DCOLOR COLOR0 @4",
+    "object_field": "CubeShader+0x0c",
+    "bound_by": [
+      "0x00447d90"
+    ],
+    "paired_with": [
+      "00"
+    ],
+    "use": "sky background (GameController::render 0x004adeb1, DrawPrimitiveUP fan)"
+  },
+  {
+    "index": 3,
+    "file": "03_ps_3_0_2ff1d0.bin",
+    "kind": "ps_3_0",
+    "section": ".rdata",
+    "file_offset": "0x2fe1d0",
+    "rva": "0x2ff1d0",
+    "va": "0x006ff1d0",
+    "size": 1008,
+    "tokens": 252,
+    "disassembler": "d3dcompiler_47 D3DDisassemble",
+    "sha256_prefix": "19dfbd12938b3170",
+    "inputs": [
+      {
+        "semantic": "color",
+        "register": "v0.zw"
+      },
+      {
+        "semantic": "texcoord",
+        "register": "v1.yz"
+      },
+      {
+        "semantic": "texcoord2",
+        "register": "v2.xyz"
+      },
+      {
+        "semantic": "texcoord3",
+        "register": "v3.xyz"
+      }
+    ],
+    "outputs": [],
+    "samplers": [],
+    "literal_constants": [
+      "c3, -0.5, 1, 0.600000024, 3",
+      "c4, 2, 1, 0.800000012, 0.200000003",
+      "c5, 0, -0.5, 0.600000024, 1",
+      "c6, 9.99999975e-005, 0.800000012, 0, 0",
+      "c7, 0, 2, 10, 0"
+    ],
+    "instructions": 38,
+    "instruction_slots": 42,
+    "float_registers_read": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "ctab": {
+      "creator": "Microsoft (R) HLSL Shader Compiler 9.30.9200.16384",
+      "target": "ps_3_0",
+      "version": "0xFFFF0300",
+      "flags": "0x100",
+      "constants": [
+        {
+          "name": "fogColor",
+          "register": "c2",
+          "register_set": "FLOAT4",
+          "register_index": 2,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 4,
+          "elements": 1
+        },
+        {
+          "name": "skyColor1",
+          "register": "c0",
+          "register_set": "FLOAT4",
+          "register_index": 0,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 4,
+          "elements": 1
+        },
+        {
+          "name": "skyColor2",
+          "register": "c1",
+          "register_set": "FLOAT4",
+          "register_index": 1,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 4,
+          "elements": 1
+        }
+      ]
+    },
+    "creator": "0x00447e10",
+    "creator_class": "cube::CubeShader",
+    "creator_note": "CubeShader::init (called from 0x004c8720); device vtable +0x16c CreateVertexShader / +0x1a8 CreatePixelShader",
+    "vertex_declaration": "cube (0x00447e10): stride 8; [0] UBYTE4 POSITION0 @0 (xyz = block position, w = face index 0..5); [1] D3DCOLOR COLOR0 @4",
+    "object_field": "CubeShader+0x14",
+    "bound_by": [
+      "0x00447dd0"
+    ],
+    "paired_with": [
+      "00"
+    ],
+    "use": "water surface (GameController::render 0x004ba157, per-zone second mesh, cull none)"
+  },
+  {
+    "index": 4,
+    "file": "04_ps_3_0_2ff5c0.bin",
+    "kind": "ps_3_0",
+    "section": ".rdata",
+    "file_offset": "0x2fe5c0",
+    "rva": "0x2ff5c0",
+    "va": "0x006ff5c0",
+    "size": 520,
+    "tokens": 130,
+    "disassembler": "d3dcompiler_47 D3DDisassemble",
+    "sha256_prefix": "d6cefd90ebb69859",
+    "inputs": [
+      {
+        "semantic": "color",
+        "register": "v0.xyz"
+      },
+      {
+        "semantic": "texcoord",
+        "register": "v1.yz"
+      }
+    ],
+    "outputs": [],
+    "samplers": [],
+    "literal_constants": [
+      "c2, 1, -0.800000012, -1, 0.800000012",
+      "c3, 0.25, 1, 1.25, 0"
+    ],
+    "instructions": 16,
+    "instruction_slots": 16,
+    "float_registers_read": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "ctab": {
+      "creator": "Microsoft (R) HLSL Shader Compiler 9.30.9200.16384",
+      "target": "ps_3_0",
+      "version": "0xFFFF0300",
+      "flags": "0x100",
+      "constants": [
+        {
+          "name": "skyColor1",
+          "register": "c0",
+          "register_set": "FLOAT4",
+          "register_index": 0,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 4,
+          "elements": 1
+        },
+        {
+          "name": "skyColor2",
+          "register": "c1",
+          "register_set": "FLOAT4",
+          "register_index": 1,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 4,
+          "elements": 1
+        }
+      ]
+    },
+    "creator": "0x00447e10",
+    "creator_class": "cube::CubeShader",
+    "creator_note": "CubeShader::init (called from 0x004c8720); device vtable +0x16c CreateVertexShader / +0x1a8 CreatePixelShader",
+    "vertex_declaration": "cube (0x00447e10): stride 8; [0] UBYTE4 POSITION0 @0 (xyz = block position, w = face index 0..5); [1] D3DCOLOR COLOR0 @4",
+    "object_field": "CubeShader+0x18",
+    "bound_by": [],
+    "paired_with": [
+      "00"
+    ],
+    "use": "created but never bound (no SetPixelShader site pushes CubeShader+0x18)"
+  },
+  {
+    "index": 5,
+    "file": "05_ps_3_0_2ff7c8.bin",
+    "kind": "ps_3_0",
+    "section": ".rdata",
+    "file_offset": "0x2fe7c8",
+    "rva": "0x2ff7c8",
+    "va": "0x006ff7c8",
+    "size": 660,
+    "tokens": 165,
+    "disassembler": "d3dcompiler_47 D3DDisassemble",
+    "sha256_prefix": "699ccc10f6454263",
+    "inputs": [
+      {
+        "semantic": "color",
+        "register": "v0"
+      },
+      {
+        "semantic": "texcoord",
+        "register": "v1.yz"
+      }
+    ],
+    "outputs": [],
+    "samplers": [],
+    "literal_constants": [
+      "c3, 1, 0.600000024, 3, 2",
+      "c4, 0.800000012, 0.200000003, 0, 0"
+    ],
+    "instructions": 22,
+    "instruction_slots": 24,
+    "float_registers_read": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "ctab": {
+      "creator": "Microsoft (R) HLSL Shader Compiler 9.30.9200.16384",
+      "target": "ps_3_0",
+      "version": "0xFFFF0300",
+      "flags": "0x100",
+      "constants": [
+        {
+          "name": "fogColor",
+          "register": "c2",
+          "register_set": "FLOAT4",
+          "register_index": 2,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 4,
+          "elements": 1
+        },
+        {
+          "name": "skyColor1",
+          "register": "c0",
+          "register_set": "FLOAT4",
+          "register_index": 0,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 4,
+          "elements": 1
+        },
+        {
+          "name": "skyColor2",
+          "register": "c1",
+          "register_set": "FLOAT4",
+          "register_index": 1,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 4,
+          "elements": 1
+        }
+      ]
+    },
+    "creator": "0x00447e10",
+    "creator_class": "cube::CubeShader",
+    "creator_note": "CubeShader::init (called from 0x004c8720); device vtable +0x16c CreateVertexShader / +0x1a8 CreatePixelShader",
+    "vertex_declaration": "cube (0x00447e10): stride 8; [0] UBYTE4 POSITION0 @0 (xyz = block position, w = face index 0..5); [1] D3DCOLOR COLOR0 @4",
+    "object_field": "CubeShader+0x10",
+    "bound_by": [
+      "0x00447d50"
+    ],
+    "paired_with": [
+      "00"
+    ],
+    "use": "clouds (GameController::render 0x004b1489, 7x7 drifting cloud grid)"
+  },
+  {
+    "index": 6,
+    "file": "06_vs_3_0_320558.bin",
+    "kind": "vs_3_0",
+    "section": ".rdata",
+    "file_offset": "0x31f558",
+    "rva": "0x320558",
+    "va": "0x00720558",
+    "size": 2252,
+    "tokens": 563,
+    "disassembler": "d3dcompiler_47 D3DDisassemble",
+    "sha256_prefix": "49bd563dfd95c7ca",
+    "inputs": [
+      {
+        "semantic": "position",
+        "register": "v0"
+      },
+      {
+        "semantic": "color",
+        "register": "v1"
+      },
+      {
+        "semantic": "texcoord",
+        "register": "v2"
+      },
+      {
+        "semantic": "texcoord1",
+        "register": "v3"
+      },
+      {
+        "semantic": "texcoord2",
+        "register": "v4"
+      }
+    ],
+    "outputs": [
+      {
+        "semantic": "position",
+        "register": "o0"
+      },
+      {
+        "semantic": "color",
+        "register": "o1"
+      },
+      {
+        "semantic": "texcoord",
+        "register": "o2.xy"
+      },
+      {
+        "semantic": "texcoord1",
+        "register": "o3.xy"
+      }
+    ],
+    "samplers": [],
+    "literal_constants": [
+      "c28, -1, 1, 0, 9.99999975e-006",
+      "c29, 0.699999988, 0.5, -0.135000005, 0"
+    ],
+    "instructions": 92,
+    "instruction_slots": 94,
+    "float_registers_read": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29
+    ],
+    "ctab": {
+      "creator": "Microsoft (R) HLSL Shader Compiler 9.30.9200.16384",
+      "target": "vs_3_0",
+      "version": "0xFFFE0300",
+      "flags": "0x100",
+      "constants": [
+        {
+          "name": "MaskMatrix",
+          "register": "c16",
+          "register_set": "FLOAT4",
+          "register_index": 16,
+          "register_count": 2,
+          "class": "MATRIX_COLUMNS",
+          "type": "FLOAT",
+          "rows": 4,
+          "columns": 4,
+          "elements": 1
+        },
+        {
+          "name": "NormalMatrix",
+          "register": "c20",
+          "register_set": "FLOAT4",
+          "register_index": 20,
+          "register_count": 2,
+          "class": "MATRIX_COLUMNS",
+          "type": "FLOAT",
+          "rows": 4,
+          "columns": 4,
+          "elements": 1
+        },
+        {
+          "name": "Proj",
+          "register": "c0",
+          "register_set": "FLOAT4",
+          "register_index": 0,
+          "register_count": 4,
+          "class": "MATRIX_COLUMNS",
+          "type": "FLOAT",
+          "rows": 4,
+          "columns": 4,
+          "elements": 1
+        },
+        {
+          "name": "TextureMatrix",
+          "register": "c18",
+          "register_set": "FLOAT4",
+          "register_index": 18,
+          "register_count": 2,
+          "class": "MATRIX_COLUMNS",
+          "type": "FLOAT",
+          "rows": 4,
+          "columns": 4,
+          "elements": 1
+        },
+        {
+          "name": "WorldView",
+          "register": "c4",
+          "register_set": "FLOAT4",
+          "register_index": 4,
+          "register_count": 4,
+          "class": "MATRIX_COLUMNS",
+          "type": "FLOAT",
+          "rows": 4,
+          "columns": 4,
+          "elements": 1
+        },
+        {
+          "name": "aaOffset",
+          "register": "c26",
+          "register_set": "FLOAT4",
+          "register_index": 26,
+          "register_count": 1,
+          "class": "SCALAR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 1,
+          "elements": 1
+        },
+        {
+          "name": "baseColor",
+          "register": "c27",
+          "register_set": "FLOAT4",
+          "register_index": 27,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 4,
+          "elements": 1
+        },
+        {
+          "name": "deformedWidgetPos",
+          "register": "c24",
+          "register_set": "FLOAT4",
+          "register_index": 24,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 2,
+          "elements": 1
+        },
+        {
+          "name": "deformedWidgetSize",
+          "register": "c25",
+          "register_set": "FLOAT4",
+          "register_index": 25,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 2,
+          "elements": 1
+        },
+        {
+          "name": "inverseWidgetBindMatrix",
+          "register": "c12",
+          "register_set": "FLOAT4",
+          "register_index": 12,
+          "register_count": 4,
+          "class": "MATRIX_COLUMNS",
+          "type": "FLOAT",
+          "rows": 4,
+          "columns": 4,
+          "elements": 1
+        },
+        {
+          "name": "widgetBindMatrix",
+          "register": "c8",
+          "register_set": "FLOAT4",
+          "register_index": 8,
+          "register_count": 4,
+          "class": "MATRIX_COLUMNS",
+          "type": "FLOAT",
+          "rows": 4,
+          "columns": 4,
+          "elements": 1
+        },
+        {
+          "name": "widgetBindPos",
+          "register": "c22",
+          "register_set": "FLOAT4",
+          "register_index": 22,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 2,
+          "elements": 1
+        },
+        {
+          "name": "widgetBindSize",
+          "register": "c23",
+          "register_set": "FLOAT4",
+          "register_index": 23,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 2,
+          "elements": 1
+        },
+        {
+          "name": "widgetDeformationEnabled",
+          "register": "b0",
+          "register_set": "BOOL",
+          "register_index": 0,
+          "register_count": 1,
+          "class": "SCALAR",
+          "type": "BOOL",
+          "rows": 1,
+          "columns": 1,
+          "elements": 1
+        }
+      ]
+    },
+    "creator": "0x0068a350",
+    "creator_class": "plasma::D3D9Engine",
+    "creator_note": "D3D9Engine vtable slot 1 (0x00722588), device init of the GUI/2D shader set",
+    "vertex_declaration": "gui (0x0068a350): stride 48; FLOAT2 POSITION0 @0, FLOAT4 COLOR0 @8, FLOAT2 TEXCOORD0 @24, FLOAT2 TEXCOORD1 @32, FLOAT2 TEXCOORD2 @40",
+    "object_field": "D3D9Engine+0x194",
+    "bound_by": [
+      "0x00688e70",
+      "0x0068ab70"
+    ],
+    "paired_with": [
+      "07"
+    ],
+    "use": "GUI widget / vector shape vertex shader"
+  },
+  {
+    "index": 7,
+    "file": "07_ps_3_0_320e28.bin",
+    "kind": "ps_3_0",
+    "section": ".rdata",
+    "file_offset": "0x31fe28",
+    "rva": "0x320e28",
+    "va": "0x00720e28",
+    "size": 1172,
+    "tokens": 293,
+    "disassembler": "d3dcompiler_47 D3DDisassemble",
+    "sha256_prefix": "46414f4f1b69688d",
+    "inputs": [
+      {
+        "semantic": "color",
+        "register": "v0"
+      },
+      {
+        "semantic": "texcoord",
+        "register": "v1.xy"
+      },
+      {
+        "semantic": "texcoord1",
+        "register": "v2.xy"
+      }
+    ],
+    "outputs": [],
+    "samplers": [
+      {
+        "register": "s0",
+        "type": "2d"
+      },
+      {
+        "register": "s1",
+        "type": "2d"
+      }
+    ],
+    "literal_constants": [
+      "c5, -1, 0.300000012, 0.589999974, 0.109999999",
+      "c6, 0.5, 0, -1, -2"
+    ],
+    "instructions": 40,
+    "instruction_slots": 44,
+    "float_registers_read": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "ctab": {
+      "creator": "Microsoft (R) HLSL Shader Compiler 9.30.9200.16384",
+      "target": "ps_3_0",
+      "version": "0xFFFF0300",
+      "flags": "0x100",
+      "constants": [
+        {
+          "name": "filter",
+          "register": "c0",
+          "register_set": "FLOAT4",
+          "register_index": 0,
+          "register_count": 1,
+          "class": "SCALAR",
+          "type": "INT",
+          "rows": 1,
+          "columns": 1,
+          "elements": 1
+        },
+        {
+          "name": "maskSampler",
+          "register": "s0",
+          "register_set": "SAMPLER",
+          "register_index": 0,
+          "register_count": 1,
+          "class": "OBJECT",
+          "type": "SAMPLER2D",
+          "rows": 1,
+          "columns": 1,
+          "elements": 1
+        },
+        {
+          "name": "textureBrightness",
+          "register": "c2",
+          "register_set": "FLOAT4",
+          "register_index": 2,
+          "register_count": 1,
+          "class": "SCALAR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 1,
+          "elements": 1
+        },
+        {
+          "name": "textureContrast",
+          "register": "c3",
+          "register_set": "FLOAT4",
+          "register_index": 3,
+          "register_count": 1,
+          "class": "SCALAR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 1,
+          "elements": 1
+        },
+        {
+          "name": "textureEnabled",
+          "register": "b0",
+          "register_set": "BOOL",
+          "register_index": 0,
+          "register_count": 1,
+          "class": "SCALAR",
+          "type": "BOOL",
+          "rows": 1,
+          "columns": 1,
+          "elements": 1
+        },
+        {
+          "name": "textureOpacity",
+          "register": "c1",
+          "register_set": "FLOAT4",
+          "register_index": 1,
+          "register_count": 1,
+          "class": "SCALAR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 1,
+          "elements": 1
+        },
+        {
+          "name": "textureSampler",
+          "register": "s1",
+          "register_set": "SAMPLER",
+          "register_index": 1,
+          "register_count": 1,
+          "class": "OBJECT",
+          "type": "SAMPLER2D",
+          "rows": 1,
+          "columns": 1,
+          "elements": 1
+        },
+        {
+          "name": "textureSaturation",
+          "register": "c4",
+          "register_set": "FLOAT4",
+          "register_index": 4,
+          "register_count": 1,
+          "class": "SCALAR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 1,
+          "elements": 1
+        }
+      ]
+    },
+    "creator": "0x0068a350",
+    "creator_class": "plasma::D3D9Engine",
+    "creator_note": "D3D9Engine vtable slot 1 (0x00722588), device init of the GUI/2D shader set",
+    "vertex_declaration": "gui (0x0068a350): stride 48; FLOAT2 POSITION0 @0, FLOAT4 COLOR0 @8, FLOAT2 TEXCOORD0 @24, FLOAT2 TEXCOORD1 @32, FLOAT2 TEXCOORD2 @40",
+    "object_field": "D3D9Engine+0x198",
+    "bound_by": [
+      "0x00688e70",
+      "0x0068ab70"
+    ],
+    "paired_with": [
+      "06"
+    ],
+    "use": "GUI widget pixel shader: colour, texture with brightness/contrast/saturation, mask modes"
+  },
+  {
+    "index": 8,
+    "file": "08_vs_3_0_3212c0.bin",
+    "kind": "vs_3_0",
+    "section": ".rdata",
+    "file_offset": "0x3202c0",
+    "rva": "0x3212c0",
+    "va": "0x007212c0",
+    "size": 348,
+    "tokens": 87,
+    "disassembler": "d3dcompiler_47 D3DDisassemble",
+    "sha256_prefix": "cb3ccd27edcf31be",
+    "inputs": [
+      {
+        "semantic": "position",
+        "register": "v0"
+      },
+      {
+        "semantic": "color",
+        "register": "v1"
+      },
+      {
+        "semantic": "texcoord2",
+        "register": "v2"
+      }
+    ],
+    "outputs": [
+      {
+        "semantic": "position",
+        "register": "o0"
+      },
+      {
+        "semantic": "color",
+        "register": "o1"
+      },
+      {
+        "semantic": "texcoord",
+        "register": "o2.xy"
+      }
+    ],
+    "samplers": [],
+    "literal_constants": [
+      "c4, -0.135000005, 0, 0, 0"
+    ],
+    "instructions": 7,
+    "instruction_slots": 7,
+    "float_registers_read": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "ctab": {
+      "creator": "Microsoft (R) HLSL Shader Compiler 9.30.9200.16384",
+      "target": "vs_3_0",
+      "version": "0xFFFE0300",
+      "flags": "0x100",
+      "constants": [
+        {
+          "name": "Proj",
+          "register": "c0",
+          "register_set": "FLOAT4",
+          "register_index": 0,
+          "register_count": 4,
+          "class": "MATRIX_COLUMNS",
+          "type": "FLOAT",
+          "rows": 4,
+          "columns": 4,
+          "elements": 1
+        }
+      ]
+    },
+    "creator": "0x0068a350",
+    "creator_class": "plasma::D3D9Engine",
+    "creator_note": "D3D9Engine vtable slot 1 (0x00722588), device init of the GUI/2D shader set",
+    "vertex_declaration": "gui (0x0068a350): stride 48; FLOAT2 POSITION0 @0, FLOAT4 COLOR0 @8, FLOAT2 TEXCOORD0 @24, FLOAT2 TEXCOORD1 @32, FLOAT2 TEXCOORD2 @40",
+    "object_field": "D3D9Engine+0x1a0",
+    "bound_by": [
+      "0x0068c7c0",
+      "0x0068cad0",
+      "0x0068cf10"
+    ],
+    "paired_with": [
+      "09",
+      "10",
+      "11",
+      "12",
+      "13",
+      "14"
+    ],
+    "use": "screen-space quad vertex shader for D3D9RenderSurface draws"
+  },
+  {
+    "index": 9,
+    "file": "09_ps_3_0_321420.bin",
+    "kind": "ps_3_0",
+    "section": ".rdata",
+    "file_offset": "0x320420",
+    "rva": "0x321420",
+    "va": "0x00721420",
+    "size": 272,
+    "tokens": 68,
+    "disassembler": "d3dcompiler_47 D3DDisassemble",
+    "sha256_prefix": "d7941f9ff7ad3ec6",
+    "inputs": [
+      {
+        "semantic": "color",
+        "register": "v0"
+      },
+      {
+        "semantic": "texcoord",
+        "register": "v1.xy"
+      }
+    ],
+    "outputs": [],
+    "samplers": [
+      {
+        "register": "s0",
+        "type": "2d"
+      }
+    ],
+    "literal_constants": [],
+    "instructions": 5,
+    "instruction_slots": 5,
+    "float_registers_read": [],
+    "ctab": {
+      "creator": "Microsoft (R) HLSL Shader Compiler 9.30.9200.16384",
+      "target": "ps_3_0",
+      "version": "0xFFFF0300",
+      "flags": "0x100",
+      "constants": [
+        {
+          "name": "textureSampler",
+          "register": "s0",
+          "register_set": "SAMPLER",
+          "register_index": 0,
+          "register_count": 1,
+          "class": "OBJECT",
+          "type": "SAMPLER2D",
+          "rows": 1,
+          "columns": 1,
+          "elements": 1
+        }
+      ]
+    },
+    "creator": "0x0068a350",
+    "creator_class": "plasma::D3D9Engine",
+    "creator_note": "D3D9Engine vtable slot 1 (0x00722588), device init of the GUI/2D shader set",
+    "vertex_declaration": "gui (0x0068a350): stride 48; FLOAT2 POSITION0 @0, FLOAT4 COLOR0 @8, FLOAT2 TEXCOORD0 @24, FLOAT2 TEXCOORD1 @32, FLOAT2 TEXCOORD2 @40",
+    "object_field": "D3D9Engine+0x1a4",
+    "bound_by": [
+      "0x0068c7c0",
+      "0x0068cf10"
+    ],
+    "paired_with": [
+      "08"
+    ],
+    "use": "render-surface blit (filter 1)"
+  },
+  {
+    "index": 10,
+    "file": "10_ps_3_0_321530.bin",
+    "kind": "ps_3_0",
+    "section": ".rdata",
+    "file_offset": "0x320530",
+    "rva": "0x321530",
+    "va": "0x00721530",
+    "size": 584,
+    "tokens": 146,
+    "disassembler": "d3dcompiler_47 D3DDisassemble",
+    "sha256_prefix": "bdbc9ba34cf61e63",
+    "inputs": [
+      {
+        "semantic": "color",
+        "register": "v0"
+      },
+      {
+        "semantic": "texcoord",
+        "register": "v1.xy"
+      }
+    ],
+    "outputs": [],
+    "samplers": [
+      {
+        "register": "s0",
+        "type": "2d"
+      }
+    ],
+    "literal_constants": [
+      "c1, 2, 0.5, 0.25, 0"
+    ],
+    "instructions": 20,
+    "instruction_slots": 20,
+    "float_registers_read": [
+      0,
+      1
+    ],
+    "ctab": {
+      "creator": "Microsoft (R) HLSL Shader Compiler 9.30.9200.16384",
+      "target": "ps_3_0",
+      "version": "0xFFFF0300",
+      "flags": "0x100",
+      "constants": [
+        {
+          "name": "textureSampler",
+          "register": "s0",
+          "register_set": "SAMPLER",
+          "register_index": 0,
+          "register_count": 1,
+          "class": "OBJECT",
+          "type": "SAMPLER2D",
+          "rows": 1,
+          "columns": 1,
+          "elements": 1
+        },
+        {
+          "name": "textureScale",
+          "register": "c0",
+          "register_set": "FLOAT4",
+          "register_index": 0,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 2,
+          "elements": 1
+        }
+      ]
+    },
+    "creator": "0x0068a350",
+    "creator_class": "plasma::D3D9Engine",
+    "creator_note": "D3D9Engine vtable slot 1 (0x00722588), device init of the GUI/2D shader set",
+    "vertex_declaration": "gui (0x0068a350): stride 48; FLOAT2 POSITION0 @0, FLOAT4 COLOR0 @8, FLOAT2 TEXCOORD0 @24, FLOAT2 TEXCOORD1 @32, FLOAT2 TEXCOORD2 @40",
+    "object_field": "D3D9Engine+0x1a8",
+    "bound_by": [
+      "0x0068cf10"
+    ],
+    "paired_with": [
+      "08"
+    ],
+    "use": "render-surface 2x2 box downsample (filter 2)"
+  },
+  {
+    "index": 11,
+    "file": "11_ps_3_0_321778.bin",
+    "kind": "ps_3_0",
+    "section": ".rdata",
+    "file_offset": "0x320778",
+    "rva": "0x321778",
+    "va": "0x00721778",
+    "size": 800,
+    "tokens": 200,
+    "disassembler": "d3dcompiler_47 D3DDisassemble",
+    "sha256_prefix": "c90be8400c36e162",
+    "inputs": [
+      {
+        "semantic": "color",
+        "register": "v0"
+      },
+      {
+        "semantic": "texcoord",
+        "register": "v1.xy"
+      }
+    ],
+    "outputs": [],
+    "samplers": [
+      {
+        "register": "s0",
+        "type": "2d"
+      }
+    ],
+    "literal_constants": [
+      "c1, 3, 0.5, 2, 0.111111112"
+    ],
+    "instructions": 34,
+    "instruction_slots": 34,
+    "float_registers_read": [
+      0,
+      1
+    ],
+    "ctab": {
+      "creator": "Microsoft (R) HLSL Shader Compiler 9.30.9200.16384",
+      "target": "ps_3_0",
+      "version": "0xFFFF0300",
+      "flags": "0x100",
+      "constants": [
+        {
+          "name": "textureSampler",
+          "register": "s0",
+          "register_set": "SAMPLER",
+          "register_index": 0,
+          "register_count": 1,
+          "class": "OBJECT",
+          "type": "SAMPLER2D",
+          "rows": 1,
+          "columns": 1,
+          "elements": 1
+        },
+        {
+          "name": "textureScale",
+          "register": "c0",
+          "register_set": "FLOAT4",
+          "register_index": 0,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 2,
+          "elements": 1
+        }
+      ]
+    },
+    "creator": "0x0068a350",
+    "creator_class": "plasma::D3D9Engine",
+    "creator_note": "D3D9Engine vtable slot 1 (0x00722588), device init of the GUI/2D shader set",
+    "vertex_declaration": "gui (0x0068a350): stride 48; FLOAT2 POSITION0 @0, FLOAT4 COLOR0 @8, FLOAT2 TEXCOORD0 @24, FLOAT2 TEXCOORD1 @32, FLOAT2 TEXCOORD2 @40",
+    "object_field": "D3D9Engine+0x1ac",
+    "bound_by": [
+      "0x0068cf10"
+    ],
+    "paired_with": [
+      "08"
+    ],
+    "use": "render-surface 3x3 box downsample (filter 3)"
+  },
+  {
+    "index": 12,
+    "file": "12_ps_3_0_321a98.bin",
+    "kind": "ps_3_0",
+    "section": ".rdata",
+    "file_offset": "0x320a98",
+    "rva": "0x321a98",
+    "va": "0x00721a98",
+    "size": 1128,
+    "tokens": 282,
+    "disassembler": "d3dcompiler_47 D3DDisassemble",
+    "sha256_prefix": "8d5ff578c4bea14c",
+    "inputs": [
+      {
+        "semantic": "color",
+        "register": "v0"
+      },
+      {
+        "semantic": "texcoord",
+        "register": "v1.xy"
+      }
+    ],
+    "outputs": [],
+    "samplers": [
+      {
+        "register": "s0",
+        "type": "2d"
+      }
+    ],
+    "literal_constants": [
+      "c1, 4, 0.5, 2, 3",
+      "c2, 0.0625, 0, 0, 0"
+    ],
+    "instructions": 54,
+    "instruction_slots": 54,
+    "float_registers_read": [
+      0,
+      1,
+      2
+    ],
+    "ctab": {
+      "creator": "Microsoft (R) HLSL Shader Compiler 9.30.9200.16384",
+      "target": "ps_3_0",
+      "version": "0xFFFF0300",
+      "flags": "0x100",
+      "constants": [
+        {
+          "name": "textureSampler",
+          "register": "s0",
+          "register_set": "SAMPLER",
+          "register_index": 0,
+          "register_count": 1,
+          "class": "OBJECT",
+          "type": "SAMPLER2D",
+          "rows": 1,
+          "columns": 1,
+          "elements": 1
+        },
+        {
+          "name": "textureScale",
+          "register": "c0",
+          "register_set": "FLOAT4",
+          "register_index": 0,
+          "register_count": 1,
+          "class": "VECTOR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 2,
+          "elements": 1
+        }
+      ]
+    },
+    "creator": "0x0068a350",
+    "creator_class": "plasma::D3D9Engine",
+    "creator_note": "D3D9Engine vtable slot 1 (0x00722588), device init of the GUI/2D shader set",
+    "vertex_declaration": "gui (0x0068a350): stride 48; FLOAT2 POSITION0 @0, FLOAT4 COLOR0 @8, FLOAT2 TEXCOORD0 @24, FLOAT2 TEXCOORD1 @32, FLOAT2 TEXCOORD2 @40",
+    "object_field": "D3D9Engine+0x1b0",
+    "bound_by": [
+      "0x0068cf10"
+    ],
+    "paired_with": [
+      "08"
+    ],
+    "use": "render-surface 4x4 box downsample (filter 4)"
+  },
+  {
+    "index": 13,
+    "file": "13_ps_2_0_321f00.bin",
+    "kind": "ps_2_0",
+    "section": ".rdata",
+    "file_offset": "0x320f00",
+    "rva": "0x321f00",
+    "va": "0x00721f00",
+    "size": 880,
+    "tokens": 220,
+    "disassembler": "d3dcompiler_47 D3DDisassemble",
+    "sha256_prefix": "239f47d09bab17c0",
+    "inputs": [
+      {
+        "semantic": "texcoord",
+        "register": "t0.xy"
+      }
+    ],
+    "outputs": [],
+    "samplers": [
+      {
+        "register": "s0",
+        "type": "2d"
+      }
+    ],
+    "literal_constants": [
+      "c1, 4, 3, 0.0900000036, 0.0500000007",
+      "c2, 2, 0.119999997, 0.150000006, 0.180000007"
+    ],
+    "instructions": 37,
+    "instruction_slots": 37,
+    "float_registers_read": [
+      0,
+      1,
+      2
+    ],
+    "ctab": {
+      "creator": "Microsoft (R) HLSL Shader Compiler 9.30.9200.16384",
+      "target": "ps_2_0",
+      "version": "0xFFFF0200",
+      "flags": "0x100",
+      "constants": [
+        {
+          "name": "blurScale",
+          "register": "c0",
+          "register_set": "FLOAT4",
+          "register_index": 0,
+          "register_count": 1,
+          "class": "SCALAR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 1,
+          "elements": 1
+        },
+        {
+          "name": "textureSampler",
+          "register": "s0",
+          "register_set": "SAMPLER",
+          "register_index": 0,
+          "register_count": 1,
+          "class": "OBJECT",
+          "type": "SAMPLER2D",
+          "rows": 1,
+          "columns": 1,
+          "elements": 1
+        }
+      ]
+    },
+    "creator": "0x0068a350",
+    "creator_class": "plasma::D3D9Engine",
+    "creator_note": "D3D9Engine vtable slot 1 (0x00722588), device init of the GUI/2D shader set",
+    "vertex_declaration": "gui (0x0068a350): stride 48; FLOAT2 POSITION0 @0, FLOAT4 COLOR0 @8, FLOAT2 TEXCOORD0 @24, FLOAT2 TEXCOORD1 @32, FLOAT2 TEXCOORD2 @40",
+    "object_field": "D3D9Engine+0x1b8",
+    "bound_by": [
+      "0x0068cad0"
+    ],
+    "paired_with": [
+      "08"
+    ],
+    "use": "render-surface vertical 9-tap Gaussian blur (flag false)"
+  },
+  {
+    "index": 14,
+    "file": "14_ps_3_0_322270.bin",
+    "kind": "ps_3_0",
+    "section": ".rdata",
+    "file_offset": "0x321270",
+    "rva": "0x322270",
+    "va": "0x00722270",
+    "size": 780,
+    "tokens": 195,
+    "disassembler": "d3dcompiler_47 D3DDisassemble",
+    "sha256_prefix": "a4de481da99c3cc3",
+    "inputs": [
+      {
+        "semantic": "texcoord",
+        "register": "v0.xy"
+      }
+    ],
+    "outputs": [],
+    "samplers": [
+      {
+        "register": "s0",
+        "type": "2d"
+      }
+    ],
+    "literal_constants": [
+      "c1, 4, 3, 0.0900000036, 0.0500000007",
+      "c2, 2, 0.119999997, 0.150000006, 0.180000007"
+    ],
+    "instructions": 30,
+    "instruction_slots": 30,
+    "float_registers_read": [
+      0,
+      1,
+      2
+    ],
+    "ctab": {
+      "creator": "Microsoft (R) HLSL Shader Compiler 9.30.9200.16384",
+      "target": "ps_3_0",
+      "version": "0xFFFF0300",
+      "flags": "0x100",
+      "constants": [
+        {
+          "name": "blurScale",
+          "register": "c0",
+          "register_set": "FLOAT4",
+          "register_index": 0,
+          "register_count": 1,
+          "class": "SCALAR",
+          "type": "FLOAT",
+          "rows": 1,
+          "columns": 1,
+          "elements": 1
+        },
+        {
+          "name": "textureSampler",
+          "register": "s0",
+          "register_set": "SAMPLER",
+          "register_index": 0,
+          "register_count": 1,
+          "class": "OBJECT",
+          "type": "SAMPLER2D",
+          "rows": 1,
+          "columns": 1,
+          "elements": 1
+        }
+      ]
+    },
+    "creator": "0x0068a350",
+    "creator_class": "plasma::D3D9Engine",
+    "creator_note": "D3D9Engine vtable slot 1 (0x00722588), device init of the GUI/2D shader set",
+    "vertex_declaration": "gui (0x0068a350): stride 48; FLOAT2 POSITION0 @0, FLOAT4 COLOR0 @8, FLOAT2 TEXCOORD0 @24, FLOAT2 TEXCOORD1 @32, FLOAT2 TEXCOORD2 @40",
+    "object_field": "D3D9Engine+0x1b4",
+    "bound_by": [
+      "0x0068cad0"
+    ],
+    "paired_with": [
+      "08"
+    ],
+    "use": "render-surface horizontal 9-tap Gaussian blur (flag true)"
+  }
+]

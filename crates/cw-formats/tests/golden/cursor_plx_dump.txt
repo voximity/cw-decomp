@@ -1,0 +1,232 @@
+key 0xfb3a260b5ec7cd5c
+PlasmaGraphics [4] 1
+Seal [18] 0e0000007887816dbd3d2fc76e99ac39...
+SmoothMeshShape {36 chunks}
+  SmoothMeshShape.wname [12] "Mesh"
+  SmoothMeshShape.face [92] 16000000000000001100000013000000...
+  SmoothMeshShape.vertexFlags [92] 16000000000000000000000002000000...
+  SmoothMeshShape.vertexParameters [92] 16000000000000000000000000000000...
+  SmoothMeshShape.vertexPositions {3 chunks}
+    ArrayAttribute.size [4] 22
+    ArrayAttribute.frame x2 [352 bytes] first: feffbfc00000b841fcff3fc005000040...
+  SmoothMeshShape.vertexTexCoords {3 chunks}
+    ArrayAttribute.size [4] 22
+    ArrayAttribute.frame x2 [352 bytes] first: 000000000000803f000000009999993e...
+  SmoothMeshShape.vertexColors {3 chunks}
+    ArrayAttribute.size [4] 22
+    ArrayAttribute.frame x2 [704 bytes] first: 0000803f0000803f0000803f0000803f...
+  SmoothMeshShape.strokeColors {3 chunks}
+    ArrayAttribute.size [4] 22
+    ArrayAttribute.frame x2 [704 bytes] first: 0000000000000000000000000000803f...
+  SmoothMeshShape.extrusionFrontColors {3 chunks}
+    ArrayAttribute.size [4] 22
+    ArrayAttribute.frame x2 [704 bytes] first: 0000003f0000003f0000003f0000803f...
+  SmoothMeshShape.extrusionBackColors {3 chunks}
+    ArrayAttribute.size [4] 22
+    ArrayAttribute.frame x2 [704 bytes] first: 0000003f0000003f0000003f0000803f...
+  SmoothMeshShape.strokeWidths {3 chunks}
+    ArrayAttribute.size [4] 22
+    ArrayAttribute.frame x2 [176 bytes] first: 00000040000000400000004000000040...
+  SmoothMeshShape.texture {2 chunks}
+    Attribute.frame x2 [8 bytes] first: -1
+  SmoothMeshShape.strokeTexture {2 chunks}
+    Attribute.frame x2 [8 bytes] first: -1
+  SmoothMeshShape.textureTranslation {2 chunks}
+    Attribute.frame x2 [16 bytes] first: 0 0
+  SmoothMeshShape.textureRotation {2 chunks}
+    Attribute.frame x2 [24 bytes] first: 0 0 0
+  SmoothMeshShape.textureDeformation {2 chunks}
+    Attribute.frame x2 [128 bytes] first: 0000803f000000000000000000000000...
+  SmoothMeshShape.texturePivot {2 chunks}
+    Attribute.frame x2 [16 bytes] first: 0 0
+  SmoothMeshShape.textureOpacity {2 chunks}
+    Attribute.frame x2 [8 bytes] first: 1.0
+  SmoothMeshShape.textureBrightness {2 chunks}
+    Attribute.frame x2 [8 bytes] first: 1.0
+  SmoothMeshShape.textureContrast {2 chunks}
+    Attribute.frame x2 [8 bytes] first: 1.0
+  SmoothMeshShape.textureSaturation {2 chunks}
+    Attribute.frame x2 [8 bytes] first: 1.0
+  SmoothMeshShape.strokeTextureOpacity {2 chunks}
+    Attribute.frame x2 [8 bytes] first: 1.0
+  SmoothMeshShape.strokeTextureBrightness {2 chunks}
+    Attribute.frame x2 [8 bytes] first: 1.0
+  SmoothMeshShape.strokeTextureContrast {2 chunks}
+    Attribute.frame x2 [8 bytes] first: 1.0
+  SmoothMeshShape.strokeTextureSaturation {2 chunks}
+    Attribute.frame x2 [8 bytes] first: 1.0
+  SmoothMeshShape.strokeTextureStretch {2 chunks}
+    Attribute.frame x2 [8 bytes] first: 1.0
+  SmoothMeshShape.extrusionMatrix {2 chunks}
+    Attribute.frame x2 [128 bytes] first: 0000803f000000000000000000000000...
+  SmoothMeshShape.subdivisions [4] 4
+  SmoothMeshShape.flags [4] 3
+  SmoothMeshShape.strokeJointType [4] 1
+  SmoothMeshShape.strokeCapType [4] 1
+  SmoothMeshShape.strokeAlignment [4] 0
+  SmoothMeshShape.strokePattern [4] 0
+  SmoothMeshShape.strokeDash [4] 1.0
+  SmoothMeshShape.strokeGap [4] 2.0
+  SmoothMeshShape.smoothWeight [4] 0.5857864
+TextShape {12 chunks}
+  TextShape.wname [12] "info"
+  TextShape.string {2 chunks}
+    Attribute.frame x2 [20 bytes] first: "ACTION"
+  TextShape.color {2 chunks}
+    Attribute.frame x2 [32 bytes] first: 0 0.76328176 0.81379306 1.0
+  TextShape.strokeColor {2 chunks}
+    Attribute.frame x2 [32 bytes] first: 0 0 0 1.0
+  TextShape.extrusionColor {2 chunks}
+    Attribute.frame x2 [32 bytes] first: 0.5 0.5 0.5 1.0
+  TextShape.flags [4] 0
+  TextShape.wfontName [30] "resource1.dat"
+  TextShape.pixelSize [4] 10.0
+  TextShape.strokeRadius [4] 2.4999998
+  TextShape.spacing [4] 0
+  TextShape.lineSpacing [4] 0
+  TextShape.wrapWidth [4] 200.0
+TextShape {12 chunks}
+  TextShape.wname [12] "info"
+  TextShape.string {2 chunks}
+    Attribute.frame x2 [20 bytes] first: "ACTION"
+  TextShape.color {2 chunks}
+    Attribute.frame x2 [32 bytes] first: 1.0 1.0 1.0 1.0
+  TextShape.strokeColor {2 chunks}
+    Attribute.frame x2 [32 bytes] first: 0 0 0 1.0
+  TextShape.extrusionColor {2 chunks}
+    Attribute.frame x2 [32 bytes] first: 0.5 0.5 0.5 1.0
+  TextShape.flags [4] 0
+  TextShape.wfontName [30] "resource1.dat"
+  TextShape.pixelSize [4] 10.0
+  TextShape.strokeRadius [4] 0
+  TextShape.spacing [4] 0
+  TextShape.lineSpacing [4] 0
+  TextShape.wrapWidth [4] 200.0
+Transformation {5 chunks}
+  Transformation.wname [4] ""
+  Transformation.translation {2 chunks}
+    Attribute.frame x2 [16 bytes] first: 426.0173 320.54034
+  Transformation.rotation {2 chunks}
+    Attribute.frame x2 [24 bytes] first: 0 0 0
+  Transformation.pivot {2 chunks}
+    Attribute.frame x2 [16 bytes] first: 0 0
+  Transformation.deformation {2 chunks}
+    Attribute.frame x2 [128 bytes] first: 9e447540000000000000000000000000...
+Transformation {5 chunks}
+  Transformation.wname [4] ""
+  Transformation.translation {2 chunks}
+    Attribute.frame x2 [16 bytes] first: -1.7881393e-7 9.505658e-7
+  Transformation.rotation {2 chunks}
+    Attribute.frame x2 [24 bytes] first: 0 0 0
+  Transformation.pivot {2 chunks}
+    Attribute.frame x2 [16 bytes] first: 3.9999995 3.7142863
+  Transformation.deformation {2 chunks}
+    Attribute.frame x2 [128 bytes] first: 0000803f000000000000000000000000...
+Transformation {5 chunks}
+  Transformation.wname [4] ""
+  Transformation.translation {2 chunks}
+    Attribute.frame x2 [16 bytes] first: 1.847744e-5 2.1457672e-6
+  Transformation.rotation {2 chunks}
+    Attribute.frame x2 [24 bytes] first: 0 0 0
+  Transformation.pivot {2 chunks}
+    Attribute.frame x2 [16 bytes] first: 0 0
+  Transformation.deformation {2 chunks}
+    Attribute.frame x2 [128 bytes] first: 0000803f000000000000000000000000...
+Transformation {5 chunks}
+  Transformation.wname [4] ""
+  Transformation.translation {2 chunks}
+    Attribute.frame x2 [16 bytes] first: 19.999992 30.000021
+  Transformation.rotation {2 chunks}
+    Attribute.frame x2 [24 bytes] first: 0 0 0
+  Transformation.pivot {2 chunks}
+    Attribute.frame x2 [16 bytes] first: 0 0
+  Transformation.deformation {2 chunks}
+    Attribute.frame x2 [128 bytes] first: ffff7f3f000000000000000000000000...
+Display {7 chunks}
+  Display.wname [4] ""
+  Display.visibility {2 chunks}
+    Attribute.frame x2 [8 bytes] first: 1
+  Display.clipping {2 chunks}
+    Attribute.frame x2 [8 bytes] first: 0
+  Display.fillColor {2 chunks}
+    Attribute.frame x2 [32 bytes] first: 1.0 1.0 1.0 1.0
+  Display.strokeColor {2 chunks}
+    Attribute.frame x2 [32 bytes] first: 1.0 1.0 1.0 1.0
+  Display.blurRadius {2 chunks}
+    Attribute.frame x2 [8 bytes] first: 0
+  Display.flags [4] 0
+Display {7 chunks}
+  Display.wname [4] ""
+  Display.visibility {2 chunks}
+    Attribute.frame x2 [8 bytes] first: 1
+  Display.clipping {2 chunks}
+    Attribute.frame x2 [8 bytes] first: 0
+  Display.fillColor {2 chunks}
+    Attribute.frame x2 [32 bytes] first: 1.0 1.0 1.0 1.0
+  Display.strokeColor {2 chunks}
+    Attribute.frame x2 [32 bytes] first: 1.0 1.0 1.0 1.0
+  Display.blurRadius {2 chunks}
+    Attribute.frame x2 [8 bytes] first: 0
+  Display.flags [4] 0
+Display {7 chunks}
+  Display.wname [4] ""
+  Display.visibility {2 chunks}
+    Attribute.frame x2 [8 bytes] first: 1
+  Display.clipping {2 chunks}
+    Attribute.frame x2 [8 bytes] first: 0
+  Display.fillColor {2 chunks}
+    Attribute.frame x2 [32 bytes] first: 1.0 1.0 1.0 1.0
+  Display.strokeColor {2 chunks}
+    Attribute.frame x2 [32 bytes] first: 1.0 1.0 1.0 1.0
+  Display.blurRadius {2 chunks}
+    Attribute.frame x2 [8 bytes] first: 0
+  Display.flags [4] 0
+Display {7 chunks}
+  Display.wname [4] ""
+  Display.visibility {2 chunks}
+    Attribute.frame x2 [8 bytes] first: 1
+  Display.clipping {2 chunks}
+    Attribute.frame x2 [8 bytes] first: 0
+  Display.fillColor {2 chunks}
+    Attribute.frame x2 [32 bytes] first: 1.0 1.0 1.0 1.0
+  Display.strokeColor {2 chunks}
+    Attribute.frame x2 [32 bytes] first: 1.0 1.0 1.0 1.0
+  Display.blurRadius {2 chunks}
+    Attribute.frame x2 [8 bytes] first: 0
+  Display.flags [4] 0
+Node {7 chunks}
+  Node.wname [4] ""
+  Node.shape [4] -1
+  Node.transformation [4] 0
+  Node.display [4] 0
+  Node.widget [4] -1
+  Node.child [4] 1
+  Node.flags [4] 8192
+Node {7 chunks}
+  Node.wname [12] "Mesh"
+  Node.shape [4] 0
+  Node.transformation [4] 1
+  Node.display [4] 1
+  Node.widget [4] -1
+  Node.child [4] 2
+  Node.flags [4] 0
+Node {7 chunks}
+  Node.wname [12] "info"
+  Node.shape [4] 1
+  Node.transformation [4] 3
+  Node.display [4] 3
+  Node.widget [4] -1
+  Node.child [4] 3
+  Node.flags [4] 0
+Node {6 chunks}
+  Node.wname [12] "info"
+  Node.shape [4] 2
+  Node.transformation [4] 2
+  Node.display [4] 2
+  Node.widget [4] -1
+  Node.flags [4] 0
+pageWidth [4] 1000.0
+pageHeight [4] 1000.0
+dpi [4] 72.0
+unit [4] 0
+pageColor [16] 1.0 1.0 1.0 0

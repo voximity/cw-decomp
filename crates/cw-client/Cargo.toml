@@ -1,0 +1,32 @@
+[package]
+name = "cw-client"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Cube World Alpha client (Cube.exe): game controller, input, audio, networking"
+
+[dependencies]
+cw-formats = { path = "../cw-formats" }
+cw-net = { path = "../cw-net" }
+cw-render = { path = "../cw-render" }
+cw-sim = { path = "../cw-sim" }
+cw-server = { path = "../cw-server" }
+cw-ui = { path = "../cw-ui" }
+cw-world = { path = "../cw-world" }
+cw-math = { path = "../cw-math" }
+gilrs = "0.11.2"
+glam = "0.33.8"
+image = { version = "0.25.10", features = ["png"] }
+kira = "0.12.4"
+winit = "0.30.13"
+# Port-only debug overlay (src/debug_overlay.rs, feature `debug-overlay`): egui 0.36.2 is the
+# release whose egui-wgpu targets wgpu 30 and winit 0.30.13.
+egui = { version = "0.36.2", optional = true }
+egui-winit = { version = "0.36.2", default-features = false, features = ["clipboard", "wayland", "x11"], optional = true }
+egui-wgpu = { version = "0.36.2", default-features = false, optional = true }
+
+[features]
+default = []
+# Port-only: the F3 debug overlay (egui). Off by default; without it the binary has no egui code.
+debug-overlay = ["dep:egui", "dep:egui-winit", "dep:egui-wgpu"]

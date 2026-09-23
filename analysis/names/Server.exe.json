@@ -1,0 +1,1774 @@
+{
+ "binary": "Server.exe",
+ "note": "Names confirmed by reading decompilation. Applied to Ghidra through MCP as literal names; tools/ghidra_apply_names.py converts a::b::c into real namespaces. Entries marked tentative need a second look. Names marked 'ported' have bit-exact Rust ports in crates/cw-world verified by golden samples from tools/oracle/server_oracle.py.",
+ "names": {
+  "0x00549c50": {
+   "name": "main",
+   "evidence": "called from ___tmainCRTStartup"
+  },
+  "0x004c8570": {
+   "name": "cube::World::World",
+   "evidence": "writes cube::World::vftable, 21 KB of initialisation, creature type name strings"
+  },
+  "0x004cd940": {
+   "name": "cube::World::~World",
+   "evidence": "writes vftable, DeleteCriticalSection, frees members"
+  },
+  "0x00548b60": {
+   "name": "cube::Zone::Zone",
+   "evidence": "writes cube::Zone::vftable, InitializeCriticalSection"
+  },
+  "0x00548e00": {
+   "name": "cube::Zone::~Zone",
+   "evidence": "writes vftable, DeleteCriticalSection"
+  },
+  "0x00422e80": {
+   "name": "cube::Server::Server",
+   "evidence": "writes cube::Server::vftable; this+4 = World*, size 0x54"
+  },
+  "0x00423880": {
+   "name": "cube::Server::~Server",
+   "evidence": "prints 'Stopping server...', closes socket, joins thread"
+  },
+  "0x00406400": {
+   "name": "cube::Creature::Creature",
+   "evidence": "(id*): vtable, id at +8, EntityData ctor at +0x10, lists; 0x1e60 bytes"
+  },
+  "0x004072d0": {
+   "name": "cube::Creature::~Creature",
+   "evidence": "second vftable writer"
+  },
+  "0x00422910": {
+   "name": "cube::Connection::Connection",
+   "evidence": "called after operator_new(0xb0) in acceptLoop; InitializeCriticalSection"
+  },
+  "0x004237b0": {
+   "name": "cube::Connection::~Connection",
+   "evidence": "DeleteCriticalSection, vftable"
+  },
+  "0x00413400": {
+   "name": "cube::Field::~Field",
+   "evidence": "only named vftable writer; constructor is inlined at 0x4133c0"
+  },
+  "0x004f7570": {
+   "name": "cube::Region::Region",
+   "evidence": "initialises 0x1000 entries and a 64x64 pointer grid at +0x10018"
+  },
+  "0x004f77f0": {
+   "name": "cube::Region::~Region",
+   "evidence": "deletes the 64x64 grid objects through their vtables"
+  },
+  "0x004254a0": {
+   "name": "cube::Server::acceptLoop",
+   "evidence": "'Waiting for connection.', accept(), version check == 3, entity ids 1..10; the 'server full' check is dead code (protocol.md)"
+  },
+  "0x00426b60": {
+   "name": "lambda_Server_acceptLoop",
+   "evidence": "std::function _Do_call slot forwarding to acceptLoop"
+  },
+  "0x00426020": {
+   "name": "cube::Server::receiveLoop",
+   "evidence": "reads packet id then switch on 0,6,7,8,9,10,11,12 with recv loops"
+  },
+  "0x00426b70": {
+   "name": "lambda_Server_receiveLoop",
+   "evidence": "_Do_call slot"
+  },
+  "0x00423dd0": {
+   "name": "cube::Server::sendLoop",
+   "evidence": "the other per-client lambda; timed loop; tentative until read"
+  },
+  "0x00426b50": {
+   "name": "lambda_Server_sendLoop",
+   "evidence": "_Do_call slot"
+  },
+  "0x00549550": {
+   "name": "generationThread",
+   "evidence": "thread started in main; main prints 'stopping generation thread...' when joining it"
+  },
+  "0x00549b90": {
+   "name": "lambda_generationThread",
+   "evidence": "_Do_call slot"
+  },
+  "0x00549b50": {
+   "name": "lambda_consoleQuitThread",
+   "evidence": "reads cin until 'q', clears the run flag"
+  },
+  "0x004d3df0": {
+   "name": "cube::World::lock",
+   "evidence": "EnterCriticalSection on world"
+  },
+  "0x004d5c60": {
+   "name": "cube::World::unlock",
+   "evidence": "LeaveCriticalSection on world"
+  },
+  "0x004d83a0": {
+   "name": "cube::World::load",
+   "evidence": "(world, seed, name); 'Save/world_' path; srand"
+  },
+  "0x00431400": {
+   "name": "cube::Database::load",
+   "evidence": "fills world->models (0xa09 slots) with 2557 unrolled Model::load calls; table in model_names.rs"
+  },
+  "0x00428790": {
+   "name": "cube::Server::start",
+   "evidence": "'Starting server...', socket/bind/listen error strings"
+  },
+  "0x00413640": {
+   "name": "startThread",
+   "evidence": "_beginthread wrapper taking a std::function"
+  },
+  "0x00412710": {
+   "name": "std::ostream_write_cstr",
+   "evidence": "operator<<(ostream&, const char*) instantiation"
+  },
+  "0x005322d0": {
+   "name": "cube::World::tick",
+   "evidence": "advances +0x8000bc/+0x80015c/+0x800160, writes the 'time' blob every 10 s, decrements ground item +0x13c/+0x140, unloads idle zones and regions; ported in cw-server so far: the clock, per player (0x00532809..0x00532aa5) the 3x3 active zone set, activateRegionMissions and mission discovery (Cell::falloff > 0 sets cell+0x41), and per active zone (0x00535908..0x005361ed) the creature made from each spawn (time window +0x40/+0x44, id absent from world+4, +0x38/+0x3c respawn day, a player within spawn+0x8 blocks, type-5 mission reroll with srand(cell+0x30 + id), Creature ctor + spawn fields + maxHp + boss scale x2 + lift). The main thread's rand stream is srand(seed) plus the 77 draws of World::load; main draws once before load (0x00549cdb); also ported: the items pass (0x00532ca2, countdowns and landing sound 0x3a/0x3b), the statics pass (0x00533129, timers, seats, auto-close of kinds 6..8), the interaction switch (0x005362f5, table 0x005489e0: 1 consume, 2 talk/sleep, 3 use static, 5 pick up, 6 drop, 8 call pet), the HP clamp (0x00537856) and the tail (0x00546efc: dirty zones get +0x75 and a ZoneItemsRecord, static records set zone+0x76, block actions join zone+0x68)"
+  },
+  "0x00518630": {
+   "name": "cube::World::generateZone",
+   "evidence": "called from generationThread with (world, x, y); terrain pass ported and verified (hook at the FUN_004f7b60 call, return address 0x0051a9b7)"
+  },
+  "0x004d79f0": {
+   "name": "cube::World::unloadZone",
+   "evidence": "called with zone x,y for zones with no nearby request; tentative"
+  },
+  "0x004d7960": {
+   "name": "cube::World::unloadRegion",
+   "evidence": "called with region x,y when no request within 3; tentative"
+  },
+  "0x004d78e0": {
+   "name": "cube::World::removeRegion",
+   "evidence": "called with region x,y when no request within 5; tentative"
+  },
+  "0x00405420": {
+   "name": "cube::World::findEntity",
+   "evidence": "(world, int64* id) returns entity; entity data at +0x10"
+  },
+  "0x004286b0": {
+   "name": "recvAll",
+   "evidence": "(socket, buf, len, flags) loops recv until len bytes"
+  },
+  "0x00422740": {
+   "name": "std::list_copy",
+   "evidence": "list copy used to snapshot the request list"
+  },
+  "0x00413070": {
+   "name": "cube::Database::getBlob",
+   "evidence": "'SELECT value FROM blobs WHERE key = ?', column_blob copied to malloc buffer"
+  },
+  "0x00413240": {
+   "name": "cube::Database::putBlob",
+   "evidence": "'SELECT 1 FROM blobs', then UPDATE or INSERT"
+  },
+  "0x00413130": {
+   "name": "cube::Database::getBlobVec",
+   "evidence": "getBlob into a std::vector<char>"
+  },
+  "0x00413210": {
+   "name": "cube::Database::putBlobVec",
+   "evidence": "putBlob from a std::vector<char>"
+  },
+  "0x00412f80": {
+   "name": "decodeBlob",
+   "evidence": "44-entry key shuffle then byte NOT; verified against PNG/RIFF/XML/CUB"
+  },
+  "0x0042f9a0": {
+   "name": "cube::Model::load",
+   "evidence": "reads x,y,z uint32 then RGB triples from a decoded blob or a file"
+  },
+  "0x00430230": {
+   "name": "cube::Model::setVoxels",
+   "evidence": "called with (w,h,d,data,flag) after reading the .cub payload"
+  },
+  "0x00468e30": {
+   "name": "sqlite3_prepare_v2",
+   "evidence": "called with (db, sql, -1, &stmt, 0)"
+  },
+  "0x00469510": {
+   "name": "sqlite3_bind_text",
+   "evidence": "(stmt, 1, text, -1, destructor)"
+  },
+  "0x00469150": {
+   "name": "sqlite3_bind_blob",
+   "evidence": "(stmt, idx, ptr, len, destructor)"
+  },
+  "0x00469cb0": {
+   "name": "sqlite3_step",
+   "evidence": "result compared to 100 (SQLITE_ROW)"
+  },
+  "0x00469fc0": {
+   "name": "sqlite3_column_bytes",
+   "evidence": "(stmt, 0) gives length"
+  },
+  "0x00469f40": {
+   "name": "sqlite3_column_blob",
+   "evidence": "(stmt, 0) gives pointer"
+  },
+  "0x0046aa30": {
+   "name": "sqlite3_finalize",
+   "evidence": "result compared to 0x11 (SQLITE_SCHEMA) for retry"
+  },
+  "0x00412c40": {
+   "name": "std::string_c_str",
+   "evidence": "SSO-aware pointer fetch used before bind_text"
+  },
+  "0x00413010": {
+   "name": "cube::Database::open",
+   "evidence": "opens sqlite file and runs 'CREATE TABLE blobs(...)'"
+  },
+  "0x004d81b0": {
+   "name": "cube::World::saveZone",
+   "evidence": "for a named world writes 'zone<x>_<y>' when zone+0x75 (dirty) or zone+0x68 non-empty; called by unloadZone, ~World and load"
+  },
+  "0x004d7c50": {
+   "name": "cube::World::saveEntities",
+   "evidence": "(rx, ry): 'mission<rx*8+cx>_<ry*8+cy>' and 'monster...' for all 64 cells when region+0x15a18; called by unloadRegion"
+  },
+  "0x004d5d30": {
+   "name": "valueNoise2D",
+   "evidence": "2D value noise with cosine interpolation; hash n^(n<<13), 0xec4d/0x131071f/-0x2df722f3; ported bit-exact in cw-math"
+  },
+  "0x00406210": {
+   "name": "cube::World::getRegion",
+   "evidence": "regions[rx*1024+ry] at world+0xbc with bounds check"
+  },
+  "0x00406290": {
+   "name": "cube::World::getZone",
+   "evidence": "getRegion(zx>>6, zy>>6) then zones[(zx&63)*64+(zy&63)] at region+0x10018"
+  },
+  "0x00406100": {
+   "name": "cube::World::getColumn",
+   "evidence": "(bx, by, zone or null) -> 32-byte column at zone+0xa8 index x+y*256"
+  },
+  "0x004286f0": {
+   "name": "cube::World::getCell",
+   "evidence": "(bx>>11, by>>11) -> 0x68-byte cell at region+0x14018 index (cx&7)*8+(cy&7)"
+  },
+  "0x0052c820": {
+   "name": "cube::Cell::normDistance",
+   "evidence": "squared distance / radius^2; noise-warped query except types 0xb,0xc,0xe; ported in cw-world"
+  },
+  "0x0041ff00": {
+   "name": "cube::World::setBlock",
+   "evidence": "(bx, by, h, block*, zone) fills terrain colour up to h then writes the block"
+  },
+  "0x00405fd0": {
+   "name": "cube::World::getBlock",
+   "evidence": "(bx, by, bz, zone): the column's block; [200,200,200,1] for a missing zone or below the column, [255,255,255,0] above it (z > 0), [255,255,255,0x82] at or below z 0 and for an unflagged empty block there"
+  },
+  "0x00405f20": {
+   "name": "cube::Column::blockAt",
+   "evidence": "index into the column's block array, defaults below/above"
+  },
+  "0x00413420": {
+   "name": "cube::Column::resize",
+   "evidence": "(n, shift) reallocates the 4-byte block array"
+  },
+  "0x004d5a80": {
+   "name": "cube::World::warpPosition",
+   "evidence": "two doubles from four noise samples with sub-seeds +0x8001fc..+0x800218; ported"
+  },
+  "0x0052d030": {
+   "name": "cube::World::terrainColor",
+   "evidence": "(out rgb, bx, by, h, zone) climate-dependent terrain colour"
+  },
+  "0x004f9450": {
+   "name": "cube::World::surfaceBlock",
+   "evidence": "(out block, bx, by, h, climA, climB, zone) surface colour and type"
+  },
+  "0x004f8570": {
+   "name": "climateA",
+   "evidence": "distance-weighted blend of climate point value A over the 3x3 regions, type-3 cell bonus; ported"
+  },
+  "0x004f8b40": {
+   "name": "climateB",
+   "evidence": "same for value B; ported"
+  },
+  "0x00522e20": {
+   "name": "climateC",
+   "evidence": "weight fraction of flagged climate points; ported"
+  },
+  "0x0050e080": {
+   "name": "cube::World::createRegion",
+   "evidence": "creates region rx,ry: srand(seed188 + ry*1024 + rx), cells, town/mission zone records; see notes/functions"
+  },
+  "0x0050b870": {
+   "name": "cube::World::getOrCreateClimatePoint",
+   "evidence": "per-region climate point, srand(rx + 0x108a + ry*1024 + seed188*3); ported"
+  },
+  "0x0042e090": {
+   "name": "cube::World::nearestClimatePoint",
+   "evidence": "nearest point to the warped query over the 3x3 regions"
+  },
+  "0x004febd0": {
+   "name": "nearestClimateRegion",
+   "evidence": "same but returns (rx, ry) or (-1,-1); ported"
+  },
+  "0x00522cc0": {
+   "name": "cube::ClimatePoint::distSq",
+   "evidence": "(point, x64, y64) float squared block distance"
+  },
+  "0x00522d80": {
+   "name": "climateQueryWarp",
+   "evidence": "noise(by*0.0005,3423)*768 and noise(bx*0.0005,23421)*768"
+  },
+  "0x00522840": {
+   "name": "climateEdgeDistance",
+   "evidence": "0.0002 * squared distance to the segment between the nearest climate point and its axis neighbours; 1.0 if none; ported"
+  },
+  "0x00523380": {
+   "name": "segmentDistSq",
+   "evidence": "point-to-segment squared distance in doubles, float result"
+  },
+  "0x0052cd50": {
+   "name": "heightFactorA",
+   "evidence": "(bx, by, zone) noise term + edge distance + cell bonuses + climateC; ported"
+  },
+  "0x0052d990": {
+   "name": "heightFactorB",
+   "evidence": "(bx, by) edge distance modulated by cos of the warped position inside home cells; ported"
+  },
+  "0x004d19f0": {
+   "name": "cellFalloff",
+   "evidence": "(1-normDistance)^2 inside a type-1 cell else 0; ported"
+  },
+  "0x004f9b70": {
+   "name": "cube::World::baseHeight",
+   "evidence": "(bx, by, zone) terrain base height: five octaves, climate elevation blend, cell shaping; ported"
+  },
+  "0x00522320": {
+   "name": "groundColorA",
+   "evidence": "position-only palette; ported as color_a"
+  },
+  "0x0052d5d0": {
+   "name": "groundColorB",
+   "evidence": "seeded palette +0x800274..; ported as color_b"
+  },
+  "0x004f82d0": {
+   "name": "groundColorC",
+   "evidence": "seeded palette; ported as color_c"
+  },
+  "0x0052d870": {
+   "name": "snowColor",
+   "evidence": "position-only pale palette; ported as color_d"
+  },
+  "0x004fae90": {
+   "name": "cube::World::rockColor",
+   "evidence": "(out, bx, by, h, zone) seeded palette blended with terrainColor and snow; ported"
+  },
+  "0x004d7870": {
+   "name": "regionLevel",
+   "evidence": "1 at (512,512) else 2 - (int)(sqrt(d2) * -0.75)"
+  },
+  "0x00522290": {
+   "name": "cube::ClimatePoint::levelRange",
+   "evidence": "(A, B, flag) -> level pair"
+  },
+  "0x004f7660": {
+   "name": "cube::Cell::Cell",
+   "evidence": "zeroes the 0x68-byte cell, level = 1"
+  },
+  "0x0052dee0": {
+   "name": "cube::Cell::falloff",
+   "evidence": "(1 - normDistance)^2 or 0"
+  },
+  "0x00500300": {
+   "name": "cube::World::generateDungeon",
+   "evidence": "(zone, region, bx, by, style 0..5, special) 3x3x3 rooms into a 22^3 cube::Dungeon grid; see notes/functions"
+  },
+  "0x00513760": {
+   "name": "cube::World::generateTree",
+   "evidence": "ported (tree.rs)"
+  },
+  "0x00524540": {
+   "name": "cube::World::placeModel",
+   "evidence": "stamps a cube::Model into the zone with marker colours; ported (model.rs)"
+  },
+  "0x005104e0": {
+   "name": "cube::World::populateZoneCreatures",
+   "evidence": "ported (creatures.rs)"
+  },
+  "0x0040a840": {
+   "name": "cube::Creature::initAppearance",
+   "evidence": "156-case appearance table; ported (appearance.rs)"
+  },
+  "0x004e0f40": {
+   "name": "cube::Spawn::Spawn",
+   "evidence": "constructs the 0x10f0-byte spawn record; no rand"
+  },
+  "0x004e28e0": {
+   "name": "cube::World::generateSettlement",
+   "evidence": "(zone, cell) for cell types 1 and 5: NxN plots, houses from cube::House layouts, farms, plazas, NPC schedules; see notes/functions"
+  },
+  "0x00523d80": {
+   "name": "cube::World::mountainFactor",
+   "evidence": "(bx, by, zone) 0..1 mountain mask from noise, edge distance, height factors and cell shaping; ported"
+  },
+  "0x004d2340": {
+   "name": "cube::World::spawnLevel",
+   "evidence": "(x64, y64) level of the typed cell containing the position, else 1; ported"
+  },
+  "0x0041fe60": {
+   "name": "cube::Column::setBlockRaw",
+   "evidence": "(index, block) grows the array, honours the 0x80 protection flag; ported"
+  },
+  "0x0041d8d0": {
+   "name": "cube::GroundItem::GroundItem",
+   "evidence": "0x148 bytes: item ctor, +0x134 0.0714f, +0x138..+0x140 0, +0x144 -1; +0x130 not written"
+  },
+  "0x004ffbf0": {
+   "name": "cube::World::placeBoulder",
+   "evidence": "noise-warped ellipsoid of type-6 blocks capped by surfaceBlock; aborts on a protected block; ported (features.rs)"
+  },
+  "0x004ff3f0": {
+   "name": "cube::World::placeRock",
+   "evidence": "same shape with type-5 blocks blending rockColor into terrainColor; ported (features.rs)"
+  },
+  "0x005287b0": {
+   "name": "cube::World::settleStatic",
+   "evidence": "lowers/raises a static's z until its footprint rests on solid ground; ported (statics.rs)"
+  },
+  "0x004e0740": {
+   "name": "cube::World::tryPlaceCamp",
+   "evidence": "camp fire static 0x41 plus four props via settleStatic; ported (statics.rs)"
+  },
+  "0x004d9010": {
+   "name": "cube::World::treeDensity",
+   "evidence": "noise with seeds +0x8001f4/f8 plus climateA term; ported (generate.rs)"
+  },
+  "0x005290d0": {
+   "name": "cube::World::pickCreatureType",
+   "evidence": "climate/height driven type lists, rand pick; ported (spawn_tables.rs)"
+  },
+  "0x0040f0a0": {
+   "name": "creatureLevelRange",
+   "evidence": "entity type -> (lo, hi) level table; ported (spawn_tables.rs)"
+  },
+  "0x0040efc0": {
+   "name": "creatureGroupSizeRange",
+   "evidence": "entity type -> (lo, hi) group size; ported (spawn_tables.rs)"
+  },
+  "0x0052bfa0": {
+   "name": "groupMemberType",
+   "evidence": "paired types roll a random member of the pair; ported (spawn_tables.rs)"
+  },
+  "0x0052bf40": {
+   "name": "rarityRoll",
+   "evidence": "rand % (base+1) with 1/100, 1/1000, 1/10000 bumps, capped at 4; ported (generate.rs)"
+  },
+  "0x00414470": {
+   "name": "cube::Item::adjustLevel",
+   "evidence": "re-rolls an item level within a band on the level curve; ported (generate.rs)"
+  },
+  "0x00407d60": {
+   "name": "levelCurve",
+   "evidence": "1 - 1/((level-1)*0.05+1); ported"
+  },
+  "0x00411090": {
+   "name": "levelCurveInv",
+   "evidence": "(1/(1-f) - 1)*20 + 1; ported"
+  },
+  "0x004f3850": {
+   "name": "spawnId",
+   "evidence": "((zy<<16)+zx)<<8 + index as 64-bit; ported"
+  },
+  "0x00406050": {
+   "name": "cube::World::getBlockFixed",
+   "evidence": "getBlock at a 16.16 fixed position (negative coordinates move down a block first)"
+  },
+  "0x004d1a70": {
+   "name": "cube::World::computeLighting",
+   "evidence": "16-round light propagation writing the colour bytes of air/water blocks; ported (postpass.rs)"
+  },
+  "0x004cde40": {
+   "name": "int64FromBlock",
+   "evidence": "out = (int64)block << 16"
+  },
+  "0x004ce290": {
+   "name": "int64SubDouble",
+   "evidence": "out = *this - _ftol2(d * -65536.0): adds half a block for the d = 0.5 every prop and item position uses"
+  },
+  "0x004e0700": {
+   "name": "int64SubDouble_2",
+   "evidence": "out = *this - _ftol2(d * 65536.0): subtracts 6553 for the d = 0.1 of the water plant height"
+  },
+  "0x004e2320": {
+   "name": "int64Vec3_at",
+   "evidence": "&pos[i] of an int64 triple"
+  },
+  "0x004d6670": {
+   "name": "cube::Zone::addStatic",
+   "evidence": "vector<Static(0x188)>::push_back on zone+0xc"
+  },
+  "0x00528450": {
+   "name": "cube::Zone::addProp",
+   "evidence": "list::push_back on zone+4 (Prop, ctor 0x004c83b0)"
+  },
+  "0x004c83b0": {
+   "name": "cube::Prop::Prop",
+   "evidence": "+0x2c..+0x34 = 1.0f, +0x38 = 2"
+  },
+  "0x004c84b0": {
+   "name": "cube::Static::Static",
+   "evidence": "+0x30 = 1, +0x178.. = -1"
+  },
+  "0x00427000": {
+   "name": "cube::Inventory::addItem",
+   "evidence": "pages by item type (0x004282f0), coins to +0x128, stacks equal items (0x004078f0) when stackable (0x004282d0); ported (inventory.rs)"
+  },
+  "0x004d24a0": {
+   "name": "cube::World::groundLightAt",
+   "evidence": "byte 0 of the block for air/water (min 5), 255 for type 13, else 0; stored as float into prop+0x28"
+  },
+  "0x0050d260": {
+   "name": "cube::World::spawnCellNpc",
+   "evidence": "post-pass: creates the cell's NPC when the cell's save-state (+0x54, +0x60) names this zone; also reconciles saved creatures"
+  },
+  "0x004fb480": {
+   "name": "cube::Creature::initClassAndEquipment",
+   "evidence": "class, specialisation, equipment and combat floats from the entity type; ported (appearance.rs)"
+  },
+  "0x004f2be0": {
+   "name": "vectorPtr_pushBack",
+   "evidence": "vector<T*>::push_back (spawns at zone+0x18)"
+  },
+  "0x0050bd60": {
+   "name": "cube::World::leafCrown",
+   "evidence": "noise-deformed leaf ellipsoid; ported (tree.rs)"
+  },
+  "0x004d4820": {
+   "name": "cube::World::fillSphere",
+   "evidence": "ported (tree.rs)"
+  },
+  "0x004d44c0": {
+   "name": "cube::World::fillDisc",
+   "evidence": "ported (tree.rs)"
+  },
+  "0x00523b90": {
+   "name": "cube::World::mossFactor",
+   "evidence": "climateA times a noise term; ported (tree.rs)"
+  },
+  "0x00509e40": {
+   "name": "cube::World::spawnWanderingGroup",
+   "evidence": "one creature group at the zone centre for a named world; called from spawnCellNpc; ported (static_creatures.rs)"
+  },
+  "0x004014b0": {
+   "name": "int64SubFloat",
+   "evidence": "out = *this - _ftol2(f * 65536.0f); the item-drop loop at the end of generateZone passes 0.5f (half a block)"
+  },
+  "0x00406ef0": {
+   "name": "cube::Inventory::Inventory",
+   "evidence": "0x130 bytes: page vector, gold +0x128, +0x12c"
+  },
+  "0x004f7490": {
+   "name": "cube::Marker::Marker",
+   "evidence": "0x140-byte zone+0x48 record: +0x11c/+0x120 = -1, +0x14 = 1, 256-byte block at +0x18"
+  },
+  "0x0041faa0": {
+   "name": "cube::Zone::serialize",
+   "evidence": "writer: version, ground items (dirty zones only), modified blocks (+0x68), spawn +0x38/+0x3c, static +0x30; ported save.rs"
+  },
+  "0x0041ee20": {
+   "name": "cube::Zone::deserialize",
+   "evidence": "(reader, world, zone): items expire after 3 days (+0x144 vs world+0x800160), modified blocks replayed with setBlock, floating flag-2 props removed; ported save.rs"
+  },
+  "0x0041d800": {
+   "name": "BlobWriter::BlobWriter",
+   "evidence": "[vector*, version=1, pos=0]; also the reader over a loaded vector (bounds-checked reads)"
+  },
+  "0x0041f880": {
+   "name": "MissionState::serialize",
+   "evidence": "cell+0x2c: 4 ints, 2 bytes, 2 ints, int64; ported save.rs"
+  },
+  "0x0041ebc0": {
+   "name": "MissionState::deserialize",
+   "evidence": "cell+0x2c; ported save.rs"
+  },
+  "0x0041f9e0": {
+   "name": "MonsterState::serialize",
+   "evidence": "cell+0x54: kind, level, byte, int64 zone; ported save.rs"
+  },
+  "0x0041ed50": {
+   "name": "MonsterState::deserialize",
+   "evidence": "cell+0x54; ported save.rs"
+  },
+  "0x0041d270": {
+   "name": "groundItemsEqual",
+   "evidence": "Item::operator== plus position, +0x130, +0x134, +0x138, +0x13c, +0x140"
+  },
+  "0x0041f4d0": {
+   "name": "cube::Zone::pushModifiedBlock",
+   "evidence": "vector<ModifiedBlock(20)> at zone+0x68 push_back"
+  },
+  "0x00413180": {
+   "name": "std::vector<char>::resize",
+   "evidence": "used by the blob writer"
+  },
+  "0x00413000": {
+   "name": "cube::Database::isOpen",
+   "evidence": "sqlite3* at +4 non-null"
+  },
+  "0x0050d8d0": {
+   "name": "cube::World::activateRegionMissions",
+   "evidence": "(rx, ry, out) from World::tick 0x00532977 for the region of the climate point nearest to a player while region+0x15a18 is clear: per cell whose centre maps to the region, announces and clears a running mission (+0x34, +0x44), clears the monster (+0x54..+0x5c), rolls a monster for an empty cell (level from the climate point: b<0.2 10..20, a<0.2&&b>0.8 15..25, a>0.8&&b>0.8 10..20, flag 20..30, else 1..10; type rollMonsterType; zone = cell origin + 2 + rand%4, y then x) and sorts the others into two lists by level; two startMission calls from the lists (rand%6==0 picks the low list), up to two on new-monster cells, spawnCellNpc on every loaded zone, flag set; ported cw-world missions.rs, verified by the 4-mission update after the join"
+  },
+  "0x0052b230": {
+   "name": "rollMonsterType",
+   "evidence": "(rx, ry, level): candidate list from the climate point's b (+0x10 <= 0.2 swaps 0x6c/0x77 for 0x72/0x74), level thresholds 10/20/50/70, rand() % n; 0x6c and no rand without a climate point (startMission passes cell coordinates, usually out of range); ported cw-world missions.rs"
+  },
+  "0x00412c70": {
+   "name": "ByteBuffer::compress",
+   "evidence": "zlibCompressVec into a temp vector, assign back (0x004129d0), pos = 0; called by sendLoop for packets 0 and 4"
+  },
+  "0x00412d00": {
+   "name": "zlibCompressVec",
+   "evidence": "destLen = trunc(len * 1.1) + 12, zlib1 ordinal 11 (compress), resize to destLen"
+  },
+  "0x00412d90": {
+   "name": "ByteBuffer::decompress",
+   "evidence": "zlibInflateVec into a temp vector, assign back, pos = 0; called by receiveLoop case 0"
+  },
+  "0x00412e20": {
+   "name": "zlibInflateVec",
+   "evidence": "inflateInit_(\"1.2.3\"), inflate loop with a 0x1f400 stack buffer, inflateEnd (zlib1 ordinals 58, 50, 55)"
+  },
+  "0x004129d0": {
+   "name": "std::vector<char>::assign",
+   "evidence": "operator= on a vector<char>: memmove into existing storage or reallocate via 0x00412b00"
+  },
+  "0x004168f0": {
+   "name": "ByteBuffer::write",
+   "evidence": "resize to size + n, memcpy at pos, pos += n"
+  },
+  "0x00415c90": {
+   "name": "ByteBuffer::read",
+   "evidence": "bounds-checked memcpy from pos; clamps pos to the end when short"
+  },
+  "0x00413200": {
+   "name": "ByteBuffer::size",
+   "evidence": "returns end - begin; used for the packet 4 length"
+  },
+  "0x00428160": {
+   "name": "ByteBuffer::data",
+   "evidence": "returns begin or null when empty; used for the packet 4 send"
+  },
+  "0x0042f440": {
+   "name": "std::vector<char>::~vector",
+   "evidence": "delete begin, zero the three pointers"
+  },
+  "0x00416210": {
+   "name": "writeEntityDelta",
+   "evidence": "48 field comparators over EntityData (prev, cur, full), then u64 mask and the changed fields' bytes; sendLoop packet 0"
+  },
+  "0x00415dd0": {
+   "name": "readEntityDelta",
+   "evidence": "reads the u64 mask and the same 48 fields in the same order; receiveLoop packet 0"
+  },
+  "0x00415090": {
+   "name": "deltaField_i64x3",
+   "evidence": "compares three int64, appends 24 bytes and sets the mask bit"
+  },
+  "0x00414fd0": {
+   "name": "deltaField_f32x3",
+   "evidence": "compares three floats, appends 12 bytes"
+  },
+  "0x00414f20": {
+   "name": "deltaField_i32x3",
+   "evidence": "compares three int32, appends 12 bytes"
+  },
+  "0x00414c60": {
+   "name": "deltaField_f32x5",
+   "evidence": "compares five floats, appends 0x14 bytes (the multipliers at +0x168)"
+  },
+  "0x00414bc0": {
+   "name": "deltaField_f32",
+   "evidence": "float !=, appends 4 bytes"
+  },
+  "0x00414b20": {
+   "name": "deltaField_i32",
+   "evidence": "int32 !=, appends 4 bytes"
+  },
+  "0x00414a80": {
+   "name": "deltaField_i16",
+   "evidence": "int16 !=, appends 2 bytes"
+  },
+  "0x004149e0": {
+   "name": "deltaField_u8",
+   "evidence": "byte !=, appends 1 byte"
+  },
+  "0x00415150": {
+   "name": "deltaField_i64",
+   "evidence": "compares two dwords, appends 8 bytes"
+  },
+  "0x00414d40": {
+   "name": "deltaField_appearance",
+   "evidence": "compare via 0x00415750, appends 0xac bytes"
+  },
+  "0x00414e80": {
+   "name": "deltaField_item",
+   "evidence": "compare via 0x004078f0, appends 0x118 bytes"
+  },
+  "0x00414de0": {
+   "name": "deltaField_equipment",
+   "evidence": "compare via 0x004159b0, appends 0xe38 bytes"
+  },
+  "0x00415b20": {
+   "name": "deltaField_name",
+   "evidence": "strcmp, appends 16 bytes"
+  },
+  "0x00415be0": {
+   "name": "deltaField_skills",
+   "evidence": "compares 11 int32, appends 0x2c bytes"
+  },
+  "0x004152d0": {
+   "name": "readDeltaField_4",
+   "evidence": "if mask bit set, read 4 bytes with clamp; always advances the bit index"
+  },
+  "0x00415cd0": {
+   "name": "readDeltaField_16",
+   "evidence": "if mask bit set, read 16 bytes (name)"
+  },
+  "0x0041df70": {
+   "name": "cube::EntityData::operator=",
+   "evidence": "field-wise copy of the 0x1168 entity block, padding skipped; appearance 0x00407730, items 0x00402a70"
+  },
+  "0x00422f90": {
+   "name": "cube::EntityData::EntityData(copy)",
+   "evidence": "copies creature+0x10 into a temp before readEntityDelta"
+  },
+  "0x00423ce0": {
+   "name": "std::map<int64,EntityData>::operator[]",
+   "evidence": "signed int64 key compare, default-constructs EntityData (0x00407020) on insert"
+  },
+  "0x00530600": {
+   "name": "std::map<int64,T>::find",
+   "evidence": "entity map and snapshot map lookups by id in acceptLoop and sendLoop"
+  },
+  "0x00530560": {
+   "name": "std::map<int64,Creature*>::erase",
+   "evidence": "removes the leaving player's id from world+4 in sendLoop cleanup"
+  },
+  "0x00402bb0": {
+   "name": "std::vector<Connection*>::at",
+   "evidence": "slot lookup before every send in sendLoop"
+  },
+  "0x00423510": {
+   "name": "UpdateLists::UpdateLists",
+   "evidence": "13 std::list heads with element sizes 0x48,0x18,0x48,0x14,0x70,0x10,0x58,0x10,0x120,0x18,0x18,0x28,0x38; Connection+0x18 and main's tick in/out lists"
+  },
+  "0x00423400": {
+   "name": "UpdateLists::UpdateLists(copy)",
+   "evidence": "13 list copies; sendLoop copies Connection+0x18"
+  },
+  "0x004239f0": {
+   "name": "UpdateLists::~UpdateLists",
+   "evidence": "destroys the 13 lists"
+  },
+  "0x00421b10": {
+   "name": "writeBlockActions",
+   "evidence": "u32 count + 0x14-byte elements; ServerUpdate section 1"
+  },
+  "0x00421b80": {
+   "name": "writeList_0x48",
+   "evidence": "u32 count + 0x48-byte elements; hits and particles"
+  },
+  "0x00421c60": {
+   "name": "writeList_0x18",
+   "evidence": "u32 count + 0x18-byte elements; sounds, kills, damage"
+  },
+  "0x00421aa0": {
+   "name": "writeShoots",
+   "evidence": "u32 count + 0x70-byte elements"
+  },
+  "0x00421d50": {
+   "name": "writeStaticEntities",
+   "evidence": "u32 count + 0x58-byte elements"
+  },
+  "0x00421dc0": {
+   "name": "writeGroundItems",
+   "evidence": "u32 count + 0x148-byte elements; inner list of section 7"
+  },
+  "0x00421a30": {
+   "name": "writeList_0x10",
+   "evidence": "u32 count + 16-byte elements; inner list of section 8"
+  },
+  "0x00421bf0": {
+   "name": "writePickups",
+   "evidence": "u32 count + 0x120-byte elements"
+  },
+  "0x004219c0": {
+   "name": "writePassives",
+   "evidence": "u32 count + 0x28-byte elements"
+  },
+  "0x00421ce0": {
+   "name": "writeMissions",
+   "evidence": "u32 count + 0x38-byte elements"
+  },
+  "0x004272d0": {
+   "name": "cube::Server::broadcastUpdates",
+   "evidence": "main tick: appends the tick output lists to every Connection+0x18 (particles/sounds within 200 blocks), serves packet 11/12 requests from Connection+0x80/+0x88"
+  },
+  "0x00428230": {
+   "name": "cube::Server::takeHits",
+   "evidence": "splices server+0x34 into the tick input under the world lock"
+  },
+  "0x00428170": {
+   "name": "cube::Server::takePassives",
+   "evidence": "splices server+0x3c into the tick input"
+  },
+  "0x004281d0": {
+   "name": "cube::Server::takeShoots",
+   "evidence": "splices server+0x44 into the tick output after World::tick"
+  },
+  "0x00428400": {
+   "name": "std::list<HitPacket>::push_back",
+   "evidence": "receiveLoop case 7 onto server+0x34"
+  },
+  "0x00411040": {
+   "name": "std::list<PassivePacket>::push_back",
+   "evidence": "receiveLoop case 8 onto server+0x3c"
+  },
+  "0x00428360": {
+   "name": "std::list<ShootPacket>::push_back",
+   "evidence": "receiveLoop case 9 onto server+0x44"
+  },
+  "0x0041caf0": {
+   "name": "std::list<InteractPacket>::push_back",
+   "evidence": "receiveLoop case 6 onto creature+0x130c"
+  },
+  "0x004283b0": {
+   "name": "std::list<ChatEntry>::push_back",
+   "evidence": "receiveLoop case 10 onto every Connection+0x90"
+  },
+  "0x004285e0": {
+   "name": "std::list<IVec2>::push_back",
+   "evidence": "receiveLoop cases 11/12 onto Connection+0x80/+0x88"
+  },
+  "0x00426490": {
+   "name": "cube::Server::receiveLoop_tail",
+   "evidence": "Binary Ninja split of 0x00426020 at the case 7 recv loop; same stack frame, not a real function"
+  },
+  "0x00407020": {
+   "name": "cube::EntityData::EntityData",
+   "evidence": "0x1168 bytes: hostile 3, stun -3000, HP 500, multipliers 100/1/1/1/1, level 1, -1 words at +0x19c/+0x1a0/+0x1a4/+0x1cc/+0x1d0, items at level 1; ported cw-net EntityData::new_creature"
+  },
+  "0x004110d0": {
+   "name": "cube::Creature::init",
+   "evidence": "resets the creature: EntityData::reset, lists, inventory; called by acceptLoop after the ctor"
+  },
+  "0x00411360": {
+   "name": "cube::EntityData::reset",
+   "evidence": "level 1, multipliers, stun -3000, equipment zeroed, -1 words, fresh appearance; ported cw-net EntityData::new_creature"
+  },
+  "0x0040fda0": {
+   "name": "cube::Creature::maxHp",
+   "evidence": "2^((1-1/((level-1)*0.05+1))*3) * 2^(power*0.25) * mult168, players 2^1 instead of the power term, class 1.3/1.1/1.2, spec 1.25, armour bonuses; ported cw-server player::max_hp"
+  },
+  "0x00413ce0": {
+   "name": "itemHpBonus",
+   "evidence": "armour types 3..7: itemPower(spirits*0.1+level, rarity) * 5 * (1 or 0.5) * (2 - (mod*8 % 21)/20 + material bonus); ported cw-server"
+  },
+  "0x00410f00": {
+   "name": "itemPower",
+   "evidence": "(level, rarity): 2^((1-1/((level-1)*0.05+1))*3) * 2^(rarity*0.25); ported cw-server player::item_power"
+  },
+  "0x0050c550": {
+   "name": "cube::World::startMission",
+   "evidence": "(cx, cy, out) from activateRegionMissions: deletes the cell's 0x2000-flagged creatures and the spawns its loaded zones gained after zone+0xa0, clears cell+0x34/+0x41/+0x44/+0x48, draws a mission type from the cell kind (0xe:{5}, 1:{9,3,4}, 0:{1}, else {5}), fills seed/type/creature/level/count/zone (weighted zones sorted with std::sort 0x004f6080, first taken) and pushes the 0x38-byte record to out+0x60; ported cw-world missions.rs"
+  },
+  "0x0052ae10": {
+   "name": "randomBossType",
+   "evidence": "rand() % 9 over {0x30,0x33,0x60,0x50,0x4c,0x28,0x2b,0x2d,0x34}; mission creature for types 7/10/11 and the default branch of startMission"
+  },
+  "0x004feec0": {
+   "name": "cube::World::regionOfNearestClimatePoint",
+   "evidence": "(bx, by): the region table entry (world+0xbc) of the climate point nearest to the warped query, same scan as nearestClimateRegion 0x004febd0; activateRegionMissions keeps only cells whose centre maps to the region being activated"
+  },
+  "0x004f6080": {
+   "name": "std::_Sort<12-byte record, greater by float[2]>",
+   "evidence": "MSVC 2012 introsort instance used by startMission on (zx, zy, weight) records: _Unguarded_partition 0x004f6db0, _Median 0x004f5940, _Med3 0x004f50e0, _Insertion_sort 0x004f4ab0, heap fallback 0x004f4f30/0x004f63f0; ported cw-math sort.rs for tie order"
+  },
+  "0x004f6db0": {
+   "name": "std::_Unguarded_partition<12-byte record>",
+   "evidence": "VC11 partition around the median of three (nine over 40 elements), pivot run returned as a pair"
+  },
+  "0x004f5940": {
+   "name": "std::_Median<12-byte record>",
+   "evidence": "median of nine over 40 elements, of three otherwise"
+  },
+  "0x004f50e0": {
+   "name": "std::_Med3<12-byte record>",
+   "evidence": "three-element median to the middle"
+  },
+  "0x004f4ab0": {
+   "name": "std::_Insertion_sort<12-byte record>",
+   "evidence": "insertion sort below 33 elements; comparator is weight greater-than"
+  },
+  "0x00428290": {
+   "name": "cube::Item::isEquipment",
+   "evidence": "false for types 0, 0xc, 0xd, 0x14, 0x15, 0x17, 0x18, 0x19 and for type 0xb unless sub type 0xe; the tick's type-5 mission reroll levels only these"
+  },
+  "0x00402a10": {
+   "name": "fixed64FromFloat",
+   "evidence": "(i64) __ftol2(f * 65536.0f); the tick lifts a new creature by fixed64FromFloat(scale.z * 0.5f + 0.1f)"
+  },
+  "0x00402e60": {
+   "name": "int64::operator+=",
+   "evidence": "two-word add with carry"
+  },
+  "0x00401610": {
+   "name": "vec3f::operator*=(float)",
+   "evidence": "scales three floats; the tick doubles a boss's appearance scale with it"
+  },
+  "0x00402550": {
+   "name": "vec3f::fromFixed(vec3i64)",
+   "evidence": "each axis (float)i64 * 2^-16, one rounding"
+  },
+  "0x004021b0": {
+   "name": "vec3f::lengthSq",
+   "evidence": "x*x + y*y + z*z in that order"
+  },
+  "0x00402c50": {
+   "name": "vec3i64::operator-",
+   "evidence": "three-word subtraction into a temporary"
+  },
+  "0x00405570": {
+   "name": "cube::EntityData::setFlag",
+   "evidence": "(mask, on) on the u16 at entity+0x114; ported"
+  },
+  "0x0041cae0": {
+   "name": "cube::World::timeOfDay",
+   "evidence": "returns world+0x80015c"
+  },
+  "0x00524500": {
+   "name": "cube::World::clearRegionActivation",
+   "evidence": "clears region+0x15a18 of every region; the day rollover in World::tick calls it, so activateRegionMissions runs again per region each day"
+  },
+  "0x00405640": {
+   "name": "fixedToInt",
+   "evidence": "(long)(i64 / 0x10000), CRefTime::Millisecs by FLIRT; block coordinate of a 16.16 position"
+  },
+  "0x0054a946": {
+   "name": "__ftol2",
+   "evidence": "CRT float to int64 truncation"
+  },
+  "0x004d8c90": {
+   "name": "cube::World::toggleStatic",
+   "evidence": "(static, out, open): when static+0x30 != open sets timer +0x34 = max(0, 1000 - timer), +0x30 = open, and pushes a sound to out+8 (kind 5: 0x33; 6: 0x35 and 7: 0x34 only when opening; else 0x36) at the static's position; ported cw-world Static::toggle"
+  },
+  "0x004d2810": {
+   "name": "cube::World::dropItem",
+   "evidence": "(item, pos, rotation, scale, dirtyZones): GroundItem at pos with +0x13c = 500 + rand%300, +0x144 = day, rotation = rand*360/32767, lowered to the first block that is neither air nor water, pushed onto the zone's items; the zone joins the dirty set; ported cw-world World::drop_item"
+  },
+  "0x00409660": {
+   "name": "cube::Creature::canPickUp",
+   "evidence": "(item): true unless item type 0x19, whose +4 must equal the word at entity+0x1154 reduced to 100 + n%100 above 100"
+  },
+  "0x004d4430": {
+   "name": "std::vector<GroundItem>::erase",
+   "evidence": "0x148-byte elements; the pickup interaction"
+  },
+  "0x004c8530": {
+   "name": "cube::Sound::Sound",
+   "evidence": "0x18 bytes: f32 position (+0), kind (+0xc), pitch (+0x10) and volume (+0x14) default 1.0"
+  },
+  "0x00413be0": {
+   "name": "cube::Item::healAmount",
+   "evidence": "type 1: sub types 1,2,4,5,6 -> itemPower(level, rarity) * 200; 8,9 -> * 100; else 0; the consume interaction"
+  },
+  "0x00422a90": {
+   "name": "cube::Hit::Hit",
+   "evidence": "zeroes +0x14..+0x47; the consume interaction fills attacker 0, target, damage = -heal, position at +0x20"
+  },
+  "0x00422c00": {
+   "name": "cube::ZoneItemsRecord::ZoneItemsRecord",
+   "evidence": "(zone): zone x, y and a copy of the zone's item vector; pushed for every dirty zone at the end of World::tick"
+  },
+  "0x00422d70": {
+   "name": "cube::StaticRecord::StaticRecord",
+   "evidence": "(vec3i zone x, zone y, index; static): the 0x58-byte static record; 0x00422da0 copies the static's fields"
+  },
+  "0x004d7ae0": {
+   "name": "cube::World::removeDailyCreatures",
+   "evidence": "on sleeping: every creature that is not a player and not hostile type 5 whose home zone (+0x1a0/+0x1a4) is loaded and spawn index (+0x1a8) valid resets its spawn's +0x38 and is deleted"
+  },
+  "0x00405550": {
+   "name": "cube::Slot::takeOne",
+   "evidence": "count -= 1; at or below zero the count and the item type/sub type are zeroed; the chest spill of the static interaction"
+  },
+  "0x00402510": {
+   "name": "vec3i64::fromFloat(vec3f)",
+   "evidence": "each axis __ftol2(f * 65536.0f)"
+  },
+  "0x004137c0": {
+   "name": "vec3i::operator==",
+   "evidence": "three ints"
+  },
+  "0x00402d10": {
+   "name": "int64::lessThanBlocks",
+   "evidence": "(n): *this < n << 16 as a signed 64-bit compare"
+  },
+  "0x004056c0": {
+   "name": "vec3i64::dot",
+   "evidence": "sum over axes of (a_i * b_i) / 65536, 64-bit"
+  },
+  "0x00401060": {
+   "name": "vec3::operator=",
+   "evidence": "copies three words"
+  },
+  "0x00401080": {
+   "name": "vec3f::vec3f",
+   "evidence": "(x, y, z)"
+  },
+  "0x0041e2e0": {
+   "name": "std::vector<std::vector<Slot>>::at",
+   "evidence": "inventory page by index"
+  },
+  "0x004cea80": {
+   "name": "cube::World::applyHit",
+   "evidence": "(hit, out, dirtyZones): relays hits on players; for creatures wears +0x1190, sets last targets, threat and hit counts, knockback/stun/slow, hit types 1/4/5, heal or damage via isDamageable, and on death sound 0x1b, the owned kind-5 static, dropLoot, XP, mission progress, kill records and pet XP, spawn respawn; ported cw-sim combat.rs"
+  },
+  "0x004d2ae0": {
+   "name": "cube::World::dropLoot",
+   "evidence": "(creature, dirtyZones): worn item 1/4 (always for flag 0x200), equipment 1/10 for hostile 1 or type 0x8f, rand%3+1 type-specific items (table by type 0x3a..0x8b), recipe 1/50, coins or a type-0xe item by flags & 0x18, the inventory for hostile 1; every drop via dropItem with a (1 - rand*2/32767) block scatter; ported cw-sim combat.rs"
+  },
+  "0x004d5f40": {
+   "name": "cube::World::alertAllies",
+   "evidence": "(attacker, target, out): pushes a damage record {target, attacker, threat} (dword +0x14 unwritten) and gives 0.5 threat plus a record to every creature hostile to the attacker within 8 blocks of the target that holds none; ported"
+  },
+  "0x0040f5a0": {
+   "name": "cube::Creature::isRanged",
+   "evidence": "class 3, types 0x75/0x56/0x68, or a bow, crossbow, staff or wand in the right hand; ported"
+  },
+  "0x0040f8b0": {
+   "name": "cube::Item::isTwoHanded",
+   "evidence": "type 3 with sub type 5..8, 0xa, 0xb, 0xf..0x12; ported"
+  },
+  "0x00409620": {
+   "name": "cube::Creature::isDamageable",
+   "evidence": "hostile 0, 1, 3, 5, or 6 except types 0x8c..0x8e; ported"
+  },
+  "0x00408230": {
+   "name": "cube::Creature::onManaShieldHit",
+   "evidence": "(out): a class-4 specialisation-1 creature with +0x118 set gains 0.25 MP and buff 0xb for 30000 ms, pushed as a passive; ported"
+  },
+  "0x0040f650": {
+   "name": "isEliteType",
+   "evidence": "types 0x65, 0x6b..0x6d, 0x72..0x77 whose kills give twenty times the XP; ported"
+  },
+  "0x004cfcc0": {
+   "name": "cube::World::isHostile",
+   "evidence": "(a, b): never for hostile 6 or a type-5 creature against a player; monsters (hostile 1) against anything of another peacefulness (isFriendlyType 0x0040f710); else either side's aggressive flag (+0x114 bit 5); ported"
+  },
+  "0x0040f710": {
+   "name": "isFriendlyType",
+   "evidence": "the 32 peaceful creature types unless the appearance flags carry 0x1a00; ported"
+  },
+  "0x004d61c0": {
+   "name": "cube::World::grantXp",
+   "evidence": "(killer id): on a server the killer's living pet gains the XP, levels up, and the pet item mirrors XP and level; ported"
+  },
+  "0x00412550": {
+   "name": "cube::Creature::levelUp",
+   "evidence": "while XP >= (1 - 1/((level-1)*0.05+1))*1000+50: subtract, level + 1, HP = maxHp; ported"
+  },
+  "0x00411740": {
+   "name": "cube::Creature::addBuff",
+   "evidence": "buff types 1, 2, 3, 6, 7, 9, 10, 11 replace an existing buff of the same type, others append (+0x1178 list of 0x18-byte entries); ported"
+  },
+  "0x0052a760": {
+   "name": "randomRecipe",
+   "evidence": "(out, level, rarity): rand%2 armour/weapon from 0x00528bf0/0x0052c4e0, the item's first dword copied to +8, type set to 2; ported"
+  },
+  "0x0052b3f0": {
+   "name": "randomConsumable",
+   "evidence": "(world, out, level, rarity): a level-1 type-0x14 pet food, sub type = world+0x88[rand % size] (the 45 pet types the World ctor pushes at 0x004cd507..0x004cd836); level and rarity unused; only caller dropLoot 0x004d2f2a; ported as cw_sim::combat::random_consumable"
+  },
+  "0x004203c0": {
+   "name": "std::list<Kill>::insert",
+   "evidence": "24-byte kill record push in applyHit"
+  },
+  "0x00420380": {
+   "name": "std::list<Pickup>::insert",
+   "evidence": "0x120-byte pickup record push (mission rewards, pickups)"
+  },
+  "0x005308b0": {
+   "name": "cube::World::unstickCreature",
+   "evidence": "(creature): with HP >= 0 scans the box pos ± scale*0.5 over loaded zones only; a solid block lifts pos.z to block bottom + half height + 1.1 and zeroes creature+0x1180 (one lift per call); then the airships within 64 blocks; ported cw-sim physics.rs (blocks only)"
+  },
+  "0x004d5740": {
+   "name": "cube::World::boxBlocked",
+   "evidence": "(box i64 min/max, scale): true when a solid block lies in the box shrunk by scale*0.5 on x and y; the path code's test"
+  },
+  "0x004d6730": {
+   "name": "cube::World::sweep",
+   "evidence": "(pos, dir, maxDist, solidWanted, checkStatics): steps along dir block by block until the solidity differs, up to 500 steps; with checkStatics clips against kind 3/4/5/8 statics; returns the distance in blocks"
+  },
+  "0x004d4d80": {
+   "name": "cube::World::lineOfSight",
+   "evidence": "(from, to, checkStatics, maxDist): the sweep reaches within 0.01 of the distance"
+  },
+  "0x004d5c80": {
+   "name": "cube::World::lightAt",
+   "evidence": "(pos): the block's colour byte / 255 for air and water (min 5), 1 for type 0xd, else 0; multiplied by the day-night factor in sneak mode 0x4f"
+  },
+  "0x0052e710": {
+   "name": "lerpRepeat",
+   "evidence": "(v, target, n, t): n times v += (target - v) * t; ported"
+  },
+  "0x0052e7c0": {
+   "name": "lerpRepeat3",
+   "evidence": "vec3f form of lerpRepeat; ported"
+  },
+  "0x005306d0": {
+   "name": "turnTowards",
+   "evidence": "(a, b, k) degrees: a + asin(clamp(sin(b)cos(a) - cos(b)sin(a))) * k; ported"
+  },
+  "0x00405450": {
+   "name": "vec3i64ToBlock",
+   "evidence": "per axis v / 65536 truncated, minus one when negative; ported"
+  },
+  "0x00405510": {
+   "name": "floorDivFix",
+   "evidence": "i64 / 65536 truncated, minus one when the high dword is negative or zero with the low dword's top bit set; ported"
+  },
+  "0x004061f0": {
+   "name": "blockIsSolid",
+   "evidence": "type (byte 3 & 0x1f) not 0 and not 2; ported"
+  },
+  "0x0040f6e0": {
+   "name": "cube::Creature::isSwimmingDown",
+   "evidence": "flags 0x10, vel.z < 0, not on ground, no stun, no speed-up; ported"
+  },
+  "0x004d18c0": {
+   "name": "cube::World::isEnemy",
+   "evidence": "(a, b): false for the same creature; true when either is hostile 6, when a monster faces a non-monster or a differently peaceful monster, else either side's aggressive flag; ported"
+  },
+  "0x00407db0": {
+   "name": "skillWindup",
+   "evidence": "(creature, mode): ms before a mode's hit, table over attackSpeed * entity+0x16c; ported cw-sim skills.rs"
+  },
+  "0x00411d60": {
+   "name": "skillDuration",
+   "evidence": "(creature, mode): ms a mode lasts after the wind-up; ported"
+  },
+  "0x004084b0": {
+   "name": "skillTotalTime",
+   "evidence": "windup + duration + a third per-mode table; ported"
+  },
+  "0x00412150": {
+   "name": "cube::Creature::attackSpeed",
+   "evidence": "1 (players power*0.0625+0.75) + guard fractions by class + gear (0x00412300) × haste buff factor; ported without the gear bonus"
+  },
+  "0x00409de0": {
+   "name": "skillLevelFactor",
+   "evidence": "(creature, mode, level): 1 - 1/(level*0.1+1) for the mode's skill slot; ported"
+  },
+  "0x00407cc0": {
+   "name": "skillSlotOfMode",
+   "evidence": "mode -> skill slot 6/7/8 or -1; ported"
+  },
+  "0x0040fcf0": {
+   "name": "cube::Creature::maxBlock",
+   "evidence": "speed * 50 (× 20 with flag 0x10), weapon sub types 6 → 60, 8 → 80, 11/12/15..17 → 20; ported"
+  },
+  "0x0040f690": {
+   "name": "cube::Creature::usesMana",
+   "evidence": "class 3, types 0x75/0x56, or a staff/wand/bracelet in slot 7; ported"
+  },
+  "0x0040f610": {
+   "name": "cube::Creature::isBlocking",
+   "evidence": "no slow and modes 0x47/0x48/8/0x62, or 0x3b/0x3f for class 1 spec 1; ported"
+  },
+  "0x00409780": {
+   "name": "skillCooldown",
+   "evidence": "(mode, level): per-mode 8000..60000 ms minus a skill-level share; value unused on a server"
+  },
+  "0x00413aa0": {
+   "name": "consumableDuration",
+   "evidence": "type 1: sub 1 → 3000 ms else 10000; ported"
+  },
+  "0x004120f0": {
+   "name": "swimFactor",
+   "evidence": "skill level k: 0.5 for k < 1 else (1 - 1/(k*0.1+1))*0.5 + 0.5; ported"
+  },
+  "0x004095d0": {
+   "name": "rideFactor",
+   "evidence": "k < 1 → 0 else (1 - 1/(k*0.1+1))*3 + 1; ported"
+  },
+  "0x0040a7f0": {
+   "name": "glideFactor",
+   "evidence": "k < 1 → 0 else (1 - 1/(k*0.1+1))*3 + 1.5; ported"
+  },
+  "0x00409740": {
+   "name": "climbFactor",
+   "evidence": "1 - 1/((k+1)*0.1+1); ported"
+  },
+  "0x004013d0": {
+   "name": "ptrIndex4",
+   "evidence": "returns base + i*4 (4-byte element address), per the helper table in analysis/notes/functions/005322d0_World_tick_creatures.md"
+  },
+  "0x004013e0": {
+   "name": "ptrIndex1",
+   "evidence": "returns ptr + i for byte elements, per the helpers table of pseudo_537bc1.md"
+  },
+  "0x00401530": {
+   "name": "i64AddFloat",
+   "evidence": "out = a + (i64)(f * 65536), per the helper table in analysis/notes/functions/005322d0_World_tick_creatures.md"
+  },
+  "0x00401cd0": {
+   "name": "mat4Identity",
+   "evidence": "sets a 4x4 float matrix to identity before the rotation in shootOrigin, per crates/cw-sim/src/combat_ai.rs"
+  },
+  "0x00401d80": {
+   "name": "vec3fLength",
+   "evidence": "sums the squares in single precision and takes a double square root, ported as length3 in crates/cw-sim/src/projectile.rs"
+  },
+  "0x00401fb0": {
+   "name": "vec3fNormalize",
+   "evidence": "normalises a vec3f in place via 1 / sqrt(len^2) in single precision, ported as normalize3 in crates/cw-sim/src/modes.rs and projectile.rs"
+  },
+  "0x00402030": {
+   "name": "mat4RotateZ",
+   "evidence": "rotates a 4x4 matrix about z by an angle in degrees (identity().rotateZ(deg)), ported as rotate_z in crates/cw-sim/src/modes.rs"
+  },
+  "0x00402990": {
+   "name": "vec3i::vec3i",
+   "evidence": "ivec3 constructor, per the helpers table of pseudo_537bc1.md"
+  },
+  "0x004029b0": {
+   "name": "cube::Buff::Buff",
+   "evidence": "zero-initialising Buff constructor, per the helpers tables of pseudo_537bc1.md and pseudo_539c02.md"
+  },
+  "0x004029e0": {
+   "name": "cube::CombatBehavior::CombatBehavior",
+   "evidence": "CombatBehavior(float) constructor used when building pet behaviour trees, per the helpers table of pseudo_539c02.md"
+  },
+  "0x00402a70": {
+   "name": "cube::Item::operator=",
+   "evidence": "copies an item field by field (padding not copied) when a creature picks up a weapon, per crates/cw-sim/src/combat_ai.rs"
+  },
+  "0x00402b10": {
+   "name": "std::map<int64,Creature*>::operator[]",
+   "evidence": "creature map subscript, per the helpers table of pseudo_539c02.md"
+  },
+  "0x00402bc0": {
+   "name": "cube::Creature::entity",
+   "evidence": "returns creature + 0x10 (the EntityData), per the helper table in analysis/notes/functions/005322d0_World_tick_creatures.md"
+  },
+  "0x00402bd0": {
+   "name": "vec3i64::mulFixed",
+   "evidence": "per component (v * s) / 65536 via __allmul and __alldiv, per crates/cw-sim/src/projectile.rs"
+  },
+  "0x00402db0": {
+   "name": "vec3i64::mulFloat",
+   "evidence": "per component fixed-point scale by a float (used to double a leap offset), per crates/cw-sim/src/projectile.rs and combat_ai.rs"
+  },
+  "0x00402e30": {
+   "name": "vec3i64::operator+=",
+   "evidence": "vec3i64 in-place add, per the helpers table of pseudo_53bc86.md"
+  },
+  "0x00402e80": {
+   "name": "vec3i64::operator-=",
+   "evidence": "vec3i64 in-place subtract (decompiled), per the helpers table of pseudo_54710b.md"
+  },
+  "0x00402eb0": {
+   "name": "int64::operator-=",
+   "evidence": "i64 in-place subtract (decompiled), per the helpers tables of pseudo_537bc1.md and pseudo_539c02.md"
+  },
+  "0x00402f40": {
+   "name": "cube::CombatBehavior::update",
+   "evidence": "CombatBehavior vtable update (target choice, approach, attacks by class), ported in crates/cw-sim/src/combat_ai.rs"
+  },
+  "0x00405330": {
+   "name": "cube::Creature::clearPath",
+   "evidence": "clears the path node map, open list, waypoints and passed statics, ported in crates/cw-sim/src/path.rs"
+  },
+  "0x004055d0": {
+   "name": "cube::CompanionBehavior::CompanionBehavior",
+   "evidence": "default CompanionBehavior constructor, per crates/cw-sim/src/behaviors_more.rs and the helpers table of pseudo_539c02.md"
+  },
+  "0x004055f0": {
+   "name": "cube::CompanionBehavior::CompanionBehavior(int64)",
+   "evidence": "CompanionBehavior constructor taking the leader id, per crates/cw-sim/src/behaviors_more.rs"
+  },
+  "0x00405610": {
+   "name": "copyDword",
+   "evidence": "4-byte copy, per the helpers table of pseudo_537bc1.md"
+  },
+  "0x00405660": {
+   "name": "int64::subBlocks",
+   "evidence": "out = this - (n << 16), per the helpers table of pseudo_539c02.md"
+  },
+  "0x00405780": {
+   "name": "cube::CompanionBehavior::update",
+   "evidence": "CompanionBehavior vtable update (follow the leader), ported in crates/cw-sim/src/behaviors_more.rs"
+  },
+  "0x00405ef0": {
+   "name": "cube::CompanionBehavior::clone",
+   "evidence": "CompanionBehavior clone, per crates/cw-sim/src/behaviors_more.rs"
+  },
+  "0x00406280": {
+   "name": "cube::World::blockType",
+   "evidence": "block type lookup, per the helpers table of pseudo_539c02.md"
+  },
+  "0x00406380": {
+   "name": "vec3i64::vec3i64",
+   "evidence": "vec3i64 constructor from six lo/hi dwords, per the helpers table of pseudo_539c02.md"
+  },
+  "0x004063d0": {
+   "name": "cube::PassivePacket::PassivePacket",
+   "evidence": "zero-initialising 0x28-byte passive (buff) record constructor, per crates/cw-sim/src/modes.rs and the helpers table of pseudo_539c02.md"
+  },
+  "0x00407730": {
+   "name": "cube::Appearance::operator=",
+   "evidence": "copies the 0xac-byte appearance, per the helpers table of pseudo_539c02.md"
+  },
+  "0x004078d0": {
+   "name": "std::map_iterator::operator==",
+   "evidence": "iterator equality, per the helpers table of pseudo_537bc1.md"
+  },
+  "0x004079f0": {
+   "name": "vec3f::operator*",
+   "evidence": "out = this * s for a vec3f, per the helpers table of pseudo_53bc86.md and crates/cw-sim/src/modes.rs"
+  },
+  "0x00407a30": {
+   "name": "std::map_iterator::postIncrement",
+   "evidence": "copies the iterator then advances it via 0x00407a50, per the helper table in analysis/notes/functions/005322d0_World_tick_creatures.md"
+  },
+  "0x00407a50": {
+   "name": "std::map_iterator::advance",
+   "evidence": "advances a map iterator (called by 0x00407a30), per the helper table in analysis/notes/functions/005322d0_World_tick_creatures.md"
+  },
+  "0x00407c80": {
+   "name": "skillFactor",
+   "evidence": "k < 1 ? 0 : 1 - 1 / (k * 0.1 + 1) of a skill level, used by World::tame on the owner's skill 0, per crates/cw-sim/src/modes.rs"
+  },
+  "0x00408300": {
+   "name": "cube::Creature::armor",
+   "evidence": "armour (entity+0x174 plus gear) reducing physical hits in creatureAttack, ported in crates/cw-sim/src/combat_ai.rs"
+  },
+  "0x00408f70": {
+   "name": "cube::Creature::baseDamage",
+   "evidence": "base damage from level and struck weapons, times 50/2/5/3 in modes 0x57/0x5b/0x5d/0x60, ported in crates/cw-sim/src/modes.rs"
+  },
+  "0x00409270": {
+   "name": "cube::Creature::strikingWeapons",
+   "evidence": "the weapon slots the current mode strikes with, ported in crates/cw-sim/src/combat_ai.rs and modes.rs"
+  },
+  "0x004094a0": {
+   "name": "cube::Creature::guardStrength",
+   "evidence": "guard strength from entity+0x170 times the level curve plus weapon guard, ported in crates/cw-sim/src/combat_ai.rs"
+  },
+  "0x004096b0": {
+   "name": "cube::Creature::canStartMode",
+   "evidence": "whether the creature can start a mode now (not stunned, cooldown, mana), ported in crates/cw-sim/src/combat_ai.rs"
+  },
+  "0x00409ac0": {
+   "name": "cube::Creature::blockChance",
+   "evidence": "block/critical base chance from level and gear, ported in crates/cw-sim/src/modes.rs and projectile.rs"
+  },
+  "0x00409d10": {
+   "name": "modeDamageMultiplier",
+   "evidence": "damage multiplier of a mode (stdcall, ecx unused), ported in crates/cw-sim/src/modes.rs"
+  },
+  "0x0040ef90": {
+   "name": "cube::Creature::findBuff",
+   "evidence": "first buff of a type in the +0x1178 list or null, per the helper table in analysis/notes/functions/005322d0_World_tick_creatures.md"
+  },
+  "0x0040f220": {
+   "name": "cube::Creature::chanceRoll",
+   "evidence": "scales a chance by the weapon sub type then rolls rand()/32767, ported in crates/cw-sim/src/modes.rs and projectile.rs"
+  },
+  "0x0040f2b0": {
+   "name": "cube::Creature::hasTwoHandedWeapon",
+   "evidence": "whether the right hand holds a two-handed weapon sub type, ported in crates/cw-sim/src/combat_ai.rs and modes.rs"
+  },
+  "0x0040f2f0": {
+   "name": "skillRecovery",
+   "evidence": "the recovery part of a mode's animation (third per-mode table), ported in crates/cw-sim/src/combat_ai.rs"
+  },
+  "0x0040f520": {
+   "name": "cube::Creature::rollCritical",
+   "evidence": "blockChance + block * 0.15 against rand, always true with a type-0xb buff, ported in crates/cw-sim/src/modes.rs and projectile.rs"
+  },
+  "0x0040f6d0": {
+   "name": "cube::Creature::cooldownKeep",
+   "evidence": "always returns 0 (decompiled), so every cooldown decrements, per the helpers table of pseudo_537bc1.md"
+  },
+  "0x0040f8f0": {
+   "name": "knockbackStrength",
+   "evidence": "knockback strength of a creature's mode, ported in crates/cw-sim/src/modes.rs"
+  },
+  "0x0040fb20": {
+   "name": "skillMpCost",
+   "evidence": "mana cost of a mode, ported in crates/cw-sim/src/combat_ai.rs and modes.rs"
+  },
+  "0x0040fc30": {
+   "name": "cube::Creature::topThreat",
+   "evidence": "the creature with the most threat in the threat map, ported in crates/cw-sim/src/combat_ai.rs"
+  },
+  "0x0040ffe0": {
+   "name": "cube::Creature::stunDuration",
+   "evidence": "stun given by a landed stun roll (1500 ms on players, else by power), ported in crates/cw-sim/src/combat_ai.rs"
+  },
+  "0x00410010": {
+   "name": "cube::Creature::weaponBasicAttack",
+   "evidence": "the basic attack mode of the creature's weapon, alternating hands, ported in crates/cw-sim/src/combat_ai.rs"
+  },
+  "0x00410290": {
+   "name": "cube::Creature::weaponSpecialAttack",
+   "evidence": "the special attack mode of the creature's weapon, ported in crates/cw-sim/src/combat_ai.rs"
+  },
+  "0x004103a0": {
+   "name": "cube::Creature::walkCooldowns",
+   "evidence": "in-order walk over the tree at creature+0x139c with no stores (no effect), per crates/cw-sim/src/modes.rs and the helpers table of pseudo_539c02.md"
+  },
+  "0x00410400": {
+   "name": "cube::Creature::startBasicAttack",
+   "evidence": "starts the basic attack once the current animation allows, ported in crates/cw-sim/src/combat_ai.rs"
+  },
+  "0x00410690": {
+   "name": "cube::Creature::startSpecialAttack",
+   "evidence": "starts the weapon's special attack when the animation allows, ported in crates/cw-sim/src/combat_ai.rs"
+  },
+  "0x00410f90": {
+   "name": "itemStat",
+   "evidence": "itemPower(level, rarity) / 2^3, ported in crates/cw-sim/src/modes.rs"
+  },
+  "0x00411540": {
+   "name": "cube::Creature::resistance",
+   "evidence": "resistance (entity+0x178 plus gear) reducing magic hits in creatureAttack, ported in crates/cw-sim/src/combat_ai.rs"
+  },
+  "0x00411800": {
+   "name": "cube::Creature::shootOrigin",
+   "evidence": "the point a creature shoots or breathes from (rotated offset for appearance flag 4), ported in crates/cw-sim/src/combat_ai.rs and modes.rs"
+  },
+  "0x00411ad0": {
+   "name": "cube::Creature::magicPower",
+   "evidence": "baseDamage without the per-mode factor (heal and magic power), ported in crates/cw-sim/src/modes.rs"
+  },
+  "0x00412300": {
+   "name": "gearAttackSpeed",
+   "evidence": "the gear part of the attack speed, ported in crates/cw-sim/src/skills.rs"
+  },
+  "0x00412670": {
+   "name": "vec3f::normalized",
+   "evidence": "out = v * (1 / (float)sqrt((double)len^2)), per crates/cw-sim/src/modes.rs and the helpers table of pseudo_54710b.md"
+  },
+  "0x004139b0": {
+   "name": "cube::Item::armor",
+   "evidence": "armour of an armour item (types 4..7), ported in crates/cw-sim/src/combat_ai.rs"
+  },
+  "0x00413ac0": {
+   "name": "cube::Item::critChance",
+   "evidence": "block/critical chance an item adds, ported in crates/cw-sim/src/modes.rs and projectile.rs"
+  },
+  "0x00413df0": {
+   "name": "spiritColor",
+   "evidence": "a weapon spirit's particle colour by kind, ported in crates/cw-sim/src/combat_ai.rs"
+  },
+  "0x00414260": {
+   "name": "cube::Item::resistance",
+   "evidence": "resistance of an armour item, ported in crates/cw-sim/src/combat_ai.rs"
+  },
+  "0x00414350": {
+   "name": "itemAttackSpeed",
+   "evidence": "the attack speed an item adds, ported in crates/cw-sim/src/skills.rs"
+  },
+  "0x00414550": {
+   "name": "cube::Item::weaponStrength",
+   "evidence": "strength (guard and damage) of a weapon item (type 3), ported in crates/cw-sim/src/combat_ai.rs and modes.rs"
+  },
+  "0x00414730": {
+   "name": "cube::LookAtPlayerBehavior::update",
+   "evidence": "LookAtPlayerBehavior vtable update (face the nearest player within 8 blocks), ported in crates/cw-sim/src/behavior.rs"
+  },
+  "0x0041b9e0": {
+   "name": "cube::Interact::Interact",
+   "evidence": "builds the Interact record a villager sends when using a static, per crates/cw-sim/src/behaviors_more.rs"
+  },
+  "0x0041ba60": {
+   "name": "cube::RandomInteractionBehavior::RandomInteractionBehavior",
+   "evidence": "RandomInteractionBehavior constructor, per crates/cw-sim/src/behaviors_more.rs"
+  },
+  "0x0041bc20": {
+   "name": "cube::RandomInteractionBehavior::update",
+   "evidence": "RandomInteractionBehavior vtable update (villagers use beds and chairs), ported in crates/cw-sim/src/behaviors_more.rs"
+  },
+  "0x0041c9e0": {
+   "name": "cube::Zone::getStaticCell",
+   "evidence": "looks up a static cell in the zone's spatial index at zone+0xac, per crates/cw-sim/src/path.rs and behaviors_more.rs"
+  },
+  "0x0041cac0": {
+   "name": "cube::RandomInteractionBehavior::clone",
+   "evidence": "RandomInteractionBehavior clone, per crates/cw-sim/src/behaviors_more.rs"
+  },
+  "0x0041cb90": {
+   "name": "cube::RandomWalkBehavior::RandomWalkBehavior",
+   "evidence": "RandomWalkBehavior constructor, per the helpers table of pseudo_539c02.md"
+  },
+  "0x0041cba0": {
+   "name": "vec3i64::xy",
+   "evidence": "xy view of a vec3i64, per the helpers table of pseudo_53bc86.md"
+  },
+  "0x0041cbb0": {
+   "name": "cube::RandomWalkBehavior::update",
+   "evidence": "RandomWalkBehavior vtable update, ported in crates/cw-sim/src/behavior.rs"
+  },
+  "0x0041ce90": {
+   "name": "vec2i64::lengthSqFixed",
+   "evidence": "(x*x)/65536 + (y*y)/65536 in i64, ported as lengthSq2Fixed in crates/cw-sim/src/modes.rs"
+  },
+  "0x0041cfc0": {
+   "name": "cube::SequentialBehavior::SequentialBehavior",
+   "evidence": "SequentialBehavior constructor, per crates/cw-sim/src/behaviors_more.rs and the helpers table of pseudo_539c02.md"
+  },
+  "0x0041d080": {
+   "name": "cube::SequentialBehavior::update",
+   "evidence": "SequentialBehavior vtable update (runs its children in order), ported in crates/cw-sim/src/behaviors_more.rs"
+  },
+  "0x0041d7e0": {
+   "name": "cube::BlockAction::BlockAction",
+   "evidence": "BlockAction constructor (+0xc = 0, +0x10 = 0), per the helpers table of pseudo_537bc1.md"
+  },
+  "0x0041de30": {
+   "name": "cube::Equipment::operator=",
+   "evidence": "copies the 13 equipment items, per the helpers table of pseudo_539c02.md"
+  },
+  "0x0041fff0": {
+   "name": "std::vector<T*>::size",
+   "evidence": "vector size for 4-byte elements, per the helpers table of pseudo_539c02.md"
+  },
+  "0x00422890": {
+   "name": "cube::Shoot::Shoot",
+   "evidence": "Shoot (projectile packet) constructor, per crates/cw-sim/src/modes.rs and the helpers table of pseudo_539c02.md"
+  },
+  "0x00428070": {
+   "name": "std::map_iterator::deref",
+   "evidence": "*out = **it, per the helper table in analysis/notes/functions/005322d0_World_tick_creatures.md"
+  },
+  "0x00428590": {
+   "name": "std::list<SoundPacket>::push_back",
+   "evidence": "pushes a Sound record on out+8, per crates/cw-sim/src/modes.rs"
+  },
+  "0x00428920": {
+   "name": "cube::SpawnLocationBehavior::SpawnLocationBehavior",
+   "evidence": "SpawnLocationBehavior constructor, per crates/cw-sim/src/behaviors_more.rs"
+  },
+  "0x00428940": {
+   "name": "cube::SpawnLocationBehavior::update",
+   "evidence": "SpawnLocationBehavior vtable update (villager day schedule), ported in crates/cw-sim/src/behaviors_more.rs"
+  },
+  "0x00428ec0": {
+   "name": "cube::SpawnLocationBehavior::clone",
+   "evidence": "SpawnLocationBehavior clone, per crates/cw-sim/src/behaviors_more.rs"
+  },
+  "0x0042c6f0": {
+   "name": "std::map_iterator::operator!=",
+   "evidence": "*a != *b, per the helper table in analysis/notes/functions/005322d0_World_tick_creatures.md"
+  },
+  "0x004c5d10": {
+   "name": "cube::WalkPathBehavior::WalkPathBehavior(copy)",
+   "evidence": "WalkPathBehavior copy constructor, per crates/cw-sim/src/behaviors_more.rs"
+  },
+  "0x004c5d50": {
+   "name": "cube::WalkPathBehavior::WalkPathBehavior",
+   "evidence": "WalkPathBehavior(float radius) constructor, per crates/cw-sim/src/behaviors_more.rs"
+  },
+  "0x004c5e00": {
+   "name": "cube::WalkPathBehavior::update",
+   "evidence": "WalkPathBehavior vtable update (patrol along waypoints), ported in crates/cw-sim/src/behaviors_more.rs"
+  },
+  "0x004c63e0": {
+   "name": "cube::WalkPathBehavior::clone",
+   "evidence": "WalkPathBehavior clone, per crates/cw-sim/src/behaviors_more.rs"
+  },
+  "0x004c6470": {
+   "name": "vec3f::fromRgbBytes",
+   "evidence": "vec3f from three bytes (decompiled), per the helpers table of pseudo_54710b.md"
+  },
+  "0x004c64f0": {
+   "name": "vec3i::fromFixed",
+   "evidence": "vec3i64 to vec3i by truncating / 65536, per the helpers table of pseudo_537bc1.md and crates/cw-sim/src/modes.rs"
+  },
+  "0x004c8280": {
+   "name": "std::list::list",
+   "evidence": "list constructor, per the helpers table of pseudo_537bc1.md"
+  },
+  "0x004c8510": {
+   "name": "cube::Particle::Particle",
+   "evidence": "0x48-byte particle record constructor (+0x3c = 0, +0x40 = 3.0), per crates/cw-sim/src/modes.rs and projectile.rs"
+  },
+  "0x004cde20": {
+   "name": "copyQword",
+   "evidence": "8-byte copy, per the helper table in analysis/notes/functions/005322d0_World_tick_creatures.md"
+  },
+  "0x004ce350": {
+   "name": "int64::lessThan",
+   "evidence": "signed 64-bit compare on (lo, hi) pairs, per the helper table in analysis/notes/functions/005322d0_World_tick_creatures.md"
+  },
+  "0x004ce380": {
+   "name": "int64::greaterEqual",
+   "evidence": "signed 64-bit compare on (lo, hi) pairs, per the helper table in analysis/notes/functions/005322d0_World_tick_creatures.md"
+  },
+  "0x004ce9f0": {
+   "name": "cube::World::addBuffAndNotify",
+   "evidence": "addBuff on the creature then a PassivePacket on out+0x58, ported in crates/cw-sim/src/combat_ai.rs"
+  },
+  "0x004cfd50": {
+   "name": "cube::World::creatureAttack",
+   "evidence": "thiscall with 14 stack args landing an attacker's hit on a target (armour, stun, buffs, Hit record), ported as creature_attack in crates/cw-sim/src/combat_ai.rs"
+  },
+  "0x004d2190": {
+   "name": "cube::World::spiritParticles",
+   "evidence": "one particle burst per spirit of a weapon item, ported in crates/cw-sim/src/combat_ai.rs"
+  },
+  "0x004d3de0": {
+   "name": "cube::World::creatureMapHead",
+   "evidence": "*out = world+4, per the helper table in analysis/notes/functions/005322d0_World_tick_creatures.md"
+  },
+  "0x004d4c20": {
+   "name": "cube::World::houseAt",
+   "evidence": "the house of a block's zone whose rooms contain the block, per crates/cw-sim/src/behaviors_more.rs"
+  },
+  "0x004d4f90": {
+   "name": "cube::World::boxCollides",
+   "evidence": "whether a solid block (or, optionally, a static) lies in a box, ported as box_collides in crates/cw-sim/src/path.rs"
+  },
+  "0x004d6620": {
+   "name": "std::list::push_back",
+   "evidence": "generic list push_back (behaviours, iterators), per the helpers tables of pseudo_537bc1.md and pseudo_539c02.md"
+  },
+  "0x004d9160": {
+   "name": "cube::World::dropUnsupportedStatics",
+   "evidence": "removes flagged statics whose block below is air after blocks break, ported in crates/cw-sim/src/modes.rs"
+  },
+  "0x004d99d0": {
+   "name": "vec3i64::fromBlock",
+   "evidence": "vec3i to 16.16 fixed (v << 16), per crates/cw-sim/src/path.rs"
+  },
+  "0x004dade0": {
+   "name": "int64::lessThanFloat",
+   "evidence": "*this < __ftol2(f * 65536), ported as fixedLess in crates/cw-sim/src/modes.rs"
+  },
+  "0x004dafe0": {
+   "name": "cube::Creature::buildPath",
+   "evidence": "builds the waypoint list from the best A* node, ported in crates/cw-sim/src/path.rs"
+  },
+  "0x004db1b0": {
+   "name": "cube::Creature::pathIgnoresStatic",
+   "evidence": "looks up a static in the path's ignored-statics set at creature+0x1468, per crates/cw-sim/src/path.rs"
+  },
+  "0x004db200": {
+   "name": "cube::Creature::followPath",
+   "evidence": "per-tick path follower run by World::tick, ported in crates/cw-sim/src/path.rs"
+  },
+  "0x004dcff0": {
+   "name": "cube::Creature::isOnOpenList",
+   "evidence": "whether a node is on the A* open list, per crates/cw-sim/src/path.rs"
+  },
+  "0x004dd090": {
+   "name": "pathHeuristic",
+   "evidence": "A* heuristic 2 * (10 dz + 10/4-weighted dx and dy) of a block difference, ported in crates/cw-sim/src/path.rs"
+  },
+  "0x004dd1a0": {
+   "name": "cube::Creature::addPathNode",
+   "evidence": "map[key] = value and the key onto the open list, ported in crates/cw-sim/src/path.rs"
+  },
+  "0x004dd2e0": {
+   "name": "cube::Creature::findPath",
+   "evidence": "roots a new A* search (startPath), ported as start_path in crates/cw-sim/src/path.rs"
+  },
+  "0x004dde00": {
+   "name": "mat4MulVec3",
+   "evidence": "4x4 matrix times vec3f, per crates/cw-sim/src/modes.rs"
+  },
+  "0x004dde90": {
+   "name": "cube::Creature::stepPath",
+   "evidence": "one A* expansion, ported in crates/cw-sim/src/path.rs"
+  },
+  "0x004e1420": {
+   "name": "std::vector<vec3i64>::push_back",
+   "evidence": "vector<vec3<i64>>::push_back for waypoints, per crates/cw-sim/src/behaviors_more.rs"
+  },
+  "0x004e1520": {
+   "name": "vec3fScale",
+   "evidence": "out = v * s, per the helper table in analysis/notes/functions/005322d0_World_tick_creatures.md"
+  },
+  "0x004e28d0": {
+   "name": "std::vector<T*>::empty",
+   "evidence": "vector empty test, per the helpers table of pseudo_539c02.md"
+  },
+  "0x004f7710": {
+   "name": "std::set::~set",
+   "evidence": "set/map destructor (tree erase and delete head, decompiled), per the helpers table of pseudo_54710b.md"
+  },
+  "0x004f7a70": {
+   "name": "vec3f::operator/",
+   "evidence": "out = this / s per axis (decompiled), per the helpers table of pseudo_54710b.md"
+  },
+  "0x004f8520": {
+   "name": "std::set::clear",
+   "evidence": "set clear, per the helpers tables of pseudo_537bc1.md and pseudo_53bc86.md"
+  },
+  "0x00522580": {
+   "name": "cube::World::tame",
+   "evidence": "makes a creature the pet of an owner (behaviour tree, multipliers, level), ported in crates/cw-sim/src/modes.rs"
+  },
+  "0x00528400": {
+   "name": "std::list<BlockAction>::push_back",
+   "evidence": "pushes a BlockAction on out+0x18, per the helpers table of pseudo_537bc1.md"
+  },
+  "0x0052eb90": {
+   "name": "std::list::nodeValue",
+   "evidence": "*node + 8, per the helper table in analysis/notes/functions/005322d0_World_tick_creatures.md"
+  },
+  "0x0052ebf0": {
+   "name": "std::list::popFront",
+   "evidence": "*out = *head; *head = **head, per the helper table in analysis/notes/functions/005322d0_World_tick_creatures.md"
+  },
+  "0x0052ec30": {
+   "name": "vec3f::operator-",
+   "evidence": "out = this * -1.0f (decompiled), per the helpers tables of pseudo_53bc86.md and pseudo_54710b.md"
+  },
+  "0x0052ef00": {
+   "name": "cube::World::canWalkDirect",
+   "evidence": "straight-walk probe from a point towards a target within reach, ported in crates/cw-sim/src/path.rs"
+  },
+  "0x00530470": {
+   "name": "cube::World::clearBlock",
+   "evidence": "clears a block in a loaded zone via Column::setBlockRaw, ported in crates/cw-sim/src/modes.rs"
+  },
+  "0x00530540": {
+   "name": "std::list::empty",
+   "evidence": "size == 0, per the helpers table of pseudo_539c02.md"
+  },
+  "0x00530550": {
+   "name": "copyWord",
+   "evidence": "*out = *in, per the helper table in analysis/notes/functions/005322d0_World_tick_creatures.md"
+  },
+  "0x005305b0": {
+   "name": "cube::World::eraseProjectiles",
+   "evidence": "erases the projectiles whose iterators were collected in the removal list, per crates/cw-sim/src/projectile.rs"
+  },
+  "0x00530690": {
+   "name": "std::set<int64>::insert",
+   "evidence": "set insert, per the helpers table of pseudo_539c02.md"
+  },
+  "0x005306c0": {
+   "name": "blockIsBreakable",
+   "evidence": "(blk[3] >> 5) & 1, block flag bit 0x20, per the helpers table of pseudo_537bc1.md and crates/cw-sim/src/modes.rs"
+  },
+  "0x00548b00": {
+   "name": "acosf",
+   "evidence": "acos in double returned as float, per the helper table in analysis/notes/functions/005322d0_World_tick_creatures.md"
+  },
+  "0x0054a8b8": {
+   "name": "__security_check_cookie",
+   "evidence": "the MSVC stack cookie check from the epilogue pattern, per the helpers table of pseudo_54710b.md"
+  }
+ }
+}

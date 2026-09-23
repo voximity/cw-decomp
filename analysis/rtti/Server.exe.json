@@ -1,0 +1,909 @@
+{
+ "binary": "Server.exe",
+ "type_descriptors": 62,
+ "classes": {
+  "std::error_category": {
+   "mangled": ".?AVerror_category@std@@",
+   "td": "0x0058200c",
+   "vtables": [
+    {
+     "address": "0x005585c0",
+     "col": "0x00573e34",
+     "methods": [
+      "0x00401690",
+      "0x0054a7b0",
+      "0x0054a7b0",
+      "0x00401b80",
+      "0x00401ba0",
+      "0x00401bc0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "std::_Generic_error_category": {
+   "mangled": ".?AV_Generic_error_category@std@@",
+   "td": "0x00582030",
+   "vtables": [
+    {
+     "address": "0x005585dc",
+     "col": "0x00573e7c",
+     "methods": [
+      "0x00401690",
+      "0x00401f20",
+      "0x00401dd0",
+      "0x00401b80",
+      "0x00401ba0",
+      "0x00401bc0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "std::error_category"
+   ],
+   "all_bases": [
+    "std::error_category"
+   ]
+  },
+  "std::_Iostream_error_category": {
+   "mangled": ".?AV_Iostream_error_category@std@@",
+   "td": "0x0058205c",
+   "vtables": [
+    {
+     "address": "0x00558610",
+     "col": "0x00573ec8",
+     "methods": [
+      "0x00401690",
+      "0x00401f30",
+      "0x00401e50",
+      "0x00401b80",
+      "0x00401ba0",
+      "0x00401bc0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "std::_Generic_error_category"
+   ],
+   "all_bases": [
+    "std::_Generic_error_category",
+    "std::error_category"
+   ]
+  },
+  "std::_System_error_category": {
+   "mangled": ".?AV_System_error_category@std@@",
+   "td": "0x00582088",
+   "vtables": [
+    {
+     "address": "0x00558650",
+     "col": "0x00573f18",
+     "methods": [
+      "0x00401690",
+      "0x00401f40",
+      "0x00401ea0",
+      "0x00401b40",
+      "0x00401ba0",
+      "0x00401bc0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "std::_Generic_error_category"
+   ],
+   "all_bases": [
+    "std::_Generic_error_category",
+    "std::error_category"
+   ]
+  },
+  "cube::CombatBehavior": {
+   "mangled": ".?AVCombatBehavior@cube@@",
+   "td": "0x005820d0",
+   "vtables": [
+    {
+     "address": "0x005587e0",
+     "col": "0x00573f9c",
+     "methods": [
+      "0x00402f40",
+      "0x004053e0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "cube::Behavior"
+   ],
+   "all_bases": [
+    "cube::Behavior"
+   ]
+  },
+  "cube::CompanionBehavior": {
+   "mangled": ".?AVCompanionBehavior@cube@@",
+   "td": "0x005820f4",
+   "vtables": [
+    {
+     "address": "0x00558850",
+     "col": "0x00573fe8",
+     "methods": [
+      "0x00405780",
+      "0x00405ef0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "cube::Behavior"
+   ],
+   "all_bases": [
+    "cube::Behavior"
+   ]
+  },
+  "cube::Creature": {
+   "mangled": ".?AVCreature@cube@@",
+   "td": "0x0058211c",
+   "vtables": [
+    {
+     "address": "0x0055887c",
+     "col": "0x00574034",
+     "methods": [
+      "0x00407aa0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::Database": {
+   "mangled": ".?AVDatabase@cube@@",
+   "td": "0x00582138",
+   "vtables": [
+    {
+     "address": "0x0055ab1c",
+     "col": "0x0057407c",
+     "methods": [
+      "0x00412ac0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::Field": {
+   "mangled": ".?AVField@cube@@",
+   "td": "0x00582154",
+   "vtables": [
+    {
+     "address": "0x0055ac40",
+     "col": "0x005740c4",
+     "methods": [
+      "0x00549170"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::LookAtPlayerBehavior": {
+   "mangled": ".?AVLookAtPlayerBehavior@cube@@",
+   "td": "0x00582170",
+   "vtables": [
+    {
+     "address": "0x0055ac70",
+     "col": "0x0057410c",
+     "methods": [
+      "0x00414730",
+      "0x004149c0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "cube::Behavior"
+   ],
+   "all_bases": [
+    "cube::Behavior"
+   ]
+  },
+  "cube::QuestTextNode": {
+   "mangled": ".?AUQuestTextNode@cube@@",
+   "td": "0x005821bc",
+   "vtables": [
+    {
+     "address": "0x0055afd0",
+     "col": "0x00574158",
+     "methods": [
+      "0x0041af00"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::QuestText": {
+   "mangled": ".?AVQuestText@cube@@",
+   "td": "0x005821e0",
+   "vtables": [
+    {
+     "address": "0x0055afd8",
+     "col": "0x005741a0",
+     "methods": [
+      "0x0041ae70"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::RandomInteractionBehavior": {
+   "mangled": ".?AVRandomInteractionBehavior@cube@@",
+   "td": "0x00582200",
+   "vtables": [
+    {
+     "address": "0x0055aff0",
+     "col": "0x005741e8",
+     "methods": [
+      "0x0041bc20",
+      "0x0041cac0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "cube::Behavior"
+   ],
+   "all_bases": [
+    "cube::Behavior"
+   ]
+  },
+  "cube::RandomWalkBehavior": {
+   "mangled": ".?AVRandomWalkBehavior@cube@@",
+   "td": "0x00582230",
+   "vtables": [
+    {
+     "address": "0x0055b010",
+     "col": "0x00574234",
+     "methods": [
+      "0x0041cbb0",
+      "0x0041ce70"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "cube::Behavior"
+   ],
+   "all_bases": [
+    "cube::Behavior"
+   ]
+  },
+  "cube::SequentialBehavior": {
+   "mangled": ".?AVSequentialBehavior@cube@@",
+   "td": "0x00582258",
+   "vtables": [
+    {
+     "address": "0x0055b028",
+     "col": "0x00574280",
+     "methods": [
+      "0x0041d080",
+      "0x0041d0f0",
+      "0x0041d050"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "cube::Behavior"
+   ],
+   "all_bases": [
+    "cube::Behavior"
+   ]
+  },
+  "cube::Connection": {
+   "mangled": ".?AUConnection@cube@@",
+   "td": "0x00582328",
+   "vtables": [
+    {
+     "address": "0x0055b058",
+     "col": "0x005742cc",
+     "methods": [
+      "0x00426750"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::Server": {
+   "mangled": ".?AVServer@cube@@",
+   "td": "0x00582348",
+   "vtables": [
+    {
+     "address": "0x0055b060",
+     "col": "0x00574314",
+     "methods": [
+      "0x00426780"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "std::_Func_base<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>": {
+   "mangled": ".?AV?$_Func_base@XU_Nil@std@@U12@U12@U12@U12@U12@U12@@std@@",
+   "td": "0x00582368",
+   "vtables": [
+    {
+     "address": "0x0055b1c0",
+     "col": "0x0057435c",
+     "methods": [
+      "0x0054a7b0",
+      "0x0054a7b0",
+      "0x0054a7b0",
+      "0x0054a7b0",
+      "0x0054a7b0",
+      "0x00549b20",
+      "0x0054a7b0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "std::_Func_impl<std::_Callable_obj<<lambda_8ac7a930af6f0ab005bd27e10d1330ab>,0>,std::allocator<std::_Func_class<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>_>,void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>": {
+   "mangled": ".?AV?$_Func_impl@U?$_Callable_obj@V<lambda_8ac7a930af6f0ab005bd27e10d1330ab>@@$0A@@std@@V?$allocator@V?$_Func_class@XU_Nil@std@@U12@U12@U12@U12@U12@U12@@std@@@2@XU_Nil@2@U42@U42@U42@U42@U42@U42@@std@@",
+   "td": "0x005823b0",
+   "vtables": [
+    {
+     "address": "0x0055b1e0",
+     "col": "0x005743a4",
+     "methods": [
+      "0x00426cf0",
+      "0x00426cf0",
+      "0x00426b60",
+      "0x00426f40",
+      "0x00426b20",
+      "0x00549b20",
+      "0x00426c70"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "std::_Func_base<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>"
+   ],
+   "all_bases": [
+    "std::_Func_base<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>"
+   ]
+  },
+  "std::_Func_impl<std::_Callable_obj<<lambda_ab9fa502c78db4b4288c2bfaac953e1a>,0>,std::allocator<std::_Func_class<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>_>,void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>": {
+   "mangled": ".?AV?$_Func_impl@U?$_Callable_obj@V<lambda_ab9fa502c78db4b4288c2bfaac953e1a>@@$0A@@std@@V?$allocator@V?$_Func_class@XU_Nil@std@@U12@U12@U12@U12@U12@U12@@std@@@2@XU_Nil@2@U42@U42@U42@U42@U42@U42@@std@@",
+   "td": "0x00582488",
+   "vtables": [
+    {
+     "address": "0x0055b200",
+     "col": "0x005743f0",
+     "methods": [
+      "0x00426ab0",
+      "0x00426ab0",
+      "0x00426b70",
+      "0x00426f50",
+      "0x00426b20",
+      "0x00549b20",
+      "0x00426c80"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "std::_Func_base<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>"
+   ],
+   "all_bases": [
+    "std::_Func_base<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>"
+   ]
+  },
+  "std::_Func_impl<std::_Callable_obj<<lambda_38361316b522edf94308fdf9d1a2954a>,0>,std::allocator<std::_Func_class<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>_>,void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>": {
+   "mangled": ".?AV?$_Func_impl@U?$_Callable_obj@V<lambda_38361316b522edf94308fdf9d1a2954a>@@$0A@@std@@V?$allocator@V?$_Func_class@XU_Nil@std@@U12@U12@U12@U12@U12@U12@@std@@@2@XU_Nil@2@U42@U42@U42@U42@U42@U42@@std@@",
+   "td": "0x00582560",
+   "vtables": [
+    {
+     "address": "0x0055b220",
+     "col": "0x0057443c",
+     "methods": [
+      "0x00426c90",
+      "0x00426c90",
+      "0x00426b50",
+      "0x00426f30",
+      "0x00426b20",
+      "0x00549b20",
+      "0x00426c80"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "std::_Func_base<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>"
+   ],
+   "all_bases": [
+    "std::_Func_base<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>"
+   ]
+  },
+  "cube::SpawnLocationBehavior": {
+   "mangled": ".?AVSpawnLocationBehavior@cube@@",
+   "td": "0x00582634",
+   "vtables": [
+    {
+     "address": "0x0055b250",
+     "col": "0x00574488",
+     "methods": [
+      "0x00428940",
+      "0x00428ec0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "cube::Behavior"
+   ],
+   "all_bases": [
+    "cube::Behavior"
+   ]
+  },
+  "std::basic_stringbuf<wchar_t,std::char_traits<wchar_t>,std::allocator<wchar_t>_>": {
+   "mangled": ".?AV?$basic_stringbuf@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@",
+   "td": "0x00582680",
+   "vtables": [
+    {
+     "address": "0x0055b274",
+     "col": "0x005744d4",
+     "methods": [
+      "0x0042cdb0",
+      "0x0054a738",
+      "0x0054a73e",
+      "0x0042e260",
+      "0x0042e470",
+      "0x0054a750",
+      "0x0042e810",
+      "0x0054a75c",
+      "0x0054a762",
+      "0x0054a768",
+      "0x0042e4e0",
+      "0x0042e6d0",
+      "0x0054a74a",
+      "0x0054a756",
+      "0x0054a744"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "std::std::_W::_WU?$char_traits::?$basic_streambuf"
+   ],
+   "all_bases": [
+    "std::std::_W::_WU?$char_traits::?$basic_streambuf"
+   ]
+  },
+  "std::basic_stringstream<wchar_t,std::char_traits<wchar_t>,std::allocator<wchar_t>_>": {
+   "mangled": ".?AV?$basic_stringstream@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@",
+   "td": "0x00582710",
+   "vtables": [
+    {
+     "address": "0x0055b2b4",
+     "col": "0x00574554",
+     "methods": [
+      "0x0042cd9b",
+      "0x0042ce81",
+      "0x0042ce8d"
+     ],
+     "col_offset": 104
+    }
+   ],
+   "bases": [
+    "std::std::_W::_WU?$char_traits::?$basic_iostream"
+   ],
+   "all_bases": [
+    "std::std::_W::_WU?$char_traits::?$basic_iostream",
+    "std::std::_W::_WU?$char_traits::?$basic_istream",
+    "std::std::_W::_WU?$char_traits::?$basic_ios",
+    "std::ios_base",
+    "std::H::?$_Iosb",
+    "std::std::_W::_WU?$char_traits::?$basic_ostream",
+    "std::std::_W::_WU?$char_traits::?$basic_ios",
+    "std::ios_base",
+    "std::H::?$_Iosb"
+   ]
+  },
+  "cube::Speech": {
+   "mangled": ".?AVSpeech@cube@@",
+   "td": "0x0058288c",
+   "vtables": [
+    {
+     "address": "0x0055b268",
+     "col": "0x005747c8",
+     "methods": [
+      "0x0042ce60"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "std::basic_filebuf<char,std::char_traits<char>_>": {
+   "mangled": ".?AV?$basic_filebuf@DU?$char_traits@D@std@@@std@@",
+   "td": "0x005828a8",
+   "vtables": [
+    {
+     "address": "0x0055b4ac",
+     "col": "0x00574810",
+     "methods": [
+      "0x0042ee80",
+      "0x0042f240",
+      "0x0042f470",
+      "0x0042fc30",
+      "0x0042fe20",
+      "0x0054a77a",
+      "0x004306f0",
+      "0x00430500",
+      "0x0054a780",
+      "0x0054a786",
+      "0x00430050",
+      "0x00430150",
+      "0x00430440",
+      "0x004304d0",
+      "0x0042f850"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "std::std::D::DU?$char_traits::?$basic_streambuf"
+   ],
+   "all_bases": [
+    "std::std::D::DU?$char_traits::?$basic_streambuf"
+   ]
+  },
+  "std::basic_ifstream<char,std::char_traits<char>_>": {
+   "mangled": ".?AV?$basic_ifstream@DU?$char_traits@D@std@@@std@@",
+   "td": "0x00582920",
+   "vtables": [
+    {
+     "address": "0x0055b4ec",
+     "col": "0x00574890",
+     "methods": [
+      "0x0042ee65",
+      "0x0042f023",
+      "0x0054a774"
+     ],
+     "col_offset": 112
+    }
+   ],
+   "bases": [
+    "std::std::D::DU?$char_traits::?$basic_istream"
+   ],
+   "all_bases": [
+    "std::std::D::DU?$char_traits::?$basic_istream",
+    "std::std::D::DU?$char_traits::?$basic_ios",
+    "std::ios_base",
+    "std::H::?$_Iosb"
+   ]
+  },
+  "std::basic_ofstream<char,std::char_traits<char>_>": {
+   "mangled": ".?AV?$basic_ofstream@DU?$char_traits@D@std@@@std@@",
+   "td": "0x005829d0",
+   "vtables": [
+    {
+     "address": "0x0055b504",
+     "col": "0x00574980",
+     "methods": [
+      "0x0042ee6d",
+      "0x0054a76e",
+      "0x0042f02f"
+     ],
+     "col_offset": 96
+    }
+   ],
+   "bases": [
+    "std::std::D::DU?$char_traits::?$basic_ostream"
+   ],
+   "all_bases": [
+    "std::std::D::DU?$char_traits::?$basic_ostream",
+    "std::std::D::DU?$char_traits::?$basic_ios",
+    "std::ios_base",
+    "std::H::?$_Iosb"
+   ]
+  },
+  "cube::Sprite": {
+   "mangled": ".?AVSprite@cube@@",
+   "td": "0x00582a48",
+   "vtables": [
+    {
+     "address": "0x0055b4a4",
+     "col": "0x00574a18",
+     "methods": [
+      "0x0042ef80"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::SpriteManager": {
+   "mangled": ".?AVSpriteManager@cube@@",
+   "td": "0x00582a64",
+   "vtables": [
+    {
+     "address": "0x0055b52c",
+     "col": "0x00574a60",
+     "methods": [
+      "0x00431170"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::WalkPathBehavior": {
+   "mangled": ".?AVWalkPathBehavior@cube@@",
+   "td": "0x005838e0",
+   "vtables": [
+    {
+     "address": "0x005716a0",
+     "col": "0x00574aa8",
+     "methods": [
+      "0x004c5e00",
+      "0x004c63e0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "cube::Behavior"
+   ],
+   "all_bases": [
+    "cube::Behavior"
+   ]
+  },
+  "std::basic_stringbuf<char,std::char_traits<char>,std::allocator<char>_>": {
+   "mangled": ".?AV?$basic_stringbuf@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@",
+   "td": "0x00583908",
+   "vtables": [
+    {
+     "address": "0x005716cc",
+     "col": "0x00574af4",
+     "methods": [
+      "0x004ce450",
+      "0x0054a78c",
+      "0x0054a792",
+      "0x004d6350",
+      "0x004d6520",
+      "0x0054a77a",
+      "0x004d9100",
+      "0x0054a7aa",
+      "0x0054a780",
+      "0x0054a786",
+      "0x004d89a0",
+      "0x004d8b70",
+      "0x0054a79e",
+      "0x0054a7a4",
+      "0x0054a798"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "std::std::D::DU?$char_traits::?$basic_streambuf"
+   ],
+   "all_bases": [
+    "std::std::D::DU?$char_traits::?$basic_streambuf"
+   ]
+  },
+  "std::basic_stringstream<char,std::char_traits<char>,std::allocator<char>_>": {
+   "mangled": ".?AV?$basic_stringstream@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@",
+   "td": "0x00583958",
+   "vtables": [
+    {
+     "address": "0x0057170c",
+     "col": "0x00574b40",
+     "methods": [
+      "0x004ce43b",
+      "0x004ce561",
+      "0x004ce56d"
+     ],
+     "col_offset": 104
+    }
+   ],
+   "bases": [
+    "std::std::D::DU?$char_traits::?$basic_iostream"
+   ],
+   "all_bases": [
+    "std::std::D::DU?$char_traits::?$basic_iostream",
+    "std::std::D::DU?$char_traits::?$basic_istream",
+    "std::std::D::DU?$char_traits::?$basic_ios",
+    "std::ios_base",
+    "std::H::?$_Iosb",
+    "std::std::D::DU?$char_traits::?$basic_ostream",
+    "std::std::D::DU?$char_traits::?$basic_ios",
+    "std::ios_base",
+    "std::H::?$_Iosb"
+   ]
+  },
+  "cube::World": {
+   "mangled": ".?AVWorld@cube@@",
+   "td": "0x005839e4",
+   "vtables": [
+    {
+     "address": "0x005716c4",
+     "col": "0x00574c1c",
+     "methods": [
+      "0x004ce540"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::Spawn": {
+   "mangled": ".?AUSpawn@cube@@",
+   "td": "0x00583a00",
+   "vtables": [
+    {
+     "address": "0x0057383c",
+     "col": "0x00574c64",
+     "methods": [
+      "0x004e11d0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::House": {
+   "mangled": ".?AVHouse@cube@@",
+   "td": "0x00583a1c",
+   "vtables": [
+    {
+     "address": "0x00573884",
+     "col": "0x00574cac",
+     "methods": [
+      "0x004e2380"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::Region": {
+   "mangled": ".?AURegion@cube@@",
+   "td": "0x00583a38",
+   "vtables": [
+    {
+     "address": "0x0057393c",
+     "col": "0x00574cf4",
+     "methods": [
+      "0x004f7b30"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::Dungeon": {
+   "mangled": ".?AVDungeon@cube@@",
+   "td": "0x00583a54",
+   "vtables": [
+    {
+     "address": "0x00573944",
+     "col": "0x00574d3c",
+     "methods": [
+      "0x004f7b00"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "cube::Zone": {
+   "mangled": ".?AVZone@cube@@",
+   "td": "0x00583a70",
+   "vtables": [
+    {
+     "address": "0x00573cf8",
+     "col": "0x00574d84",
+     "methods": [
+      "0x005491d0"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  },
+  "std::_Func_impl<std::_Callable_obj<<lambda_90aea85a8928b722e251ae835df30be1>,0>,std::allocator<std::_Func_class<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>_>,void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>": {
+   "mangled": ".?AV?$_Func_impl@U?$_Callable_obj@V<lambda_90aea85a8928b722e251ae835df30be1>@@$0A@@std@@V?$allocator@V?$_Func_class@XU_Nil@std@@U12@U12@U12@U12@U12@U12@@std@@@2@XU_Nil@2@U42@U42@U42@U42@U42@U42@@std@@",
+   "td": "0x00583af8",
+   "vtables": [
+    {
+     "address": "0x00573d44",
+     "col": "0x00574dcc",
+     "methods": [
+      "0x00549be0",
+      "0x00549be0",
+      "0x00549b90",
+      "0x00549c40",
+      "0x00426b20",
+      "0x00549b20",
+      "0x00426c70"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "std::_Func_base<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>"
+   ],
+   "all_bases": [
+    "std::_Func_base<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>"
+   ]
+  },
+  "std::_Func_impl<std::_Callable_obj<<lambda_00ca7a589ff1e281ef3a7159f4e6a134>,0>,std::allocator<std::_Func_class<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>_>,void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>": {
+   "mangled": ".?AV?$_Func_impl@U?$_Callable_obj@V<lambda_00ca7a589ff1e281ef3a7159f4e6a134>@@$0A@@std@@V?$allocator@V?$_Func_class@XU_Nil@std@@U12@U12@U12@U12@U12@U12@@std@@@2@XU_Nil@2@U42@U42@U42@U42@U42@U42@@std@@",
+   "td": "0x00583bd0",
+   "vtables": [
+    {
+     "address": "0x00573d64",
+     "col": "0x00574e18",
+     "methods": [
+      "0x00549ba0",
+      "0x00549ba0",
+      "0x00549b50",
+      "0x00549c30",
+      "0x00426b20",
+      "0x00549b20",
+      "0x00426c70"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [
+    "std::_Func_base<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>"
+   ],
+   "all_bases": [
+    "std::_Func_base<void,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil>"
+   ]
+  },
+  "type_info": {
+   "mangled": ".?AVtype_info@@",
+   "td": "0x00583cb0",
+   "vtables": [
+    {
+     "address": "0x00573d84",
+     "col": "0x00574e64",
+     "methods": [
+      "0x0054a9da"
+     ],
+     "col_offset": 0
+    }
+   ],
+   "bases": [],
+   "all_bases": []
+  }
+ }
+}

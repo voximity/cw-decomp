@@ -1,0 +1,7 @@
+# Analysis helpers for cw-decomp. Install into the project venv:
+#   uv venv --python 3.12 .venv
+#   uv pip install --python .venv/bin/python -r tools/requirements.txt
+pyghidra-mcp
+pefile
+capstone
+lief

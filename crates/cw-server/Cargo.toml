@@ -1,0 +1,19 @@
+[package]
+name = "cw-server"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Cube World Alpha dedicated server: the original Server.exe's protocol over the bit-exact world generator"
+
+[[bin]]
+name = "cw-server"
+path = "src/main.rs"
+
+[dependencies]
+cw-formats = { path = "../cw-formats" }
+cw-math = { path = "../cw-math" }
+cw-net = { path = "../cw-net" }
+cw-sim = { path = "../cw-sim" }
+cw-world = { path = "../cw-world" }
+clap = { version = "4", features = ["derive", "env"] }

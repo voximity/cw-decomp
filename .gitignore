@@ -1,0 +1,29 @@
+docs/
+.mcp.json
+.claude/
+analysis/notes/
+
+/game/
+.DS_Store
+
+# Python venv
+/.venv/
+__pycache__/
+
+# Rust
+/target/
+**/target/
+
+# Ghidra projects and Binary Ninja databases (exported annotations live in analysis/ as text)
+/analysis/project/
+*.gpr
+*.rep/
+*.lock
+*.bndb
+
+# Extra cargo target directories used by parallel builds
+/target-*/
+
+# Shader bytecode extracted from Cube.exe is game binary content; tools/extract_shaders.py
+# regenerates it (the .asm disassembly and manifest stay)
+/analysis/shaders/*.bin

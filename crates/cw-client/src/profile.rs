@@ -1,0 +1,259 @@
+//! Frame-time diagnostics behind `CW_CLIENT_STATS=1` (the port's own; the original has none).
+//!
+//! The main thread accumulates the time of each phase of a frame and the time it waited for
+//! each shared lock in thread-local counters ([`scope`], [`add`]); `app::App::frame` takes them
+//! once per frame ([`FrameLog::end_frame`]), logs every frame over [`SLOW_FRAME_MS`] with its
+//! breakdown, prints a summary every five seconds and a total at exit. Worker threads report
+//! long lock holds and long units of work with [`worker_note`].
+//!
+//! Everything is a no-op (one relaxed load of a cached flag) when the variable is not set.
+
+use std::cell::RefCell;
+use std::sync::OnceLock;
+use std::time::{Duration, Instant};
+
+/// A frame slower than this is logged with its breakdown (two 60 Hz frames).
+pub const SLOW_FRAME_MS: f64 = 33.0;
+
+/// A worker unit of work (or lock hold) longer than this is logged (`CW_CLIENT_STATS_NOTE_MS`
+/// overrides it).
+pub const WORKER_NOTE_MS: f64 = 8.0;
+
+fn note_ms() -> f64 {
+    static MS: OnceLock<f64> = OnceLock::new();
+    *MS.get_or_init(|| std::env::var("CW_CLIENT_STATS_NOTE_MS").ok().and_then(|v| v.parse().ok()).unwrap_or(WORKER_NOTE_MS))
+}
+
+/// The process's first use of the diagnostics (the time base of the log lines).
+fn epoch() -> Instant {
+    static T: OnceLock<Instant> = OnceLock::new();
+    *T.get_or_init(Instant::now)
+}
+
+/// Whether `CW_CLIENT_STATS` is set (read once).
+pub fn enabled() -> bool {
+    static ON: OnceLock<bool> = OnceLock::new();
+    *ON.get_or_init(|| std::env::var_os("CW_CLIENT_STATS").is_some())
+}
+
+/// The measured pieces of a frame. The `Wait*` entries are lock waits, which also count in the
+/// phase they happen in.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(usize)]
+pub enum Phase {
+    /// Window messages, scripted input, cursor grab, gamepad, slot 6.
+    Input,
+    /// `update` head: world loads finished, the fog distance.
+    UpdateHead,
+    /// The UI frame (`ui_frame`).
+    Ui,
+    /// The world tick in 20 ms slices (`world_tick`).
+    Tick,
+    /// The received lists (`received::apply`).
+    Net,
+    /// The gameplay after the tick, particles, the remesh marks.
+    Player,
+    /// Sounds, effects, the character save, the thread inputs (lock B).
+    Send,
+    /// `render` up to and including `gather_scene` (ring snapshot, scene state).
+    Gather,
+    /// The creature poses.
+    Poses,
+    /// The GUI tessellation (`assets::gui_frame`).
+    Gui,
+    /// `passes::build_frame` and the map side effects.
+    BuildFrame,
+    /// The sink's uploads: GUI stream, textures, glyph atlas, chunk buffers, model meshes.
+    Uploads,
+    /// Acquiring the back buffer.
+    Acquire,
+    /// Recording the frame (executor prepare, stream uploads, encode).
+    Encode,
+    /// `queue.submit`.
+    Submit,
+    /// `present`.
+    Present,
+    /// The FPS-limit sleep.
+    Sleep,
+    /// Waiting for the `World` lock (A, `ClientShared::world`).
+    WaitWorld,
+    /// Waiting for the chunk ring lock (C).
+    WaitRing,
+    /// Waiting for the world request lock (B).
+    WaitCs,
+    /// Waiting for the map tiles lock.
+    WaitTiles,
+}
+
+/// Number of [`Phase`]s.
+pub const PHASES: usize = Phase::WaitTiles as usize + 1;
+
+const NAMES: [&str; PHASES] = [
+    "input", "head", "ui", "tick", "net", "player", "send", "gather", "poses", "gui", "build", "uploads", "acquire", "encode", "submit",
+    "present", "sleep", "wWorld", "wRing", "wCs", "wTiles",
+];
+
+thread_local! {
+    static ACC: RefCell<[Duration; PHASES]> = const { RefCell::new([Duration::ZERO; PHASES]) };
+}
+
+/// Adds `d` to this thread's counter of `p`.
+pub fn add(p: Phase, d: Duration) {
+    if enabled() {
+        ACC.with(|a| a.borrow_mut()[p as usize] += d);
+    }
+}
+
+/// Times a lock acquisition (or anything) into `p` on this thread.
+pub fn wait<T>(p: Phase, f: impl FnOnce() -> T) -> T {
+    if !enabled() {
+        return f();
+    }
+    let t = Instant::now();
+    let r = f();
+    add(p, t.elapsed());
+    r
+}
+
+/// Adds the time until it is dropped to `p`.
+pub struct Scope(Phase, Option<Instant>);
+
+impl Drop for Scope {
+    fn drop(&mut self) {
+        if let Some(t) = self.1 {
+            add(self.0, t.elapsed());
+        }
+    }
+}
+
+/// A [`Scope`] for `p`.
+pub fn scope(p: Phase) -> Scope {
+    Scope(p, enabled().then(Instant::now))
+}
+
+fn take() -> [Duration; PHASES] {
+    ACC.with(|a| std::mem::replace(&mut *a.borrow_mut(), [Duration::ZERO; PHASES]))
+}
+
+/// A worker's unit of work: logged when longer than [`WORKER_NOTE_MS`].
+pub fn worker_note(what: &str, d: Duration) {
+    if enabled() {
+        let ms = d.as_secs_f64() * 1000.0;
+        if ms > note_ms() {
+            let end = epoch().elapsed().as_secs_f64();
+            eprintln!("cw-client: [{}] {what} {ms:.1} ms (ended at {end:.3} s)", std::thread::current().name().unwrap_or("?"));
+        }
+    }
+}
+
+/// Frame times of the main thread: per-frame breakdowns, summaries, the total.
+pub struct FrameLog {
+    started: Instant,
+    frames: u64,
+    /// Frame times of the current summary window, and of the whole run, in ms.
+    window: Vec<f64>,
+    all: Vec<f64>,
+    window_start: Instant,
+    /// The phase sums of the current summary window.
+    window_phases: [Duration; PHASES],
+}
+
+impl Default for FrameLog {
+    fn default() -> Self {
+        let now = Instant::now();
+        epoch();
+        FrameLog { started: now, frames: 0, window: Vec::new(), all: Vec::new(), window_start: now, window_phases: [Duration::ZERO; PHASES] }
+    }
+}
+
+fn ms(d: Duration) -> f64 {
+    d.as_secs_f64() * 1000.0
+}
+
+fn summary(v: &[f64]) -> String {
+    if v.is_empty() {
+        return "no frames".into();
+    }
+    let mut s = v.to_vec();
+    s.sort_by(f64::total_cmp);
+    let mean = s.iter().sum::<f64>() / s.len() as f64;
+    let pct = |p: f64| s[((s.len() - 1) as f64 * p) as usize];
+    let over = |t: f64| s.iter().filter(|&&x| x > t).count();
+    format!(
+        "{} frames, mean {:.1} ms, p50 {:.1}, p99 {:.1}, max {:.1}; >33 ms: {}, >50 ms: {}, >100 ms: {}",
+        s.len(),
+        mean,
+        pct(0.5),
+        pct(0.99),
+        s[s.len() - 1],
+        over(33.0),
+        over(50.0),
+        over(100.0)
+    )
+}
+
+impl FrameLog {
+    /// One frame of `total` done: the slow-frame line and the five-second summary.
+    pub fn end_frame(&mut self, total: Duration) {
+        if !enabled() {
+            return;
+        }
+        let acc = take();
+        self.frames += 1;
+        let t = ms(total);
+        self.window.push(t);
+        self.all.push(t);
+        for (w, a) in self.window_phases.iter_mut().zip(acc.iter()) {
+            *w += *a;
+        }
+        if t > SLOW_FRAME_MS {
+            let mut parts = String::new();
+            for (i, d) in acc.iter().enumerate() {
+                let v = ms(*d);
+                if v >= 0.5 {
+                    parts.push_str(&format!(" {} {:.1}", NAMES[i], v));
+                }
+            }
+            eprintln!("cw-client: slow frame {} ended at {:.3} s: {:.1} ms |{}", self.frames, epoch().elapsed().as_secs_f64(), t, parts);
+        }
+        if self.window_start.elapsed() >= Duration::from_secs(5) {
+            let n = self.window.len().max(1) as f64;
+            let mut means = String::new();
+            for (i, d) in self.window_phases.iter().enumerate() {
+                let v = ms(*d) / n;
+                if v >= 0.05 {
+                    means.push_str(&format!(" {} {:.2}", NAMES[i], v));
+                }
+            }
+            eprintln!(
+                "cw-client: frames {:.0}..{:.0} s: {} | mean per frame:{}",
+                (self.window_start - self.started).as_secs_f64(),
+                self.started.elapsed().as_secs_f64(),
+                summary(&self.window),
+                means
+            );
+            self.window.clear();
+            self.window_phases = [Duration::ZERO; PHASES];
+            self.window_start = Instant::now();
+        }
+    }
+
+    /// The whole run's summary (at exit).
+    pub fn finish(&self) {
+        if enabled() {
+            eprintln!("cw-client: run of {:.1} s: {}", self.started.elapsed().as_secs_f64(), summary(&self.all));
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn summary_counts() {
+        let s = summary(&[10.0, 40.0, 60.0, 120.0]);
+        assert!(s.contains(">33 ms: 3, >50 ms: 2, >100 ms: 1"), "{s}");
+        assert_eq!(NAMES.len(), PHASES);
+    }
+}

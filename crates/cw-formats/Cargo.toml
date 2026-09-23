@@ -1,0 +1,16 @@
+[package]
+name = "cw-formats"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "On-disk formats of Cube World Alpha: asset databases, .cub models, .plx scenes, save files"
+
+[dependencies]
+thiserror.workspace = true
+rusqlite.workspace = true
+
+[dev-dependencies]
+png = "0.17"
+sha2 = "0.10"
+hex = "0.4"

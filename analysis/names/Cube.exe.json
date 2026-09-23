@@ -1,0 +1,1650 @@
+{
+ "binary": "Cube.exe",
+ "note": "Names carried from Server.exe by tools/match_functions.py (Server.exe and Cube.exe are the same source built two minutes apart). Only matches with combined confidence >= 0.9 are here; doubtful ones are in Cube.exe.candidates.json. Evidence lists every signal that holds for the pair: strings (same referenced strings), named refs, imports (same external calls, size within 5%), vtable slot, callgraph (matched callers/callees agree), bytes (instruction similarity after masking addresses).",
+ "names": {
+  "0x004040d0": {
+   "name": "std::vector<char>::assign",
+   "evidence": "matches Server.exe 0x004129d0 (imports + callgraph 2 callers/2 callees + bytes identical; proposed by imports+size; conf 0.985)"
+  },
+  "0x0040c380": {
+   "name": "std::string_c_str",
+   "evidence": "matches Server.exe 0x00412c40 (callgraph 2 callers/0 callees + bytes identical; proposed by callee #1 of matched 0x00413070; conf 0.97)"
+  },
+  "0x0040ea90": {
+   "name": "vec3f::vec3f",
+   "evidence": "matches Server.exe 0x00401080 (callgraph 6 callers/0 callees + bytes identical; proposed by callee #1171 of matched 0x004c8570; conf 0.97)"
+  },
+  "0x00411d40": {
+   "name": "lerpRepeat",
+   "evidence": "matches Server.exe 0x0052e710 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #759 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x00411df0": {
+   "name": "copyQword",
+   "evidence": "matches Server.exe 0x004cde20 (callgraph 4 callers/0 callees + bytes identical; proposed by callee #1083 of matched 0x004c8570; conf 0.97)"
+  },
+  "0x00411e30": {
+   "name": "vec3::operator=",
+   "evidence": "matches Server.exe 0x00401060 (callgraph 7 callers/0 callees + bytes identical; proposed by callee #1172 of matched 0x004c8570; conf 0.97)"
+  },
+  "0x00412080": {
+   "name": "int64FromBlock",
+   "evidence": "matches Server.exe 0x004cde40 (callgraph 5 callers/0 callees + bytes identical; proposed by callee #46 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x004120a0": {
+   "name": "ptrIndex1",
+   "evidence": "matches Server.exe 0x004013e0 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #367 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x004120b0": {
+   "name": "int64Vec3_at",
+   "evidence": "matches Server.exe 0x004e2320 (callgraph 4 callers/0 callees + bytes identical; proposed by callee #906 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x00412220": {
+   "name": "int64SubFloat",
+   "evidence": "matches Server.exe 0x004014b0 (callgraph 2 callers/1 callees + bytes identical; proposed by callee #463 of matched 0x00518630; conf 0.97)"
+  },
+  "0x004122e0": {
+   "name": "i64AddFloat",
+   "evidence": "matches Server.exe 0x00401530 (callgraph 2 callers/1 callees + bytes identical; proposed by callee #1978 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x00412780": {
+   "name": "vec3f::operator*=(float)",
+   "evidence": "matches Server.exe 0x00401610 (callgraph 2 callers/0 callees + bytes identical; proposed by callee #538 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x00423e70": {
+   "name": "mat4Identity",
+   "evidence": "matches Server.exe 0x00401cd0 (callgraph 2 callers/0 callees + bytes identical; proposed by callee #894 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x00423f20": {
+   "name": "vec3fLength",
+   "evidence": "matches Server.exe 0x00401d80 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #867 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x00423f70": {
+   "name": "turnTowards",
+   "evidence": "matches Server.exe 0x005306d0 (callgraph 1 callers/3 callees + bytes identical; proposed by callee #1568 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x004240f0": {
+   "name": "vec3fNormalize",
+   "evidence": "matches Server.exe 0x00401fb0 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #193 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x00424610": {
+   "name": "mat4RotateZ",
+   "evidence": "matches Server.exe 0x00402030 (callgraph 1 callers/2 callees + bytes identical; proposed by callee #896 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x00424860": {
+   "name": "vec3f::lengthSq",
+   "evidence": "matches Server.exe 0x004021b0 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #150 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x004252f0": {
+   "name": "vec3f::operator*",
+   "evidence": "matches Server.exe 0x004079f0 (callgraph 2 callers/0 callees + bytes identical; proposed by callee #194 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x00427870": {
+   "name": "vec3f::normalized",
+   "evidence": "matches Server.exe 0x00412670 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #2025 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x00428970": {
+   "name": "ptrIndex4",
+   "evidence": "matches Server.exe 0x004013d0 (callgraph 5 callers/0 callees + bytes identical; proposed by callee #1173 of matched 0x004c8570; conf 0.97)"
+  },
+  "0x0042c460": {
+   "name": "vec3i64::fromFloat(vec3f)",
+   "evidence": "matches Server.exe 0x00402510 (callgraph 11 callers/1 callees + bytes identical; proposed by callee #8 of matched 0x0041bc20; conf 0.97)"
+  },
+  "0x0042c4a0": {
+   "name": "vec3f::fromFixed(vec3i64)",
+   "evidence": "matches Server.exe 0x00402550 (callgraph 6 callers/0 callees + bytes identical; proposed by callee #1 of matched 0x004cfd50; conf 0.97)"
+  },
+  "0x0042c500": {
+   "name": "vec3i::vec3i",
+   "evidence": "matches Server.exe 0x00402990 (callgraph 5 callers/0 callees + bytes identical; proposed by callee #10128 of matched 0x00431400; conf 0.97)"
+  },
+  "0x0042c520": {
+   "name": "cube::Buff::Buff",
+   "evidence": "matches Server.exe 0x004029b0 (callgraph 2 callers/0 callees + bytes identical; proposed by callee #1976 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x0042c550": {
+   "name": "cube::CombatBehavior::CombatBehavior",
+   "evidence": "matches Server.exe 0x004029e0 (named refs + callgraph 8 callers/0 callees + bytes identical; proposed by callee #39 of matched 0x00509e40; conf 0.988)"
+  },
+  "0x0042c580": {
+   "name": "fixed64FromFloat",
+   "evidence": "matches Server.exe 0x00402a10 (callgraph 2 callers/1 callees + bytes identical; proposed by callee #349 of matched 0x00500300; conf 0.97)"
+  },
+  "0x0042c5e0": {
+   "name": "cube::Item::operator=",
+   "evidence": "matches Server.exe 0x00402a70 (callgraph 16 callers/0 callees + bytes identical; proposed by callee #61 of matched 0x004cea80; conf 0.97)"
+  },
+  "0x0042c6c0": {
+   "name": "std::list::nodeValue",
+   "evidence": "matches Server.exe 0x0052eb90 (callgraph 2 callers/0 callees + bytes identical; proposed by callee #532 of matched 0x00518630; conf 0.97)"
+  },
+  "0x0042c6e0": {
+   "name": "vec3i64::mulFixed",
+   "evidence": "matches Server.exe 0x00402bd0 (callgraph 2 callers/1 callees + bytes identical; proposed by callee #1651 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x0042c7a0": {
+   "name": "vec3i64::operator-",
+   "evidence": "matches Server.exe 0x00402c50 (callgraph 5 callers/0 callees + bytes identical; proposed by callee #33 of matched 0x004cea80; conf 0.97)"
+  },
+  "0x0042c860": {
+   "name": "int64::lessThanBlocks",
+   "evidence": "matches Server.exe 0x00402d10 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #171 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x0042c900": {
+   "name": "vec3i64::mulFloat",
+   "evidence": "matches Server.exe 0x00402db0 (callgraph 2 callers/2 callees + bytes identical; proposed by callee #3 of matched 0x004ff1a0; conf 0.97)"
+  },
+  "0x0042c980": {
+   "name": "vec3i64::operator+=",
+   "evidence": "matches Server.exe 0x00402e30 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #1652 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x0042c9b0": {
+   "name": "int64::operator+=",
+   "evidence": "matches Server.exe 0x00402e60 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #612 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x0042c9d0": {
+   "name": "vec3i64::operator-=",
+   "evidence": "matches Server.exe 0x00402e80 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #2010 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x0042ca00": {
+   "name": "int64::operator-=",
+   "evidence": "matches Server.exe 0x00402eb0 (callgraph 2 callers/0 callees + bytes identical; proposed by callee #469 of matched 0x00518630; conf 0.97)"
+  },
+  "0x0042cb20": {
+   "name": "cube::CombatBehavior::update",
+   "evidence": "matches Server.exe 0x00402f40 (imports + vtable cube::CombatBehavior slot 0 + callgraph 0 callers/45 callees + bytes identical; proposed by vtable cube::CombatBehavior slot 0; conf 0.997)"
+  },
+  "0x0042ef10": {
+   "name": "cube::Creature::clearPath",
+   "evidence": "matches Server.exe 0x00405330 (callgraph 10 callers/3 callees + bytes identical; proposed by callee #5 of matched 0x0041bc20; conf 0.97)"
+  },
+  "0x0042f000": {
+   "name": "cube::World::findEntity",
+   "evidence": "matches Server.exe 0x00405420 (callgraph 3 callers/1 callees + bytes identical; proposed by callee #41 of matched 0x004cea80; conf 0.97)"
+  },
+  "0x0042f030": {
+   "name": "cube::World::creatureMapHead",
+   "evidence": "matches Server.exe 0x004d3de0 (callgraph 3 callers/0 callees + bytes identical; proposed by callee #1668 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x0042f040": {
+   "name": "vec3i64ToBlock",
+   "evidence": "matches Server.exe 0x00405450 (callgraph 13 callers/1 callees + bytes identical; proposed by callee #29 of matched 0x0041bc20; conf 0.97)"
+  },
+  "0x0042f100": {
+   "name": "floorDivFix",
+   "evidence": "matches Server.exe 0x00405510 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #375 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x0042f160": {
+   "name": "cube::EntityData::setFlag",
+   "evidence": "matches Server.exe 0x00405570 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #582 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x0042f470": {
+   "name": "copyDword",
+   "evidence": "matches Server.exe 0x00405610 (callgraph 2 callers/0 callees + bytes identical; proposed by callee #101 of matched 0x00524540; conf 0.97)"
+  },
+  "0x0042f570": {
+   "name": "fixedToInt",
+   "evidence": "matches Server.exe 0x00405640 (callgraph 3 callers/1 callees + bytes identical; proposed by callee #1681 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x0042f5a0": {
+   "name": "int64SubDouble_2",
+   "evidence": "matches Server.exe 0x004e0700 (callgraph 2 callers/1 callees + bytes identical; proposed by callee #907 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x0042f640": {
+   "name": "cube::Zone::getStaticCell",
+   "evidence": "matches Server.exe 0x0041c9e0 (callgraph 3 callers/1 callees + bytes identical; proposed by callee #552 of matched 0x00518630; conf 0.97)"
+  },
+  "0x0042f730": {
+   "name": "cube::Column::blockAt",
+   "evidence": "matches Server.exe 0x00405f20 (callgraph 19 callers/0 callees + bytes identical; proposed by callee #3 of matched 0x0050bd60; conf 0.97)"
+  },
+  "0x0042f7e0": {
+   "name": "cube::World::getBlock",
+   "evidence": "matches Server.exe 0x00405fd0 (callgraph 8 callers/2 callees + bytes identical; proposed by callee #515 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x0042f860": {
+   "name": "cube::World::getBlockFixed",
+   "evidence": "matches Server.exe 0x00406050 (callgraph 14 callers/2 callees + bytes identical; proposed by callee #47 of matched 0x00509e40; conf 0.97)"
+  },
+  "0x004347a0": {
+   "name": "cube::World::getColumn",
+   "evidence": "matches Server.exe 0x00406100 (callgraph 26 callers/1 callees + bytes identical; proposed by callee #4 of matched 0x00509e40; conf 0.97)"
+  },
+  "0x00434870": {
+   "name": "cube::Item::isEquipment",
+   "evidence": "matches Server.exe 0x00428290 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #567 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x00434a90": {
+   "name": "cube::World::getRegion",
+   "evidence": "matches Server.exe 0x00406210 (callgraph 5 callers/0 callees + bytes identical; proposed by callee #1679 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x00434c10": {
+   "name": "cube::World::blockType",
+   "evidence": "matches Server.exe 0x00406280 (callgraph 4 callers/0 callees + bytes identical; proposed by callee #186 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x00434d10": {
+   "name": "cube::World::getZone",
+   "evidence": "matches Server.exe 0x00406290 (callgraph 18 callers/1 callees + bytes identical; proposed by callee #4 of matched 0x0041bc20; conf 0.97)"
+  },
+  "0x0043ab80": {
+   "name": "cube::CompanionBehavior::CompanionBehavior",
+   "evidence": "matches Server.exe 0x004055d0 (named refs + callgraph 3 callers/0 callees + bytes identical; proposed by callee #775 of matched 0x00500300; conf 0.988)"
+  },
+  "0x0043aba0": {
+   "name": "cube::CompanionBehavior::CompanionBehavior(int64)",
+   "evidence": "matches Server.exe 0x004055f0 (named refs + callgraph 1 callers/0 callees + bytes identical; proposed by callee #72 of matched 0x00509e40; conf 0.98)"
+  },
+  "0x0043abc0": {
+   "name": "int64::subBlocks",
+   "evidence": "matches Server.exe 0x00405660 (callgraph 3 callers/0 callees + bytes identical; proposed by callee #1604 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x0043ac20": {
+   "name": "vec3i64::dot",
+   "evidence": "matches Server.exe 0x004056c0 (callgraph 2 callers/2 callees + bytes identical; proposed by callee #1 of matched 0x00405780; conf 0.97)"
+  },
+  "0x0043ace0": {
+   "name": "cube::CompanionBehavior::update",
+   "evidence": "matches Server.exe 0x00405780 (vtable cube::CompanionBehavior slot 0 + callgraph 0 callers/19 callees + bytes identical; proposed by vtable cube::CompanionBehavior slot 0; conf 0.994)"
+  },
+  "0x0043b450": {
+   "name": "cube::CompanionBehavior::clone",
+   "evidence": "matches Server.exe 0x00405ef0 (named refs + vtable cube::CompanionBehavior slot 1 + callgraph 0 callers/1 callees + bytes identical; proposed by vtable cube::CompanionBehavior slot 1; conf 0.996)"
+  },
+  "0x0043b480": {
+   "name": "blockIsSolid",
+   "evidence": "matches Server.exe 0x004061f0 (callgraph 4 callers/0 callees + bytes identical; proposed by callee #516 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x0043b610": {
+   "name": "vec3i64::vec3i64",
+   "evidence": "matches Server.exe 0x00406380 (callgraph 5 callers/0 callees + bytes identical; proposed by callee #49 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x0043b660": {
+   "name": "cube::PassivePacket::PassivePacket",
+   "evidence": "matches Server.exe 0x004063d0 (callgraph 2 callers/0 callees + bytes identical; proposed by callee #15 of matched 0x004cea80; conf 0.97)"
+  },
+  "0x0043b690": {
+   "name": "cube::Creature::Creature",
+   "evidence": "matches Server.exe 0x00406400 (named refs + callgraph 1 callers/12 callees + bytes identical; proposed by callee #314 of matched 0x005322d0; conf 0.988)"
+  },
+  "0x0043c020": {
+   "name": "cube::Inventory::Inventory",
+   "evidence": "matches Server.exe 0x00406ef0 (callgraph 8 callers/1 callees + bytes identical; proposed by callee #0 of matched 0x0052a830; conf 0.97)"
+  },
+  "0x0043c100": {
+   "name": "cube::EntityData::EntityData",
+   "evidence": "matches Server.exe 0x00407020 (callgraph 2 callers/3 callees + bytes identical; proposed by callee #0 of matched 0x00406400; conf 0.97)"
+  },
+  "0x0043c3e0": {
+   "name": "std::set::~set",
+   "evidence": "matches Server.exe 0x004f7710 (callgraph 2 callers/2 callees + bytes identical; proposed by callee #558 of matched 0x00518630; conf 0.97)"
+  },
+  "0x0043c410": {
+   "name": "cube::Creature::~Creature",
+   "evidence": "matches Server.exe 0x004072d0 (named refs + callgraph 1 callers/2 callees + bytes identical; proposed by callee #0 of matched 0x00407aa0; conf 0.988)"
+  },
+  "0x0043c820": {
+   "name": "std::map_iterator::operator==",
+   "evidence": "matches Server.exe 0x004078d0 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #702 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x0043c980": {
+   "name": "skillFactor",
+   "evidence": "matches Server.exe 0x00407c80 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #10 of matched 0x00522580; conf 0.95)"
+  },
+  "0x0043c9c0": {
+   "name": "skillSlotOfMode",
+   "evidence": "matches Server.exe 0x00407cc0 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #0 of matched 0x00409de0; conf 0.95)"
+  },
+  "0x0043ca60": {
+   "name": "levelCurve",
+   "evidence": "matches Server.exe 0x00407d60 (callgraph 3 callers/0 callees + bytes identical; proposed by callee #30 of matched 0x004cfd50; conf 0.97)"
+  },
+  "0x0043caa0": {
+   "name": "skillWindup",
+   "evidence": "matches Server.exe 0x00407db0 (callgraph 2 callers/1 callees + bytes identical; proposed by callee #691 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x0043cf20": {
+   "name": "cube::Creature::onManaShieldHit",
+   "evidence": "matches Server.exe 0x00408230 (callgraph 2 callers/2 callees + bytes identical; proposed by callee #14 of matched 0x004cea80; conf 0.97)"
+  },
+  "0x0043cff0": {
+   "name": "cube::Creature::armor",
+   "evidence": "matches Server.exe 0x00408300 (callgraph 1 callers/2 callees + bytes identical; proposed by callee #22 of matched 0x004cfd50; conf 0.97)"
+  },
+  "0x0043d1a0": {
+   "name": "skillTotalTime",
+   "evidence": "matches Server.exe 0x004084b0 (callgraph 5 callers/1 callees + bytes identical; proposed by callee #648 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x0043dc60": {
+   "name": "cube::Creature::baseDamage",
+   "evidence": "matches Server.exe 0x00408f70 (callgraph 1 callers/4 callees + bytes identical; proposed by callee #439 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x0043df60": {
+   "name": "cube::Creature::strikingWeapons",
+   "evidence": "matches Server.exe 0x00409270 (callgraph 3 callers/4 callees + bytes identical; proposed by callee #25 of matched 0x004cfd50; conf 0.97)"
+  },
+  "0x0043e190": {
+   "name": "cube::Creature::guardStrength",
+   "evidence": "matches Server.exe 0x004094a0 (callgraph 1 callers/2 callees + bytes identical; proposed by callee #8 of matched 0x004cfd50; conf 0.97)"
+  },
+  "0x0043e2c0": {
+   "name": "rideFactor",
+   "evidence": "matches Server.exe 0x004095d0 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #800 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x0043e310": {
+   "name": "cube::Creature::isDamageable",
+   "evidence": "matches Server.exe 0x00409620 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #17 of matched 0x004cea80; conf 0.95)"
+  },
+  "0x0043e550": {
+   "name": "cube::Creature::canPickUp",
+   "evidence": "matches Server.exe 0x00409660 (bytes identical; proposed by bytes exact; conf 0.9)"
+  },
+  "0x0043e5a0": {
+   "name": "cube::Creature::canStartMode",
+   "evidence": "matches Server.exe 0x004096b0 (callgraph 1 callers/2 callees + bytes identical; proposed by callee #78 of matched 0x00402f40; conf 0.97)"
+  },
+  "0x0043e660": {
+   "name": "climbFactor",
+   "evidence": "matches Server.exe 0x00409740 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #812 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x0043e6a0": {
+   "name": "skillCooldown",
+   "evidence": "matches Server.exe 0x00409780 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #657 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x0043ea40": {
+   "name": "cube::Creature::blockChance",
+   "evidence": "matches Server.exe 0x00409ac0 (callgraph 1 callers/2 callees + bytes identical; proposed by callee #0 of matched 0x0040f520; conf 0.97)"
+  },
+  "0x0043ed60": {
+   "name": "skillLevelFactor",
+   "evidence": "matches Server.exe 0x00409de0 (callgraph 3 callers/1 callees + bytes identical; proposed by callee #813 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x0043f770": {
+   "name": "glideFactor",
+   "evidence": "matches Server.exe 0x0040a7f0 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #810 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x0043f7c0": {
+   "name": "cube::Creature::initAppearance",
+   "evidence": "matches Server.exe 0x0040a840 (imports + callgraph 5 callers/3 callees + bytes 1.00; proposed by imports+size; conf 0.955)"
+  },
+  "0x00443f10": {
+   "name": "cube::Creature::findBuff",
+   "evidence": "matches Server.exe 0x0040ef90 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #869 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x00443f40": {
+   "name": "creatureGroupSizeRange",
+   "evidence": "matches Server.exe 0x0040efc0 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #216 of matched 0x00518630; conf 0.95)"
+  },
+  "0x00444020": {
+   "name": "creatureLevelRange",
+   "evidence": "matches Server.exe 0x0040f0a0 (callgraph 2 callers/0 callees + bytes identical; proposed by callee #1384 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x004441a0": {
+   "name": "cube::Creature::chanceRoll",
+   "evidence": "matches Server.exe 0x0040f220 (imports + callgraph 1 callers/0 callees + bytes identical; proposed by callee #1975 of matched 0x005322d0; conf 0.975)"
+  },
+  "0x00444230": {
+   "name": "cube::Creature::hasTwoHandedWeapon",
+   "evidence": "matches Server.exe 0x0040f2b0 (callgraph 2 callers/0 callees + bytes identical; proposed by callee #41 of matched 0x004cfd50; conf 0.97)"
+  },
+  "0x00444270": {
+   "name": "skillRecovery",
+   "evidence": "matches Server.exe 0x0040f2f0 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #16 of matched 0x00402f40; conf 0.97)"
+  },
+  "0x004444a0": {
+   "name": "cube::Creature::rollCritical",
+   "evidence": "matches Server.exe 0x0040f520 (imports + callgraph 1 callers/1 callees + bytes identical; proposed by callee #1974 of matched 0x005322d0; conf 0.985)"
+  },
+  "0x00444520": {
+   "name": "cube::Creature::isRanged",
+   "evidence": "matches Server.exe 0x0040f5a0 (callgraph 2 callers/0 callees + bytes identical; proposed by callee #5 of matched 0x004cea80; conf 0.97)"
+  },
+  "0x00444590": {
+   "name": "cube::Creature::isBlocking",
+   "evidence": "matches Server.exe 0x0040f610 (callgraph 2 callers/0 callees + bytes identical; proposed by callee #7 of matched 0x004cfd50; conf 0.97)"
+  },
+  "0x004445d0": {
+   "name": "isEliteType",
+   "evidence": "matches Server.exe 0x0040f650 (callgraph 4 callers/0 callees + bytes identical; proposed by callee #49 of matched 0x004cfd50; conf 0.97)"
+  },
+  "0x00444610": {
+   "name": "cube::Creature::usesMana",
+   "evidence": "matches Server.exe 0x0040f690 (callgraph 2 callers/0 callees + bytes identical; proposed by callee #713 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x00444650": {
+   "name": "cube::Creature::isSwimmingDown",
+   "evidence": "matches Server.exe 0x0040f6e0 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #793 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x00444680": {
+   "name": "isFriendlyType",
+   "evidence": "matches Server.exe 0x0040f710 (callgraph 3 callers/0 callees + bytes identical; proposed by callee #13 of matched 0x00402f40; conf 0.97)"
+  },
+  "0x00444820": {
+   "name": "cube::Item::isTwoHanded",
+   "evidence": "matches Server.exe 0x0040f8b0 (callgraph 2 callers/0 callees + bytes identical; proposed by callee #8 of matched 0x004cea80; conf 0.97)"
+  },
+  "0x00444860": {
+   "name": "knockbackStrength",
+   "evidence": "matches Server.exe 0x0040f8f0 (callgraph 0 callers/1 callees + bytes identical; proposed by neighbourhood bytes 1.000; conf 0.95)"
+  },
+  "0x00444ae0": {
+   "name": "skillMpCost",
+   "evidence": "matches Server.exe 0x0040fb20 (callgraph 2 callers/1 callees + bytes identical; proposed by callee #13 of matched 0x00410690; conf 0.97)"
+  },
+  "0x00444bf0": {
+   "name": "cube::Creature::topThreat",
+   "evidence": "matches Server.exe 0x0040fc30 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #2 of matched 0x00402f40; conf 0.95)"
+  },
+  "0x00444cb0": {
+   "name": "cube::Creature::maxBlock",
+   "evidence": "matches Server.exe 0x0040fcf0 (callgraph 3 callers/0 callees + bytes identical; proposed by callee #15 of matched 0x004cfd50; conf 0.97)"
+  },
+  "0x00444db0": {
+   "name": "cube::Creature::maxHp",
+   "evidence": "matches Server.exe 0x0040fda0 (callgraph 5 callers/2 callees + bytes identical; proposed by callee #19 of matched 0x004cea80; conf 0.97)"
+  },
+  "0x00444ff0": {
+   "name": "cube::Creature::stunDuration",
+   "evidence": "matches Server.exe 0x0040ffe0 (callgraph 2 callers/0 callees + bytes identical; proposed by callee #54 of matched 0x004cfd50; conf 0.97)"
+  },
+  "0x00445020": {
+   "name": "cube::Creature::weaponBasicAttack",
+   "evidence": "matches Server.exe 0x00410010 (callgraph 1 callers/2 callees + bytes identical; proposed by callee set matched; conf 0.97)"
+  },
+  "0x004452a0": {
+   "name": "cube::Creature::weaponSpecialAttack",
+   "evidence": "matches Server.exe 0x00410290 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #12 of matched 0x00410690; conf 0.95)"
+  },
+  "0x004453b0": {
+   "name": "cube::Creature::walkCooldowns",
+   "evidence": "matches Server.exe 0x004103a0 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #2032 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x00445410": {
+   "name": "cube::Creature::startBasicAttack",
+   "evidence": "matches Server.exe 0x00410400 (callgraph 1 callers/3 callees + bytes identical; proposed by callee #53 of matched 0x00402f40; conf 0.97)"
+  },
+  "0x004456a0": {
+   "name": "cube::Creature::startSpecialAttack",
+   "evidence": "matches Server.exe 0x00410690 (callgraph 1 callers/4 callees + bytes identical; proposed by callee #52 of matched 0x00402f40; conf 0.97)"
+  },
+  "0x00445f60": {
+   "name": "itemPower",
+   "evidence": "matches Server.exe 0x00410f00 (callgraph 6 callers/1 callees + bytes identical; proposed by callee #31 of matched 0x004d2ae0; conf 0.97)"
+  },
+  "0x00445ff0": {
+   "name": "itemStat",
+   "evidence": "matches Server.exe 0x00410f90 (callgraph 3 callers/1 callees + bytes identical; proposed by callee #0 of matched 0x00414200; conf 0.97)"
+  },
+  "0x004460a0": {
+   "name": "std::list<PassivePacket>::push_back",
+   "evidence": "matches Server.exe 0x00411040 (strings + imports + callgraph 3 callers/1 callees + bytes identical; proposed by callee #16 of matched 0x004cea80; conf 0.994)"
+  },
+  "0x004462f0": {
+   "name": "levelCurveInv",
+   "evidence": "matches Server.exe 0x00411090 (callgraph 4 callers/0 callees + bytes identical; proposed by callee #30 of matched 0x0050e080; conf 0.97)"
+  },
+  "0x00446330": {
+   "name": "cube::Creature::init",
+   "evidence": "matches Server.exe 0x004110d0 (callgraph 1 callers/5 callees + bytes identical; proposed by callee #300 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x004465c0": {
+   "name": "cube::EntityData::reset",
+   "evidence": "matches Server.exe 0x00411360 (callgraph 1 callers/4 callees + bytes identical; proposed by callee set matched; conf 0.97)"
+  },
+  "0x004467a0": {
+   "name": "cube::Creature::resistance",
+   "evidence": "matches Server.exe 0x00411540 (callgraph 1 callers/2 callees + bytes identical; proposed by callee #21 of matched 0x004cfd50; conf 0.97)"
+  },
+  "0x00446af0": {
+   "name": "cube::Creature::addBuff",
+   "evidence": "matches Server.exe 0x00411740 (strings + imports + callgraph 3 callers/1 callees + bytes identical; proposed by callee #82 of matched 0x005322d0; conf 0.994)"
+  },
+  "0x00446bb0": {
+   "name": "cube::Creature::shootOrigin",
+   "evidence": "matches Server.exe 0x00411800 (callgraph 1 callers/5 callees + bytes identical; proposed by callee #38 of matched 0x00402f40; conf 0.97)"
+  },
+  "0x00446e80": {
+   "name": "cube::Creature::magicPower",
+   "evidence": "matches Server.exe 0x00411ad0 (callgraph 0 callers/4 callees + bytes identical; proposed by callee set matched; conf 0.97)"
+  },
+  "0x00447310": {
+   "name": "skillDuration",
+   "evidence": "matches Server.exe 0x00411d60 (callgraph 2 callers/1 callees + bytes identical; proposed by callee #694 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x004476a0": {
+   "name": "swimFactor",
+   "evidence": "matches Server.exe 0x004120f0 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #801 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x00447700": {
+   "name": "cube::Creature::attackSpeed",
+   "evidence": "matches Server.exe 0x00412150 (callgraph 8 callers/2 callees + bytes identical; proposed by callee #650 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x004478b0": {
+   "name": "gearAttackSpeed",
+   "evidence": "matches Server.exe 0x00412300 (callgraph 1 callers/2 callees + bytes identical; proposed by callee #4 of matched 0x00412150; conf 0.97)"
+  },
+  "0x00447b00": {
+   "name": "cube::Creature::levelUp",
+   "evidence": "matches Server.exe 0x00412550 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #6 of matched 0x004d61c0; conf 0.97)"
+  },
+  "0x00449150": {
+   "name": "std::ostream_write_cstr",
+   "evidence": "matches Server.exe 0x00412710 (imports + callgraph 6 callers/1 callees + bytes identical; proposed by callee #16 of matched 0x00413240; conf 0.985)"
+  },
+  "0x00449420": {
+   "name": "ByteBuffer::compress",
+   "evidence": "matches Server.exe 0x00412c70 (callgraph 0 callers/3 callees + bytes identical; proposed by callee set matched; conf 0.97)"
+  },
+  "0x004494b0": {
+   "name": "ByteBuffer::decompress",
+   "evidence": "matches Server.exe 0x00412d90 (callgraph 0 callers/3 callees + bytes identical; proposed by callee set matched; conf 0.97)"
+  },
+  "0x00449540": {
+   "name": "zlibInflateVec",
+   "evidence": "matches Server.exe 0x00412e20 (strings + callgraph 1 callers/7 callees + bytes identical; proposed by strings; conf 0.988)"
+  },
+  "0x004496a0": {
+   "name": "decodeBlob",
+   "evidence": "matches Server.exe 0x00412f80 (callgraph 2 callers/0 callees + bytes identical; proposed by callee #1 of matched 0x0042f9a0; conf 0.97)"
+  },
+  "0x004497a0": {
+   "name": "cube::Database::isOpen",
+   "evidence": "matches Server.exe 0x00413000 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #6 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x004497b0": {
+   "name": "cube::Database::open",
+   "evidence": "matches Server.exe 0x00413010 (strings + callgraph 3 callers/3 callees + bytes identical; proposed by strings; conf 0.988)"
+  },
+  "0x00449810": {
+   "name": "cube::Database::getBlob",
+   "evidence": "matches Server.exe 0x00413070 (strings + callgraph 1 callers/9 callees + bytes identical; proposed by strings; conf 0.988)"
+  },
+  "0x004498d0": {
+   "name": "cube::Database::getBlobVec",
+   "evidence": "matches Server.exe 0x00413130 (callgraph 5 callers/3 callees + bytes identical; proposed by callee #11 of matched 0x004d83a0; conf 0.97)"
+  },
+  "0x004499c0": {
+   "name": "cube::Database::putBlobVec",
+   "evidence": "matches Server.exe 0x00413210 (callgraph 3 callers/1 callees + bytes identical; proposed by callee #5 of matched 0x004d7c50; conf 0.97)"
+  },
+  "0x004499f0": {
+   "name": "cube::Database::putBlob",
+   "evidence": "matches Server.exe 0x00413240 (strings + imports + callgraph 1 callers/7 callees + bytes identical; proposed by strings; conf 0.997)"
+  },
+  "0x00449ce0": {
+   "name": "groundItemsEqual",
+   "evidence": "matches Server.exe 0x0041d270 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #3 of matched 0x0041ee20; conf 0.97)"
+  },
+  "0x0044a7c0": {
+   "name": "cube::BlockAction::BlockAction",
+   "evidence": "matches Server.exe 0x0041d7e0 (callgraph 2 callers/0 callees + bytes identical; proposed by callee #98 of matched 0x00524540; conf 0.97)"
+  },
+  "0x0044a8a0": {
+   "name": "BlobWriter::BlobWriter",
+   "evidence": "matches Server.exe 0x0041d800 (callgraph 4 callers/0 callees + bytes identical; proposed by callee #2 of matched 0x004d7c50; conf 0.97)"
+  },
+  "0x0044a970": {
+   "name": "cube::GroundItem::GroundItem",
+   "evidence": "matches Server.exe 0x0041d8d0 (callgraph 4 callers/1 callees + bytes identical; proposed by callee #216 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x0044af00": {
+   "name": "cube::Equipment::operator=",
+   "evidence": "matches Server.exe 0x0041de30 (callgraph 2 callers/1 callees + bytes identical; proposed by callee #580 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x0044b040": {
+   "name": "cube::EntityData::operator=",
+   "evidence": "matches Server.exe 0x0041df70 (callgraph 0 callers/3 callees + bytes identical; proposed by callee set matched; conf 0.97)"
+  },
+  "0x0044cb50": {
+   "name": "MissionState::deserialize",
+   "evidence": "matches Server.exe 0x0041ebc0 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #82 of matched 0x0050e080; conf 0.95)"
+  },
+  "0x0044cce0": {
+   "name": "MonsterState::deserialize",
+   "evidence": "matches Server.exe 0x0041ed50 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #91 of matched 0x0050e080; conf 0.95)"
+  },
+  "0x0044cdb0": {
+   "name": "cube::Zone::deserialize",
+   "evidence": "matches Server.exe 0x0041ee20 (strings + imports + callgraph 1 callers/12 callees + bytes identical; proposed by callee #525 of matched 0x00518630; conf 0.994)"
+  },
+  "0x0044d4b0": {
+   "name": "cube::Zone::pushModifiedBlock",
+   "evidence": "matches Server.exe 0x0041f4d0 (callgraph 2 callers/1 callees + bytes identical; proposed by callee #1920 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x0044d620": {
+   "name": "ByteBuffer::read",
+   "evidence": "matches Server.exe 0x00415c90 (callgraph 0 callers/1 callees + bytes identical; proposed by bytes exact; conf 0.95)"
+  },
+  "0x0044e120": {
+   "name": "MissionState::serialize",
+   "evidence": "matches Server.exe 0x0041f880 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #3 of matched 0x004d7c50; conf 0.97)"
+  },
+  "0x0044e280": {
+   "name": "MonsterState::serialize",
+   "evidence": "matches Server.exe 0x0041f9e0 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #10 of matched 0x004d7c50; conf 0.97)"
+  },
+  "0x0044e340": {
+   "name": "cube::Zone::serialize",
+   "evidence": "matches Server.exe 0x0041faa0 (callgraph 1 callers/2 callees + bytes identical; proposed by callee #3 of matched 0x004d81b0; conf 0.97)"
+  },
+  "0x0044e700": {
+   "name": "cube::Column::setBlockRaw",
+   "evidence": "matches Server.exe 0x0041fe60 (callgraph 3 callers/1 callees + bytes identical; proposed by callee #200 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x0044e7a0": {
+   "name": "cube::World::setBlock",
+   "evidence": "matches Server.exe 0x0041ff00 (callgraph 14 callers/4 callees + bytes identical; proposed by callee #542 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x0044e8d0": {
+   "name": "ByteBuffer::write",
+   "evidence": "matches Server.exe 0x004168f0 (callgraph 0 callers/2 callees + bytes identical; proposed by bytes exact; conf 0.97)"
+  },
+  "0x00450c30": {
+   "name": "cube::Field::~Field",
+   "evidence": "matches Server.exe 0x00413400 (named refs + callgraph 1 callers/1 callees + bytes identical; proposed by strings+named refs; conf 0.988)"
+  },
+  "0x00450c50": {
+   "name": "cube::Column::resize",
+   "evidence": "matches Server.exe 0x00413420 (callgraph 2 callers/2 callees + bytes identical; proposed by callee #23 of matched 0x00518630; conf 0.97)"
+  },
+  "0x00450e70": {
+   "name": "startThread",
+   "evidence": "matches Server.exe 0x00413640 (imports + callgraph 0 callers/1 callees + bytes identical; proposed by imports+size; conf 0.975)"
+  },
+  "0x00450f00": {
+   "name": "vec3f::fromRgbBytes",
+   "evidence": "matches Server.exe 0x004c6470 (callgraph 2 callers/0 callees + bytes identical; proposed by callee #531 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x00450f60": {
+   "name": "vec3i::fromFixed",
+   "evidence": "matches Server.exe 0x004c64f0 (callgraph 0 callers/1 callees + bytes identical; proposed by bytes exact; conf 0.95)"
+  },
+  "0x00451510": {
+   "name": "vec3fScale",
+   "evidence": "matches Server.exe 0x004e1520 (callgraph 2 callers/0 callees + bytes identical; proposed by callee #189 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x00451cc0": {
+   "name": "std::list<Pickup>::insert",
+   "evidence": "matches Server.exe 0x00420380 (callgraph 3 callers/2 callees + bytes identical; proposed by callee #57 of matched 0x004cea80; conf 0.97)"
+  },
+  "0x00451d00": {
+   "name": "std::list<Kill>::insert",
+   "evidence": "matches Server.exe 0x004203c0 (callgraph 6 callers/1 callees + bytes identical; proposed by callee #46 of matched 0x004cfd50; conf 0.97)"
+  },
+  "0x00458de0": {
+   "name": "vec3i64::xy",
+   "evidence": "matches Server.exe 0x0041cba0 (callgraph 2 callers/0 callees + bytes identical; proposed by fptr #0 of matched 0x00500300; conf 0.97)"
+  },
+  "0x00459250": {
+   "name": "std::list_copy",
+   "evidence": "matches Server.exe 0x00422740 (callgraph 1 callers/2 callees + bytes identical; proposed by callee set matched; conf 0.97)"
+  },
+  "0x00459530": {
+   "name": "cube::Interact::Interact",
+   "evidence": "matches Server.exe 0x0041b9e0 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #32 of matched 0x0041bc20; conf 0.97)"
+  },
+  "0x00459660": {
+   "name": "cube::Shoot::Shoot",
+   "evidence": "matches Server.exe 0x00422890 (bytes identical; proposed by bytes exact; conf 0.9)"
+  },
+  "0x00459800": {
+   "name": "cube::Appearance::operator=",
+   "evidence": "matches Server.exe 0x00407730 (callgraph 4 callers/0 callees + bytes identical; proposed by callee #302 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x00459a30": {
+   "name": "cube::Hit::Hit",
+   "evidence": "matches Server.exe 0x00422a90 (callgraph 2 callers/0 callees + bytes identical; proposed by callee #3 of matched 0x004cfd50; conf 0.97)"
+  },
+  "0x00465ed0": {
+   "name": "cube::Particle::Particle",
+   "evidence": "matches Server.exe 0x004c8510 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #347 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x00465fb0": {
+   "name": "cube::Sound::Sound",
+   "evidence": "matches Server.exe 0x004c8530 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #129 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x00466050": {
+   "name": "cube::EntityData::EntityData(copy)",
+   "evidence": "matches Server.exe 0x00422f90 (callgraph 2 callers/3 callees + bytes identical; proposed by bytes exact; conf 0.97)"
+  },
+  "0x00466880": {
+   "name": "UpdateLists::UpdateLists",
+   "evidence": "matches Server.exe 0x00423510 (callgraph 0 callers/9 callees + bytes identical; proposed by callee set matched; conf 0.97)"
+  },
+  "0x00467c70": {
+   "name": "UpdateLists::~UpdateLists",
+   "evidence": "matches Server.exe 0x004239f0 (callgraph 0 callers/1 callees + bytes identical; proposed by neighbourhood bytes 1.000; conf 0.95)"
+  },
+  "0x00468870": {
+   "name": "vec3i::operator==",
+   "evidence": "matches Server.exe 0x004137c0 (bytes identical; proposed by bytes exact; conf 0.9)"
+  },
+  "0x004688d0": {
+   "name": "std::map_iterator::operator!=",
+   "evidence": "matches Server.exe 0x0042c6f0 (callgraph 4 callers/0 callees + bytes identical; proposed by callee #1064 of matched 0x004c8570; conf 0.97)"
+  },
+  "0x00468ad0": {
+   "name": "std::map<int64,Creature*>::operator[]",
+   "evidence": "matches Server.exe 0x00402b10 (callgraph 4 callers/2 callees + bytes identical; proposed by callee #4 of matched 0x004cea80; conf 0.97)"
+  },
+  "0x00468b70": {
+   "name": "std::map<int64,EntityData>::operator[]",
+   "evidence": "matches Server.exe 0x00423ce0 (callgraph 0 callers/6 callees + bytes identical; proposed by bytes exact; conf 0.97)"
+  },
+  "0x00468c60": {
+   "name": "std::vector<Connection*>::at",
+   "evidence": "matches Server.exe 0x00402bb0 (callgraph 5 callers/0 callees + bytes identical; proposed by callee #338 of matched 0x00431400; conf 0.97)"
+  },
+  "0x00468c90": {
+   "name": "cube::Creature::entity",
+   "evidence": "matches Server.exe 0x00402bc0 (callgraph 3 callers/0 callees + bytes identical; proposed by callee #1065 of matched 0x004c8570; conf 0.97)"
+  },
+  "0x00468d30": {
+   "name": "std::list::popFront",
+   "evidence": "matches Server.exe 0x0052ebf0 (callgraph 2 callers/0 callees + bytes identical; proposed by callee #540 of matched 0x00518630; conf 0.97)"
+  },
+  "0x00468d70": {
+   "name": "std::map_iterator::postIncrement",
+   "evidence": "matches Server.exe 0x00407a30 (callgraph 3 callers/1 callees + bytes identical; proposed by callee #1067 of matched 0x004c8570; conf 0.97)"
+  },
+  "0x00468e20": {
+   "name": "vec3f::operator-",
+   "evidence": "matches Server.exe 0x0052ec30 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #1563 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x00468fc0": {
+   "name": "int64SubDouble",
+   "evidence": "matches Server.exe 0x004ce290 (callgraph 3 callers/1 callees + bytes identical; proposed by callee #207 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x00469020": {
+   "name": "vec3f::operator/",
+   "evidence": "matches Server.exe 0x004f7a70 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #1932 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x0046ebe0": {
+   "name": "cube::Inventory::addItem",
+   "evidence": "matches Server.exe 0x00427000 (callgraph 9 callers/9 callees + bytes identical; proposed by callee #54 of matched 0x00509e40; conf 0.97)"
+  },
+  "0x0046f440": {
+   "name": "std::map_iterator::deref",
+   "evidence": "matches Server.exe 0x00428070 (callgraph 3 callers/0 callees + bytes identical; proposed by callee #1062 of matched 0x004c8570; conf 0.97)"
+  },
+  "0x004718b0": {
+   "name": "cube::World::groundLightAt",
+   "evidence": "matches Server.exe 0x004d24a0 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #539 of matched 0x00518630; conf 0.97)"
+  },
+  "0x00471910": {
+   "name": "cube::World::timeOfDay",
+   "evidence": "matches Server.exe 0x0041cae0 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #228 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x00471920": {
+   "name": "cube::World::clearBlock",
+   "evidence": "matches Server.exe 0x00530470 (callgraph 1 callers/2 callees + bytes identical; proposed by callee #378 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x00477230": {
+   "name": "std::list::empty",
+   "evidence": "matches Server.exe 0x00530540 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #27 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x00477240": {
+   "name": "std::vector<T*>::empty",
+   "evidence": "matches Server.exe 0x004e28d0 (callgraph 3 callers/0 callees + bytes identical; proposed by callee #476 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x00477c60": {
+   "name": "cube::World::eraseProjectiles",
+   "evidence": "matches Server.exe 0x005305b0 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #685 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x00477d90": {
+   "name": "std::map<int64,T>::find",
+   "evidence": "matches Server.exe 0x00530600 (callgraph 10 callers/0 callees + bytes identical; proposed by callee #1 of matched 0x00509e40; conf 0.97)"
+  },
+  "0x00477e10": {
+   "name": "cube::World::nearestClimatePoint",
+   "evidence": "matches Server.exe 0x0042e090 (callgraph 4 callers/3 callees + bytes identical; proposed by callee #5 of matched 0x00509e40; conf 0.97)"
+  },
+  "0x0047f000": {
+   "name": "std::set<int64>::insert",
+   "evidence": "matches Server.exe 0x00530690 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #440 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x004860b0": {
+   "name": "std::list::push_back",
+   "evidence": "matches Server.exe 0x004d6620 (strings + imports + callgraph 7 callers/1 callees + bytes identical; proposed by callee #1423 of matched 0x004e28e0; conf 0.994)"
+  },
+  "0x00486100": {
+   "name": "std::list<InteractPacket>::push_back",
+   "evidence": "matches Server.exe 0x0041caf0 (strings + imports + callgraph 0 callers/1 callees + bytes identical; proposed by bytes exact; conf 0.99)"
+  },
+  "0x004861a0": {
+   "name": "std::list<ShootPacket>::push_back",
+   "evidence": "matches Server.exe 0x00428360 (strings + imports + callgraph 0 callers/1 callees + bytes identical; proposed by bytes exact; conf 0.99)"
+  },
+  "0x004861f0": {
+   "name": "std::list<ChatEntry>::push_back",
+   "evidence": "matches Server.exe 0x004283b0 (strings + imports + callgraph 0 callers/1 callees + bytes identical; proposed by bytes exact; conf 0.99)"
+  },
+  "0x00486240": {
+   "name": "std::list<BlockAction>::push_back",
+   "evidence": "matches Server.exe 0x00528400 (strings + imports + callgraph 2 callers/1 callees + bytes identical; proposed by callee #51 of matched 0x00524540; conf 0.994)"
+  },
+  "0x00486290": {
+   "name": "std::list<HitPacket>::push_back",
+   "evidence": "matches Server.exe 0x00428400 (strings + imports + callgraph 3 callers/1 callees + bytes identical; proposed by callee #5 of matched 0x004cfd50; conf 0.994)"
+  },
+  "0x004862e0": {
+   "name": "cube::Zone::addProp",
+   "evidence": "matches Server.exe 0x00528450 (strings + imports + callgraph 4 callers/1 callees + bytes identical; proposed by callee #239 of matched 0x004e28e0; conf 0.994)"
+  },
+  "0x004864c0": {
+   "name": "std::list<SoundPacket>::push_back",
+   "evidence": "matches Server.exe 0x00428590 (strings + imports + callgraph 4 callers/1 callees + bytes identical; proposed by callee #2 of matched 0x004cfd50; conf 0.994)"
+  },
+  "0x00486560": {
+   "name": "std::list<IVec2>::push_back",
+   "evidence": "matches Server.exe 0x004285e0 (strings + imports + callgraph 0 callers/1 callees + bytes identical; proposed by bytes exact; conf 0.99)"
+  },
+  "0x00486b60": {
+   "name": "recvAll",
+   "evidence": "matches Server.exe 0x004286b0 (callgraph 0 callers/1 callees + bytes identical; proposed by bytes exact; conf 0.95)"
+  },
+  "0x00487da0": {
+   "name": "cube::World::getCell",
+   "evidence": "matches Server.exe 0x004286f0 (callgraph 10 callers/1 callees + bytes identical; proposed by callee #39 of matched 0x004cea80; conf 0.97)"
+  },
+  "0x00487f50": {
+   "name": "std::vector<T*>::size",
+   "evidence": "matches Server.exe 0x0041fff0 (callgraph 4 callers/0 callees + bytes identical; proposed by callee #1382 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x00487f80": {
+   "name": "vec2i64::lengthSqFixed",
+   "evidence": "matches Server.exe 0x0041ce90 (callgraph 1 callers/2 callees + bytes identical; proposed by callee #424 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x00488e50": {
+   "name": "mat4MulVec3",
+   "evidence": "matches Server.exe 0x004dde00 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #898 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x004c0ef0": {
+   "name": "valueNoise2D",
+   "evidence": "matches Server.exe 0x004d5d30 (callgraph 32 callers/1 callees + bytes identical; proposed by callee #533 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x004c14f0": {
+   "name": "acosf",
+   "evidence": "matches Server.exe 0x00548b00 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #1567 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x004c6a90": {
+   "name": "cube::Item::armor",
+   "evidence": "matches Server.exe 0x004139b0 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #3 of matched 0x00408300; conf 0.97)"
+  },
+  "0x004c6b80": {
+   "name": "consumableDuration",
+   "evidence": "matches Server.exe 0x00413aa0 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #720 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x004c6ba0": {
+   "name": "cube::Item::critChance",
+   "evidence": "matches Server.exe 0x00413ac0 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #3 of matched 0x00409ac0; conf 0.97)"
+  },
+  "0x004c6e10": {
+   "name": "cube::Item::healAmount",
+   "evidence": "matches Server.exe 0x00413be0 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #722 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x004c70b0": {
+   "name": "itemHpBonus",
+   "evidence": "matches Server.exe 0x00413ce0 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #3 of matched 0x0040fda0; conf 0.97)"
+  },
+  "0x004c7250": {
+   "name": "spiritColor",
+   "evidence": "matches Server.exe 0x00413df0 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #0 of matched 0x004d2190; conf 0.95)"
+  },
+  "0x004c7af0": {
+   "name": "cube::Item::resistance",
+   "evidence": "matches Server.exe 0x00414260 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #3 of matched 0x00411540; conf 0.97)"
+  },
+  "0x004c7c00": {
+   "name": "itemAttackSpeed",
+   "evidence": "matches Server.exe 0x00414350 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #3 of matched 0x00412300; conf 0.97)"
+  },
+  "0x004c7e80": {
+   "name": "cube::Item::adjustLevel",
+   "evidence": "matches Server.exe 0x00414470 (callgraph 3 callers/1 callees + bytes identical; proposed by callee #14 of matched 0x004d2ae0; conf 0.97)"
+  },
+  "0x004c7f60": {
+   "name": "cube::Item::weaponStrength",
+   "evidence": "matches Server.exe 0x00414550 (callgraph 3 callers/1 callees + bytes identical; proposed by callee #2 of matched 0x004094a0; conf 0.97)"
+  },
+  "0x004c8140": {
+   "name": "cube::LookAtPlayerBehavior::update",
+   "evidence": "matches Server.exe 0x00414730 (vtable cube::LookAtPlayerBehavior slot 0 + callgraph 0 callers/2 callees + bytes identical; proposed by vtable cube::LookAtPlayerBehavior slot 0; conf 0.994)"
+  },
+  "0x004cb5d0": {
+   "name": "deltaField_u8",
+   "evidence": "matches Server.exe 0x004149e0 (strings + imports + callgraph 1 callers/1 callees + bytes identical; proposed by bytes exact; conf 0.994)"
+  },
+  "0x004cb670": {
+   "name": "deltaField_i16",
+   "evidence": "matches Server.exe 0x00414a80 (strings + imports + callgraph 1 callers/1 callees + bytes identical; proposed by bytes exact; conf 0.994)"
+  },
+  "0x004cb710": {
+   "name": "deltaField_i32",
+   "evidence": "matches Server.exe 0x00414b20 (strings + imports + callgraph 1 callers/1 callees + bytes identical; proposed by bytes exact; conf 0.994)"
+  },
+  "0x004cb7b0": {
+   "name": "deltaField_f32",
+   "evidence": "matches Server.exe 0x00414bc0 (strings + imports + callgraph 1 callers/1 callees + bytes identical; proposed by bytes exact; conf 0.994)"
+  },
+  "0x004cb850": {
+   "name": "deltaField_f32x5",
+   "evidence": "matches Server.exe 0x00414c60 (strings + imports + callgraph 1 callers/1 callees + bytes identical; proposed by bytes exact; conf 0.994)"
+  },
+  "0x004cb930": {
+   "name": "deltaField_appearance",
+   "evidence": "matches Server.exe 0x00414d40 (strings + imports + callgraph 1 callers/2 callees + bytes identical; proposed by bytes exact; conf 0.994)"
+  },
+  "0x004cb9d0": {
+   "name": "deltaField_equipment",
+   "evidence": "matches Server.exe 0x00414de0 (strings + imports + callgraph 1 callers/2 callees + bytes identical; proposed by bytes exact; conf 0.994)"
+  },
+  "0x004cba70": {
+   "name": "deltaField_item",
+   "evidence": "matches Server.exe 0x00414e80 (strings + imports + callgraph 1 callers/2 callees + bytes identical; proposed by bytes exact; conf 0.994)"
+  },
+  "0x004cbb10": {
+   "name": "deltaField_i32x3",
+   "evidence": "matches Server.exe 0x00414f20 (strings + imports + callgraph 1 callers/1 callees + bytes identical; proposed by bytes exact; conf 0.994)"
+  },
+  "0x004cbbc0": {
+   "name": "deltaField_f32x3",
+   "evidence": "matches Server.exe 0x00414fd0 (strings + imports + callgraph 1 callers/1 callees + bytes identical; proposed by bytes exact; conf 0.994)"
+  },
+  "0x004cbc80": {
+   "name": "deltaField_i64x3",
+   "evidence": "matches Server.exe 0x00415090 (strings + imports + callgraph 1 callers/1 callees + bytes identical; proposed by bytes exact; conf 0.994)"
+  },
+  "0x004cbd40": {
+   "name": "deltaField_i64",
+   "evidence": "matches Server.exe 0x00415150 (strings + imports + callgraph 1 callers/1 callees + bytes identical; proposed by bytes exact; conf 0.994)"
+  },
+  "0x004cbfc0": {
+   "name": "readDeltaField_4",
+   "evidence": "matches Server.exe 0x004152d0 (callgraph 1 callers/0 callees + bytes identical; proposed by bytes exact; conf 0.95)"
+  },
+  "0x004ccc30": {
+   "name": "deltaField_name",
+   "evidence": "matches Server.exe 0x00415b20 (strings + imports + callgraph 1 callers/1 callees + bytes identical; proposed by bytes exact; conf 0.994)"
+  },
+  "0x004cccf0": {
+   "name": "deltaField_skills",
+   "evidence": "matches Server.exe 0x00415be0 (strings + imports + callgraph 1 callers/1 callees + bytes identical; proposed by bytes exact; conf 0.994)"
+  },
+  "0x004ccda0": {
+   "name": "readDeltaField_16",
+   "evidence": "matches Server.exe 0x00415cd0 (callgraph 1 callers/0 callees + bytes identical; proposed by bytes exact; conf 0.95)"
+  },
+  "0x004ccfa0": {
+   "name": "readEntityDelta",
+   "evidence": "matches Server.exe 0x00415dd0 (callgraph 0 callers/12 callees + bytes identical; proposed by bytes exact; conf 0.97)"
+  },
+  "0x004cdaa0": {
+   "name": "writeEntityDelta",
+   "evidence": "matches Server.exe 0x00416210 (callgraph 0 callers/18 callees + bytes identical; proposed by callee set matched; conf 0.97)"
+  },
+  "0x004db100": {
+   "name": "cube::RandomInteractionBehavior::RandomInteractionBehavior",
+   "evidence": "matches Server.exe 0x0041ba60 (named refs + callgraph 2 callers/0 callees + bytes identical; proposed by callee #1886 of matched 0x004e28e0; conf 0.988)"
+  },
+  "0x004db110": {
+   "name": "std::vector<std::vector<Slot>>::at",
+   "evidence": "matches Server.exe 0x0041e2e0 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #478 of matched 0x004e28e0; conf 0.95)"
+  },
+  "0x004db130": {
+   "name": "cube::RandomInteractionBehavior::update",
+   "evidence": "matches Server.exe 0x0041bc20 (strings + imports + vtable cube::RandomInteractionBehavior slot 0 + callgraph 0 callers/18 callees + bytes identical; proposed by imports+size; conf 0.999)"
+  },
+  "0x004dbef0": {
+   "name": "cube::RandomInteractionBehavior::clone",
+   "evidence": "matches Server.exe 0x0041cac0 (named refs + vtable cube::RandomInteractionBehavior slot 1 + callgraph 0 callers/1 callees + bytes identical; proposed by vtable cube::RandomInteractionBehavior slot 1; conf 0.996)"
+  },
+  "0x004dbf10": {
+   "name": "cube::RandomWalkBehavior::RandomWalkBehavior",
+   "evidence": "matches Server.exe 0x0041cb90 (named refs + callgraph 5 callers/0 callees + bytes identical; proposed by callee #51 of matched 0x00509e40; conf 0.988)"
+  },
+  "0x004dbf20": {
+   "name": "cube::RandomWalkBehavior::update",
+   "evidence": "matches Server.exe 0x0041cbb0 (imports + vtable cube::RandomWalkBehavior slot 0 + callgraph 0 callers/4 callees + bytes 0.99; proposed by vtable cube::RandomWalkBehavior slot 0; conf 0.991)"
+  },
+  "0x004dc2d0": {
+   "name": "cube::SequentialBehavior::SequentialBehavior",
+   "evidence": "matches Server.exe 0x0041cfc0 (named refs + callgraph 8 callers/1 callees + bytes identical; proposed by callee #37 of matched 0x00509e40; conf 0.988)"
+  },
+  "0x004dc390": {
+   "name": "cube::SequentialBehavior::update",
+   "evidence": "matches Server.exe 0x0041d080 (vtable cube::SequentialBehavior slot 0 + bytes identical; proposed by vtable cube::SequentialBehavior slot 0; conf 0.98)"
+  },
+  "0x004dc820": {
+   "name": "cube::ZoneItemsRecord::ZoneItemsRecord",
+   "evidence": "matches Server.exe 0x00422c00 (callgraph 1 callers/2 callees + bytes identical; proposed by callee #1886 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x004dc8b0": {
+   "name": "cube::StaticRecord::StaticRecord",
+   "evidence": "matches Server.exe 0x00422d70 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #158 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x004dc8e0": {
+   "name": "cube::Server::broadcastUpdates",
+   "evidence": "matches Server.exe 0x004272d0 (strings + callgraph 0 callers/23 callees + bytes identical; proposed by neighbourhood bytes 1.000; conf 0.988)"
+  },
+  "0x004dd5e0": {
+   "name": "cube::Server::takePassives",
+   "evidence": "matches Server.exe 0x00428170 (callgraph 0 callers/4 callees + bytes identical; proposed by neighbourhood bytes 1.000; conf 0.97)"
+  },
+  "0x004dd640": {
+   "name": "cube::Server::takeShoots",
+   "evidence": "matches Server.exe 0x004281d0 (callgraph 0 callers/4 callees + bytes identical; proposed by callee set matched; conf 0.97)"
+  },
+  "0x004dd6a0": {
+   "name": "cube::Server::takeHits",
+   "evidence": "matches Server.exe 0x00428230 (callgraph 0 callers/4 callees + bytes identical; proposed by neighbourhood bytes 1.000; conf 0.97)"
+  },
+  "0x004dfab0": {
+   "name": "cube::SpawnLocationBehavior::SpawnLocationBehavior",
+   "evidence": "matches Server.exe 0x00428920 (named refs + callgraph 1 callers/0 callees + bytes identical; proposed by callee #1883 of matched 0x004e28e0; conf 0.98)"
+  },
+  "0x004dfad0": {
+   "name": "cube::SpawnLocationBehavior::update",
+   "evidence": "matches Server.exe 0x00428940 (vtable cube::SpawnLocationBehavior slot 0 + callgraph 0 callers/8 callees + bytes identical; proposed by vtable cube::SpawnLocationBehavior slot 0; conf 0.994)"
+  },
+  "0x004e0050": {
+   "name": "cube::SpawnLocationBehavior::clone",
+   "evidence": "matches Server.exe 0x00428ec0 (named refs + vtable cube::SpawnLocationBehavior slot 1 + callgraph 0 callers/1 callees + bytes identical; proposed by vtable cube::SpawnLocationBehavior slot 1; conf 0.996)"
+  },
+  "0x004e7290": {
+   "name": "cube::Model::load",
+   "evidence": "matches Server.exe 0x0042f9a0 (imports + callgraph 2 callers/8 callees + bytes identical; proposed by imports+size; conf 0.985)"
+  },
+  "0x004e7650": {
+   "name": "cube::Model::setVoxels",
+   "evidence": "matches Server.exe 0x00430230 (callgraph 1 callers/5 callees + bytes 0.99; proposed by callee #4 of matched 0x0042f9a0; conf 0.91)"
+  },
+  "0x004ee230": {
+   "name": "cube::Database::load",
+   "evidence": "matches Server.exe 0x00431400 (strings + callgraph 0 callers/23 callees + bytes identical; proposed by strings; conf 0.994)"
+  },
+  "0x00526480": {
+   "name": "sqlite3_prepare_v2",
+   "evidence": "matches Server.exe 0x00468e30 (callgraph 2 callers/1 callees + bytes identical; proposed by callee #0 of matched 0x00413070; conf 0.97)"
+  },
+  "0x005267a0": {
+   "name": "sqlite3_bind_blob",
+   "evidence": "matches Server.exe 0x00469150 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #5 of matched 0x00413240; conf 0.97)"
+  },
+  "0x00526b60": {
+   "name": "sqlite3_bind_text",
+   "evidence": "matches Server.exe 0x00469510 (callgraph 2 callers/1 callees + bytes identical; proposed by callee #2 of matched 0x00413070; conf 0.97)"
+  },
+  "0x00527300": {
+   "name": "sqlite3_step",
+   "evidence": "matches Server.exe 0x00469cb0 (strings + callgraph 6 callers/11 callees + bytes identical; proposed by strings; conf 0.994)"
+  },
+  "0x00527590": {
+   "name": "sqlite3_column_blob",
+   "evidence": "matches Server.exe 0x00469f40 (callgraph 1 callers/4 callees + bytes identical; proposed by callee #7 of matched 0x00413070; conf 0.97)"
+  },
+  "0x00527610": {
+   "name": "sqlite3_column_bytes",
+   "evidence": "matches Server.exe 0x00469fc0 (callgraph 1 callers/3 callees + bytes identical; proposed by callee #5 of matched 0x00413070; conf 0.97)"
+  },
+  "0x00528070": {
+   "name": "sqlite3_finalize",
+   "evidence": "matches Server.exe 0x0046aa30 (strings + callgraph 6 callers/4 callees + bytes identical; proposed by strings; conf 0.994)"
+  },
+  "0x005870c0": {
+   "name": "std::vector<char>::resize",
+   "evidence": "matches Server.exe 0x00413180 (imports + callgraph 9 callers/2 callees + bytes identical; proposed by callee #4 of matched 0x00412e20; conf 0.985)"
+  },
+  "0x0058cf60": {
+   "name": "cube::WalkPathBehavior::WalkPathBehavior(copy)",
+   "evidence": "matches Server.exe 0x004c5d10 (named refs + callgraph 1 callers/1 callees + bytes identical; proposed by callee #75 of matched 0x00509e40; conf 0.988)"
+  },
+  "0x0058cfa0": {
+   "name": "cube::WalkPathBehavior::WalkPathBehavior",
+   "evidence": "matches Server.exe 0x004c5d50 (named refs + callgraph 5 callers/0 callees + bytes identical; proposed by callee #45 of matched 0x00509e40; conf 0.988)"
+  },
+  "0x0058d050": {
+   "name": "cube::WalkPathBehavior::update",
+   "evidence": "matches Server.exe 0x004c5e00 (imports + vtable cube::WalkPathBehavior slot 0 + callgraph 0 callers/15 callees + bytes identical; proposed by vtable cube::WalkPathBehavior slot 0; conf 0.997)"
+  },
+  "0x0058d630": {
+   "name": "cube::WalkPathBehavior::clone",
+   "evidence": "matches Server.exe 0x004c63e0 (named refs + vtable cube::WalkPathBehavior slot 1 + callgraph 0 callers/2 callees + bytes identical; proposed by vtable cube::WalkPathBehavior slot 1; conf 0.998)"
+  },
+  "0x0058e9f0": {
+   "name": "cube::Prop::Prop",
+   "evidence": "matches Server.exe 0x004c83b0 (callgraph 4 callers/0 callees + bytes identical; proposed by callee #228 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x0058eaa0": {
+   "name": "cube::Static::Static",
+   "evidence": "matches Server.exe 0x004c84b0 (callgraph 5 callers/1 callees + bytes identical; proposed by callee #24 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x0058eb00": {
+   "name": "cube::World::World",
+   "evidence": "matches Server.exe 0x004c8570 (strings + imports + callgraph 0 callers/40 callees + bytes identical; proposed by strings; conf 0.997)"
+  },
+  "0x00593ed0": {
+   "name": "cube::World::~World",
+   "evidence": "matches Server.exe 0x004cd940 (named refs + callgraph 1 callers/4 callees + bytes identical; proposed by strings+named refs; conf 0.988)"
+  },
+  "0x00594660": {
+   "name": "int64::lessThan",
+   "evidence": "matches Server.exe 0x004ce350 (callgraph 2 callers/0 callees + bytes identical; proposed by callee #1030 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x00594690": {
+   "name": "int64::greaterEqual",
+   "evidence": "matches Server.exe 0x004ce380 (callgraph 2 callers/0 callees + bytes identical; proposed by callee #1026 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x005957c0": {
+   "name": "cube::World::addBuffAndNotify",
+   "evidence": "matches Server.exe 0x004ce9f0 (strings + imports + callgraph 1 callers/2 callees + bytes identical; proposed by callee #25 of matched 0x00402f40; conf 0.994)"
+  },
+  "0x00595a60": {
+   "name": "cube::World::applyHit",
+   "evidence": "matches Server.exe 0x004cea80 (strings + imports + callgraph 2 callers/43 callees + bytes identical; proposed by imports+size; conf 0.994)"
+  },
+  "0x00596ca0": {
+   "name": "cube::World::isHostile",
+   "evidence": "matches Server.exe 0x004cfcc0 (callgraph 4 callers/1 callees + bytes identical; proposed by callee #21 of matched 0x004cea80; conf 0.97)"
+  },
+  "0x00596d30": {
+   "name": "cube::World::creatureAttack",
+   "evidence": "matches Server.exe 0x004cfd50 (strings + imports + callgraph 1 callers/27 callees + bytes identical; proposed by strings; conf 0.994)"
+  },
+  "0x005988a0": {
+   "name": "cube::World::isEnemy",
+   "evidence": "matches Server.exe 0x004d18c0 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #416 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x005989d0": {
+   "name": "cellFalloff",
+   "evidence": "matches Server.exe 0x004d19f0 (callgraph 4 callers/2 callees + bytes identical; proposed by callee #68 of matched 0x00518630; conf 0.97)"
+  },
+  "0x0059a0e0": {
+   "name": "cube::World::computeLighting",
+   "evidence": "matches Server.exe 0x004d1a70 (callgraph 2 callers/3 callees + bytes identical; proposed by callee #528 of matched 0x00518630; conf 0.97)"
+  },
+  "0x0059a800": {
+   "name": "cube::World::spiritParticles",
+   "evidence": "matches Server.exe 0x004d2190 (strings + imports + callgraph 1 callers/3 callees + bytes identical; proposed by callee #26 of matched 0x004cfd50; conf 0.994)"
+  },
+  "0x0059a9b0": {
+   "name": "cube::World::spawnLevel",
+   "evidence": "matches Server.exe 0x004d2340 (callgraph 3 callers/4 callees + bytes identical; proposed by callee #205 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x0059aeb0": {
+   "name": "cube::World::dropItem",
+   "evidence": "matches Server.exe 0x004d2810 (imports + callgraph 1 callers/8 callees + bytes identical; proposed by callee #9 of matched 0x004d2ae0; conf 0.985)"
+  },
+  "0x0059b180": {
+   "name": "cube::World::dropLoot",
+   "evidence": "matches Server.exe 0x004d2ae0 (imports + callgraph 1 callers/16 callees + bytes identical; proposed by imports+size; conf 0.985)"
+  },
+  "0x0059c800": {
+   "name": "std::vector<GroundItem>::erase",
+   "evidence": "matches Server.exe 0x004d4430 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #139 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x0059c890": {
+   "name": "cube::World::fillDisc",
+   "evidence": "matches Server.exe 0x004d44c0 (callgraph 1 callers/5 callees + bytes identical; proposed by callee #78 of matched 0x00513760; conf 0.97)"
+  },
+  "0x0059cbf0": {
+   "name": "cube::World::fillSphere",
+   "evidence": "matches Server.exe 0x004d4820 (callgraph 1 callers/5 callees + bytes identical; proposed by callee #22 of matched 0x00513760; conf 0.97)"
+  },
+  "0x0059ed30": {
+   "name": "cube::World::houseAt",
+   "evidence": "matches Server.exe 0x004d4c20 (callgraph 1 callers/2 callees + bytes identical; proposed by callee #3 of matched 0x0041bc20; conf 0.97)"
+  },
+  "0x0059ee90": {
+   "name": "cube::World::lineOfSight",
+   "evidence": "matches Server.exe 0x004d4d80 (callgraph 3 callers/3 callees + bytes identical; proposed by callee #17 of matched 0x0041bc20; conf 0.97)"
+  },
+  "0x0059f0a0": {
+   "name": "cube::World::boxCollides",
+   "evidence": "matches Server.exe 0x004d4f90 (callgraph 2 callers/5 callees + bytes identical; proposed by callee #3 of matched 0x004c5e00; conf 0.97)"
+  },
+  "0x0059f850": {
+   "name": "cube::World::boxBlocked",
+   "evidence": "matches Server.exe 0x004d5740 (callgraph 1 callers/5 callees + bytes identical; proposed by callee set matched; conf 0.97)"
+  },
+  "0x0059fc90": {
+   "name": "cube::World::warpPosition",
+   "evidence": "matches Server.exe 0x004d5a80 (callgraph 2 callers/1 callees + bytes identical; proposed by callee #6 of matched 0x00518630; conf 0.97)"
+  },
+  "0x0059fea0": {
+   "name": "cube::World::lightAt",
+   "evidence": "matches Server.exe 0x004d5c80 (callgraph 1 callers/2 callees + bytes identical; proposed by callee #817 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x005a0970": {
+   "name": "cube::World::alertAllies",
+   "evidence": "matches Server.exe 0x004d5f40 (strings + imports + callgraph 2 callers/5 callees + bytes identical; proposed by callee #11 of matched 0x004cea80; conf 0.994)"
+  },
+  "0x005a0bf0": {
+   "name": "cube::World::grantXp",
+   "evidence": "matches Server.exe 0x004d61c0 (callgraph 1 callers/5 callees + bytes identical; proposed by callee #54 of matched 0x004cea80; conf 0.97)"
+  },
+  "0x005a0e00": {
+   "name": "cube::Zone::addStatic",
+   "evidence": "matches Server.exe 0x004d6670 (callgraph 5 callers/2 callees + bytes identical; proposed by callee #26 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x005a35d0": {
+   "name": "cube::World::sweep",
+   "evidence": "matches Server.exe 0x004d6730 (callgraph 2 callers/5 callees + bytes identical; proposed by callee #2027 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x005a4710": {
+   "name": "regionLevel",
+   "evidence": "matches Server.exe 0x004d7870 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #3 of matched 0x0050e080; conf 0.97)"
+  },
+  "0x005a4780": {
+   "name": "cube::World::removeRegion",
+   "evidence": "matches Server.exe 0x004d78e0 (imports + callgraph 0 callers/1 callees + bytes identical; proposed by neighbourhood bytes 1.000; conf 0.975)"
+  },
+  "0x005a4800": {
+   "name": "cube::World::unloadRegion",
+   "evidence": "matches Server.exe 0x004d7960 (imports + callgraph 0 callers/1 callees + bytes identical; proposed by bytes exact; conf 0.975)"
+  },
+  "0x005a4890": {
+   "name": "cube::World::unloadZone",
+   "evidence": "matches Server.exe 0x004d79f0 (imports + callgraph 0 callers/1 callees + bytes identical; proposed by bytes exact; conf 0.975)"
+  },
+  "0x005a4980": {
+   "name": "cube::World::removeDailyCreatures",
+   "evidence": "matches Server.exe 0x004d7ae0 (callgraph 0 callers/5 callees + bytes identical; proposed by callee set matched; conf 0.97)"
+  },
+  "0x005a4af0": {
+   "name": "cube::World::saveEntities",
+   "evidence": "matches Server.exe 0x004d7c50 (strings + imports + callgraph 2 callers/8 callees + bytes identical; proposed by strings; conf 0.997)"
+  },
+  "0x005a5050": {
+   "name": "cube::World::saveZone",
+   "evidence": "matches Server.exe 0x004d81b0 (named refs + callgraph 3 callers/8 callees + bytes identical; proposed by callee #0 of matched 0x004d83a0; conf 0.988)"
+  },
+  "0x005a52e0": {
+   "name": "cube::World::load",
+   "evidence": "matches Server.exe 0x004d83a0 (strings + imports + callgraph 1 callers/11 callees + bytes identical; proposed by strings; conf 0.994)"
+  },
+  "0x005a58e0": {
+   "name": "cube::World::toggleStatic",
+   "evidence": "matches Server.exe 0x004d8c90 (strings + imports + callgraph 2 callers/2 callees + bytes identical; proposed by callee #29 of matched 0x004cea80; conf 0.994)"
+  },
+  "0x005a5bc0": {
+   "name": "cube::World::treeDensity",
+   "evidence": "matches Server.exe 0x004d9010 (callgraph 1 callers/2 callees + bytes identical; proposed by callee #159 of matched 0x00518630; conf 0.97)"
+  },
+  "0x005a5cb0": {
+   "name": "cube::World::dropUnsupportedStatics",
+   "evidence": "matches Server.exe 0x004d9160 (strings + imports + callgraph 1 callers/4 callees + bytes identical; proposed by callee #409 of matched 0x005322d0; conf 0.994)"
+  },
+  "0x005a6a70": {
+   "name": "vec3i64::fromBlock",
+   "evidence": "matches Server.exe 0x004d99d0 (callgraph 4 callers/0 callees + bytes identical; proposed by callee #1405 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x005a7b50": {
+   "name": "int64::lessThanFloat",
+   "evidence": "matches Server.exe 0x004dade0 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #425 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x005a7c90": {
+   "name": "cube::Creature::buildPath",
+   "evidence": "matches Server.exe 0x004dafe0 (strings + imports + callgraph 6 callers/5 callees + bytes identical; proposed by callee #31 of matched 0x0041bc20; conf 0.994)"
+  },
+  "0x005a7e60": {
+   "name": "cube::Creature::pathIgnoresStatic",
+   "evidence": "matches Server.exe 0x004db1b0 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #1102 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x005a7eb0": {
+   "name": "cube::Creature::followPath",
+   "evidence": "matches Server.exe 0x004db200 (strings + imports + callgraph 1 callers/28 callees + bytes identical; proposed by callee #635 of matched 0x005322d0; conf 0.994)"
+  },
+  "0x005a9ca0": {
+   "name": "cube::Creature::isOnOpenList",
+   "evidence": "matches Server.exe 0x004dcff0 (callgraph 1 callers/4 callees + bytes identical; proposed by callee #50 of matched 0x004dde90; conf 0.97)"
+  },
+  "0x005a9d40": {
+   "name": "pathHeuristic",
+   "evidence": "matches Server.exe 0x004dd090 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #59 of matched 0x004dde90; conf 0.95)"
+  },
+  "0x005a9e50": {
+   "name": "cube::Creature::addPathNode",
+   "evidence": "matches Server.exe 0x004dd1a0 (callgraph 2 callers/6 callees + bytes identical; proposed by callee #4 of matched 0x004dd2e0; conf 0.97)"
+  },
+  "0x005a9f90": {
+   "name": "cube::Creature::findPath",
+   "evidence": "matches Server.exe 0x004dd2e0 (callgraph 6 callers/9 callees + bytes identical; proposed by callee #12 of matched 0x0041bc20; conf 0.97)"
+  },
+  "0x005aaab0": {
+   "name": "cube::Creature::stepPath",
+   "evidence": "matches Server.exe 0x004dde90 (callgraph 5 callers/18 callees + bytes identical; proposed by callee #30 of matched 0x0041bc20; conf 0.97)"
+  },
+  "0x005ad320": {
+   "name": "cube::World::tryPlaceCamp",
+   "evidence": "matches Server.exe 0x004e0740 (imports + callgraph 1 callers/12 callees + bytes identical; proposed by callee #120 of matched 0x00518630; conf 0.985)"
+  },
+  "0x005adb20": {
+   "name": "cube::Spawn::Spawn",
+   "evidence": "matches Server.exe 0x004e0f40 (named refs + callgraph 7 callers/3 callees + bytes identical; proposed by callee #31 of matched 0x00509e40; conf 0.988)"
+  },
+  "0x005af170": {
+   "name": "cube::World::generateSettlement",
+   "evidence": "matches Server.exe 0x004e28e0 (imports + callgraph 1 callers/145 callees + bytes identical; proposed by imports+size; conf 0.985)"
+  },
+  "0x005bf4f0": {
+   "name": "std::vector<vec3i64>::push_back",
+   "evidence": "matches Server.exe 0x004e1420 (callgraph 6 callers/1 callees + bytes identical; proposed by callee #48 of matched 0x00509e40; conf 0.97)"
+  },
+  "0x005c0120": {
+   "name": "spawnId",
+   "evidence": "matches Server.exe 0x004f3850 (callgraph 3 callers/0 callees + bytes identical; proposed by callee #1425 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x005c1060": {
+   "name": "std::_Insertion_sort<12-byte record>",
+   "evidence": "matches Server.exe 0x004f4ab0 (callgraph 1 callers/0 callees + bytes identical; proposed by bytes exact; conf 0.95)"
+  },
+  "0x005c1690": {
+   "name": "std::_Med3<12-byte record>",
+   "evidence": "matches Server.exe 0x004f50e0 (callgraph 1 callers/0 callees + bytes identical; proposed by bytes exact; conf 0.95)"
+  },
+  "0x005c1ef0": {
+   "name": "std::_Median<12-byte record>",
+   "evidence": "matches Server.exe 0x004f5940 (callgraph 1 callers/1 callees + bytes identical; proposed by bytes exact; conf 0.97)"
+  },
+  "0x005c2630": {
+   "name": "std::_Sort<12-byte record, greater by float[2]>",
+   "evidence": "matches Server.exe 0x004f6080 (callgraph 1 callers/4 callees + bytes identical; proposed by callee set matched; conf 0.97)"
+  },
+  "0x005c3360": {
+   "name": "std::_Unguarded_partition<12-byte record>",
+   "evidence": "matches Server.exe 0x004f6db0 (callgraph 1 callers/2 callees + bytes identical; proposed by bytes exact; conf 0.97)"
+  },
+  "0x005c39e0": {
+   "name": "cube::Marker::Marker",
+   "evidence": "matches Server.exe 0x004f7490 (callgraph 2 callers/1 callees + bytes identical; proposed by callee #227 of matched 0x00500300; conf 0.97)"
+  },
+  "0x005c3ac0": {
+   "name": "cube::Region::Region",
+   "evidence": "matches Server.exe 0x004f7570 (named refs + callgraph 1 callers/2 callees + bytes identical; proposed by callee #2 of matched 0x0050e080; conf 0.988)"
+  },
+  "0x005c3bb0": {
+   "name": "cube::Cell::Cell",
+   "evidence": "matches Server.exe 0x004f7660 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #0 of matched 0x004f7570; conf 0.95)"
+  },
+  "0x005c3cc0": {
+   "name": "cube::Region::~Region",
+   "evidence": "matches Server.exe 0x004f77f0 (named refs + callgraph 1 callers/2 callees + bytes identical; proposed by callee #0 of matched 0x004f7b30; conf 0.988)"
+  },
+  "0x005c3ea0": {
+   "name": "std::map_iterator::advance",
+   "evidence": "matches Server.exe 0x00407a50 (callgraph 30 callers/0 callees + bytes identical; proposed by callee #13 of matched 0x004cea80; conf 0.97)"
+  },
+  "0x005c4520": {
+   "name": "groundColorC",
+   "evidence": "matches Server.exe 0x004f82d0 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #8 of matched 0x004f9450; conf 0.97)"
+  },
+  "0x005c4800": {
+   "name": "climateA",
+   "evidence": "matches Server.exe 0x004f8570 (callgraph 10 callers/4 callees + bytes identical; proposed by callee #39 of matched 0x0050e080; conf 0.97)"
+  },
+  "0x005c4dd0": {
+   "name": "climateB",
+   "evidence": "matches Server.exe 0x004f8b40 (callgraph 11 callers/2 callees + bytes identical; proposed by callee #38 of matched 0x0050e080; conf 0.97)"
+  },
+  "0x005c56e0": {
+   "name": "cube::World::surfaceBlock",
+   "evidence": "matches Server.exe 0x004f9450 (callgraph 5 callers/12 callees + bytes identical; proposed by callee #1595 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x005c5e20": {
+   "name": "cube::World::baseHeight",
+   "evidence": "matches Server.exe 0x004f9b70 (callgraph 3 callers/10 callees + bytes identical; proposed by callee #1175 of matched 0x004c8570; conf 0.97)"
+  },
+  "0x005c7140": {
+   "name": "cube::World::rockColor",
+   "evidence": "matches Server.exe 0x004fae90 (callgraph 3 callers/7 callees + bytes identical; proposed by callee #193 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x005c7730": {
+   "name": "cube::Creature::initClassAndEquipment",
+   "evidence": "matches Server.exe 0x004fb480 (imports + callgraph 5 callers/3 callees + bytes identical; proposed by imports+size; conf 0.985)"
+  },
+  "0x005cade0": {
+   "name": "nearestClimateRegion",
+   "evidence": "matches Server.exe 0x004febd0 (callgraph 2 callers/2 callees + bytes identical; proposed by callee #42 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x005cb0d0": {
+   "name": "cube::World::regionOfNearestClimatePoint",
+   "evidence": "matches Server.exe 0x004feec0 (callgraph 1 callers/2 callees + bytes identical; proposed by callee #5 of matched 0x0050d8d0; conf 0.97)"
+  },
+  "0x005cb600": {
+   "name": "cube::World::placeRock",
+   "evidence": "matches Server.exe 0x004ff3f0 (callgraph 1 callers/10 callees + bytes identical; proposed by callee #72 of matched 0x00518630; conf 0.97)"
+  },
+  "0x005cbe00": {
+   "name": "cube::World::placeBoulder",
+   "evidence": "matches Server.exe 0x004ffbf0 (callgraph 1 callers/9 callees + bytes identical; proposed by callee #54 of matched 0x00518630; conf 0.97)"
+  },
+  "0x005cc510": {
+   "name": "cube::World::generateDungeon",
+   "evidence": "matches Server.exe 0x00500300 (imports + callgraph 1 callers/99 callees + bytes identical; proposed by imports+size; conf 0.985)"
+  },
+  "0x005d6040": {
+   "name": "cube::World::spawnWanderingGroup",
+   "evidence": "matches Server.exe 0x00509e40 (strings + imports + callgraph 1 callers/29 callees + bytes identical; proposed by strings; conf 0.997)"
+  },
+  "0x005d7a70": {
+   "name": "cube::World::getOrCreateClimatePoint",
+   "evidence": "matches Server.exe 0x0050b870 (imports + callgraph 1 callers/2 callees + bytes identical; proposed by imports+size; conf 0.985)"
+  },
+  "0x005d7f60": {
+   "name": "cube::World::leafCrown",
+   "evidence": "matches Server.exe 0x0050bd60 (imports + callgraph 1 callers/5 callees + bytes identical; proposed by imports+size; conf 0.985)"
+  },
+  "0x005d8750": {
+   "name": "cube::World::startMission",
+   "evidence": "matches Server.exe 0x0050c550 (strings + imports + callgraph 1 callers/15 callees + bytes identical; proposed by imports+size; conf 0.997)"
+  },
+  "0x005d9460": {
+   "name": "cube::World::spawnCellNpc",
+   "evidence": "matches Server.exe 0x0050d260 (strings + imports + callgraph 2 callers/20 callees + bytes identical; proposed by imports+size; conf 0.994)"
+  },
+  "0x005d9ad0": {
+   "name": "cube::World::activateRegionMissions",
+   "evidence": "matches Server.exe 0x0050d8d0 (strings + imports + callgraph 1 callers/14 callees + bytes identical; proposed by imports+size; conf 0.994)"
+  },
+  "0x005da280": {
+   "name": "cube::World::createRegion",
+   "evidence": "matches Server.exe 0x0050e080 (strings + imports + callgraph 1 callers/28 callees + bytes identical; proposed by strings; conf 0.997)"
+  },
+  "0x005dc6e0": {
+   "name": "cube::World::populateZoneCreatures",
+   "evidence": "matches Server.exe 0x005104e0 (strings + imports + callgraph 1 callers/31 callees + bytes identical; proposed by imports+size; conf 0.994)"
+  },
+  "0x005df960": {
+   "name": "cube::World::generateTree",
+   "evidence": "matches Server.exe 0x00513760 (strings + imports + callgraph 2 callers/20 callees + bytes identical; proposed by imports+size; conf 0.994)"
+  },
+  "0x005e4850": {
+   "name": "cube::World::generateZone",
+   "evidence": "matches Server.exe 0x00518630 (strings + imports + callgraph 0 callers/138 callees + bytes identical; proposed by imports+size; conf 0.994)"
+  },
+  "0x005ee4b0": {
+   "name": "cube::ClimatePoint::levelRange",
+   "evidence": "matches Server.exe 0x00522290 (callgraph 2 callers/0 callees + bytes identical; proposed by callee #4 of matched 0x0050e080; conf 0.97)"
+  },
+  "0x005ee540": {
+   "name": "groundColorA",
+   "evidence": "matches Server.exe 0x00522320 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #0 of matched 0x004f9450; conf 0.97)"
+  },
+  "0x005ee7a0": {
+   "name": "cube::World::tame",
+   "evidence": "matches Server.exe 0x00522580 (strings + imports + callgraph 1 callers/8 callees + bytes identical; proposed by callee #304 of matched 0x005322d0; conf 0.994)"
+  },
+  "0x005eea60": {
+   "name": "climateEdgeDistance",
+   "evidence": "matches Server.exe 0x00522840 (callgraph 2 callers/4 callees + bytes identical; proposed by callee #3 of matched 0x0052cd50; conf 0.97)"
+  },
+  "0x005eeee0": {
+   "name": "cube::ClimatePoint::distSq",
+   "evidence": "matches Server.exe 0x00522cc0 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #1 of matched 0x0042e090; conf 0.97)"
+  },
+  "0x005eefa0": {
+   "name": "climateQueryWarp",
+   "evidence": "matches Server.exe 0x00522d80 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #0 of matched 0x0042e090; conf 0.97)"
+  },
+  "0x005ef040": {
+   "name": "climateC",
+   "evidence": "matches Server.exe 0x00522e20 (callgraph 6 callers/2 callees + bytes identical; proposed by callee #10 of matched 0x00518630; conf 0.97)"
+  },
+  "0x005ef5a0": {
+   "name": "segmentDistSq",
+   "evidence": "matches Server.exe 0x00523380 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #5 of matched 0x00522840; conf 0.95)"
+  },
+  "0x005efdb0": {
+   "name": "cube::World::mossFactor",
+   "evidence": "matches Server.exe 0x00523b90 (callgraph 4 callers/3 callees + bytes identical; proposed by callee #18 of matched 0x00513760; conf 0.97)"
+  },
+  "0x005effa0": {
+   "name": "cube::World::mountainFactor",
+   "evidence": "matches Server.exe 0x00523d80 (callgraph 2 callers/9 callees + bytes identical; proposed by callee #13 of matched 0x00518630; conf 0.97)"
+  },
+  "0x005f0c80": {
+   "name": "cube::World::clearRegionActivation",
+   "evidence": "matches Server.exe 0x00524500 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #5 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x005f0ce0": {
+   "name": "cube::World::placeModel",
+   "evidence": "matches Server.exe 0x00524540 (strings + imports + callgraph 4 callers/48 callees + bytes identical; proposed by imports+size; conf 0.994)"
+  },
+  "0x005f4da0": {
+   "name": "cube::World::settleStatic",
+   "evidence": "matches Server.exe 0x005287b0 (callgraph 3 callers/6 callees + bytes identical; proposed by callee #32 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x005f56c0": {
+   "name": "cube::World::pickCreatureType",
+   "evidence": "matches Server.exe 0x005290d0 (imports + callgraph 2 callers/7 callees + bytes identical; proposed by imports+size; conf 0.985)"
+  },
+  "0x005f6d50": {
+   "name": "randomRecipe",
+   "evidence": "matches Server.exe 0x0052a760 (imports + callgraph 3 callers/5 callees + bytes identical; proposed by callee #29 of matched 0x004d2ae0; conf 0.985)"
+  },
+  "0x005f7400": {
+   "name": "randomBossType",
+   "evidence": "matches Server.exe 0x0052ae10 (imports + callgraph 1 callers/2 callees + bytes identical; proposed by callee set matched; conf 0.985)"
+  },
+  "0x005f7820": {
+   "name": "rollMonsterType",
+   "evidence": "matches Server.exe 0x0052b230 (imports + callgraph 2 callers/2 callees + bytes identical; proposed by callee #8 of matched 0x0050d8d0; conf 0.985)"
+  },
+  "0x005f79e0": {
+   "name": "randomConsumable",
+   "evidence": "matches Server.exe 0x0052b3f0 (imports + callgraph 1 callers/1 callees + bytes identical; proposed by callee #19 of matched 0x004d2ae0; conf 0.985)"
+  },
+  "0x005f8530": {
+   "name": "rarityRoll",
+   "evidence": "matches Server.exe 0x0052bf40 (imports + callgraph 3 callers/0 callees + bytes identical; proposed by callee #10 of matched 0x004d2ae0; conf 0.985)"
+  },
+  "0x005f8590": {
+   "name": "groupMemberType",
+   "evidence": "matches Server.exe 0x0052bfa0 (imports + callgraph 2 callers/0 callees + bytes identical; proposed by imports+size; conf 0.985)"
+  },
+  "0x005f8e10": {
+   "name": "cube::Cell::normDistance",
+   "evidence": "matches Server.exe 0x0052c820 (callgraph 12 callers/2 callees + bytes 0.99; proposed by callee #71 of matched 0x0050e080; conf 0.91)"
+  },
+  "0x005f9340": {
+   "name": "heightFactorA",
+   "evidence": "matches Server.exe 0x0052cd50 (callgraph 5 callers/6 callees + bytes identical; proposed by callee #69 of matched 0x00518630; conf 0.97)"
+  },
+  "0x005f9620": {
+   "name": "cube::World::terrainColor",
+   "evidence": "matches Server.exe 0x0052d030 (callgraph 6 callers/5 callees + bytes identical; proposed by callee #22 of matched 0x00518630; conf 0.97)"
+  },
+  "0x005f9bc0": {
+   "name": "groundColorB",
+   "evidence": "matches Server.exe 0x0052d5d0 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #6 of matched 0x004f9450; conf 0.97)"
+  },
+  "0x005f9e50": {
+   "name": "snowColor",
+   "evidence": "matches Server.exe 0x0052d870 (callgraph 3 callers/1 callees + bytes identical; proposed by callee #10 of matched 0x00513760; conf 0.97)"
+  },
+  "0x005f9f70": {
+   "name": "heightFactorB",
+   "evidence": "matches Server.exe 0x0052d990 (callgraph 3 callers/7 callees + bytes identical; proposed by callee #74 of matched 0x00518630; conf 0.97)"
+  },
+  "0x005fa4c0": {
+   "name": "cube::Cell::falloff",
+   "evidence": "matches Server.exe 0x0052dee0 (callgraph 3 callers/1 callees + bytes identical; proposed by callee #7 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x005fb860": {
+   "name": "std::vector<char>::~vector",
+   "evidence": "matches Server.exe 0x0042f440 (callgraph 6 callers/1 callees + bytes identical; proposed by callee #1367 of matched 0x004e28e0; conf 0.97)"
+  },
+  "0x005fc0d0": {
+   "name": "zlibCompressVec",
+   "evidence": "matches Server.exe 0x00412d00 (callgraph 1 callers/2 callees + bytes identical; proposed by callee set matched; conf 0.97)"
+  },
+  "0x00601cb0": {
+   "name": "cube::World::lock",
+   "evidence": "matches Server.exe 0x004d3df0 (imports + callgraph 4 callers/0 callees + bytes identical; proposed by bytes exact small; conf 0.985)"
+  },
+  "0x00601e90": {
+   "name": "cube::World::unlock",
+   "evidence": "matches Server.exe 0x004d5c60 (imports + callgraph 4 callers/0 callees + bytes identical; proposed by bytes exact small; conf 0.985)"
+  },
+  "0x00605950": {
+   "name": "lerpRepeat3",
+   "evidence": "matches Server.exe 0x0052e7c0 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #979 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x00608f20": {
+   "name": "std::list::list",
+   "evidence": "matches Server.exe 0x004c8280 (callgraph 1 callers/1 callees + bytes identical; proposed by callee #90 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x00609480": {
+   "name": "cube::World::canWalkDirect",
+   "evidence": "matches Server.exe 0x0052ef00 (callgraph 2 callers/7 callees + bytes identical; proposed by callee #110 of matched 0x00402f40; conf 0.97)"
+  },
+  "0x0060a9f0": {
+   "name": "copyWord",
+   "evidence": "matches Server.exe 0x00530550 (callgraph 4 callers/0 callees + bytes identical; proposed by callee #1063 of matched 0x004c8570; conf 0.97)"
+  },
+  "0x0060aa00": {
+   "name": "std::map<int64,Creature*>::erase",
+   "evidence": "matches Server.exe 0x00530560 (callgraph 1 callers/3 callees + bytes identical; proposed by callee #268 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x0060aa60": {
+   "name": "blockIsBreakable",
+   "evidence": "matches Server.exe 0x005306c0 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #364 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x0060ab30": {
+   "name": "cube::World::unstickCreature",
+   "evidence": "matches Server.exe 0x005308b0 (callgraph 1 callers/7 callees + bytes identical; proposed by callee #1068 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x0060c510": {
+   "name": "cube::World::tick",
+   "evidence": "matches Server.exe 0x005322d0 (imports + callgraph 0 callers/260 callees + bytes identical; proposed by imports+size; conf 0.985)"
+  },
+  "0x006240f0": {
+   "name": "cube::Zone::Zone",
+   "evidence": "matches Server.exe 0x00548b60 (named refs + imports + callgraph 1 callers/3 callees + bytes identical; proposed by callee #4 of matched 0x00518630; conf 0.994)"
+  },
+  "0x00624390": {
+   "name": "cube::Zone::~Zone",
+   "evidence": "matches Server.exe 0x00548e00 (named refs + callgraph 1 callers/6 callees + bytes identical; proposed by callee #0 of matched 0x005491d0; conf 0.988)"
+  },
+  "0x0066add0": {
+   "name": "vectorPtr_pushBack",
+   "evidence": "matches Server.exe 0x004f2be0 (callgraph 12 callers/1 callees + bytes identical; proposed by callee #1179 of matched 0x004c8570; conf 0.97)"
+  },
+  "0x0067e480": {
+   "name": "std::set::clear",
+   "evidence": "matches Server.exe 0x004f8520 (callgraph 6 callers/2 callees + bytes identical; proposed by callee #450 of matched 0x005322d0; conf 0.97)"
+  },
+  "0x00687d10": {
+   "name": "cube::Creature::cooldownKeep",
+   "evidence": "matches Server.exe 0x0040f6d0 (callgraph 1 callers/0 callees + bytes identical; proposed by callee #656 of matched 0x005322d0; conf 0.95)"
+  },
+  "0x0068d788": {
+   "name": "__security_check_cookie",
+   "evidence": "matches Server.exe 0x0054a8b8 (callgraph 183 callers/1 callees + bytes identical; proposed by callee #1 of matched 0x00412e20; conf 0.97)"
+  },
+  "0x0068d946": {
+   "name": "__ftol2",
+   "evidence": "matches Server.exe 0x0054a946 (callgraph 53 callers/0 callees + bytes identical; proposed by callee #9 of matched 0x004778d0; conf 0.97)"
+  }
+ }
+}
