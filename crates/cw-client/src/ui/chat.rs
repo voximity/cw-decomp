@@ -293,6 +293,19 @@ impl ChatWidget {
         self.dirty = true;
     }
 
+    /// One entry of the received chat `GameController+0x1000e58`, as `update` prints it
+    /// (0x0048cc0f..0x0048cd99, one entry per frame, then `pop_front` 0x00486030): when the
+    /// sender id is `>= 0` and `World::findEntity` 0x0042f000 finds it, its name
+    /// (`creature+0x1168` widened by 0x006089c0) `+ L": "` (0x00451800, string 0x00701850) in
+    /// (0, 255, 255); then the text `+ L"\n"` (0x00451850, string 0x006fd84c) in white. Each
+    /// through [`ChatWidget::print`] 0x0043a500. `name` is `None` when there is no sender.
+    pub fn print_received(&mut self, name: Option<&str>, text: &str, width: f32, measure: &dyn Fn(&str) -> f32) {
+        if let Some(n) = name {
+            self.print(&format!("{n}: "), [0, 255, 255], width, measure);
+        }
+        self.print(&format!("{text}\n"), [255, 255, 255], width, measure);
+    }
+
     /// `ChatWidget::update` 0x00439730: drops the oldest lines while more than 10 remain,
     /// then lays out the lines from y = 19 in 18 px steps (x from 3; a space advances 5), the
     /// input at `(3, height - 12)` and, while the input is active and `engine_time / 500` is
@@ -360,6 +373,26 @@ mod tests {
         }
         let a = c.enter(&GameView::default());
         assert_eq!(a, vec![UiAction::SendChat { text: "hi all".into(), local_echo: true }]);
+    }
+
+    /// One received chat entry per frame (0x0048cc0f..0x0048cd99): the sender's name and
+    /// `": "` in (0, 255, 255), then the text and `"\n"` in white, so each message is its own
+    /// line; no prefix without a sender.
+    #[test]
+    fn received_lines() {
+        let mut c = ChatWidget::default();
+        c.print_received(Some("Player"), "hello there", 400.0, &m);
+        c.print_received(Some("Player"), "again", 400.0, &m);
+        c.print_received(None, "anon", 400.0, &m);
+        let text = |l: &Vec<Token>| l.iter().map(|t| t.text.as_str()).collect::<String>();
+        let lines: Vec<String> = c.lines.iter().map(text).collect();
+        assert_eq!(lines, ["Player: hello there", "Player: again", "anon", ""]);
+        let cyan = [0, 255, 255];
+        let white = [255, 255, 255];
+        assert_eq!(c.lines[0][0], Token { text: "Player:".into(), color: cyan });
+        assert_eq!(c.lines[0][1], Token { text: " ".into(), color: cyan });
+        assert!(c.lines[0][2..].iter().all(|t| t.color == white));
+        assert!(c.lines[2].iter().all(|t| t.color == white));
     }
 
     #[test]

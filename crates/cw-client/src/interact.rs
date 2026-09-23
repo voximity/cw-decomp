@@ -446,8 +446,9 @@ pub trait ItemModels {
 
 /// 0x00498409..0x00499e9b: the aim. The ray from the camera target along the view (`world
 /// sweep`, 60 blocks through air, statics included) gives the aim point (100 blocks when it
-/// hits nothing). The lock-on, the aimed creature, static and item are cleared, then:
-/// creatures (lit enough to be seen, in sight of the eye) whose box projects around the screen
+/// hits nothing). The lock-on, the aimed creature, static and item are cleared, then: the
+/// creatures of the frame's list ([`nearby_creatures`]: alive, within 60 blocks of the player;
+/// lit enough to be seen, in sight of the eye) whose box projects around the screen
 /// centre: the nearest to the eye is aimed; the nearest within 4 blocks of the player is the
 /// fallback; an enemy moves the aim point to its distance along the ray. Statics of the 3x3
 /// cells around the player within 4 blocks, and ground items of the 3x3 zones around
@@ -497,8 +498,9 @@ pub fn aim(p: &mut LocalPlayer, world: &World, entities: &BTreeMap<i64, EntityDa
     let pmode = player.0[ent::MODE];
     let (guard, haste) = cw_sim::util::guard_haste(states, p.id);
     let charging = pmode == 0x22 && i32_at(&player.0, ent::MODE_TIME) < cw_sim::skills::skill_total_time(&player, guard, haste);
-    // 0x00498690: the creatures.
-    for (id, c) in entities {
+    // 0x00498690: the creatures of the frame's list ([`nearby_creatures`]).
+    for cid in nearby_creatures(entities, states, &player) {
+        let (id, c) = (&cid, &entities[&cid]);
         if *id == p.id {
             continue;
         }
@@ -716,6 +718,31 @@ pub fn aim(p: &mut LocalPlayer, world: &World, entities: &BTreeMap<i64, EntityDa
         }
     }
     out
+}
+
+/// 0x004908cf..0x00490a31: the frame's creature list (`[esp+0x1dc]`, entries of creature,
+/// distance and the highlight byte), the only creatures the aim ([`aim`], 0x00498690) looks
+/// at, so nothing further is aimed, highlighted or talked to. Every creature of the world
+/// (`+0x2e8`) with `hp > 0` (`creature+0x16c`, 0x0049093d) whose render position
+/// (`creature+0x1350`) is within 60 blocks of the player's position (`0x00424860`, the squared
+/// length of the fixed difference in blocks, against 3600.0 at 0x6fd334, 0x00490981), then
+/// sorted by that distance (`std::sort`, 0x00458ba0; ties keep id order here).
+pub fn nearby_creatures(entities: &BTreeMap<i64, EntityData>, states: &BTreeMap<i64, CreatureState>, player: &EntityData) -> Vec<i64> {
+    let ppos = pos_of(player);
+    let mut list: Vec<(i64, f32)> = Vec::new();
+    for (id, c) in entities {
+        if 0.0f32 >= f32_at(&c.0, ent::HP) {
+            continue;
+        }
+        let render = states.get(id).map_or([0; 3], |s| s.riding.render_pos);
+        let d = len_sq(blocks3(sub3(render, ppos)));
+        if !(3600.0f32 >= d) {
+            continue;
+        }
+        list.push((*id, d));
+    }
+    list.sort_by(|a, b| a.1.total_cmp(&b.1));
+    list.into_iter().map(|(id, _)| id).collect()
 }
 
 /// The charged-skill target and the Shift self-target of 0x00498e22..0x00498e7c, applied to the
@@ -1139,6 +1166,76 @@ mod tests {
         assert_eq!(it.0[0x10], 1);
         let it = interact_packet(8, None, None);
         assert_eq!(i32_at(&it.0, 0x11c), -1);
+    }
+
+    struct NoModels;
+    impl ItemModels for NoModels {
+        fn size(&self, _: u32) -> Option<[i32; 3]> {
+            None
+        }
+    }
+
+    /// A flat zone at height 10, the player at its centre with a villager `ahead` blocks
+    /// towards -y, the camera behind the player looking along -y at midday. Returns the aimed
+    /// creature and whether R (edge) talked.
+    fn villager_ahead(ahead: i64, villager_hp: f32) -> (i64, bool) {
+        use crate::input::{InputState, dik};
+        use crate::player::{set_pos, set_vec3};
+        let mut world = World::new(1);
+        let mut z = cw_world::zone::Zone::new(0x8000, 0x8000);
+        for c in z.columns.iter_mut() {
+            c.height = 10;
+        }
+        world.insert_zone(Box::new(z));
+        world.time_of_day = 12 * 3_600_000;
+        let start = [(0x8000i64 * 256 + 128) << 16, (0x8000i64 * 256 + 128) << 16, 10 << 16];
+        let human = |pos: [i64; 3]| {
+            let mut e = EntityData::constructed();
+            e.0[ent::HOSTILE] = 0;
+            set_pos(&mut e, pos);
+            set_vec3(&mut e.0, 0x70, [0.96, 0.96, 2.16]);
+            e
+        };
+        let (id, vid) = (1i64, 7i64);
+        let mut entities = BTreeMap::new();
+        entities.insert(id, human(start));
+        let mut villager = human(add3(start, [0, -(ahead << 16), 0]));
+        villager.0[ent::HOSTILE] = 3;
+        crate::player::wf32(&mut villager.0, ent::HP, villager_hp);
+        entities.insert(vid, villager);
+        let mut states: BTreeMap<i64, CreatureState> = BTreeMap::new();
+        for (k, e) in &entities {
+            let mut s = CreatureState::default();
+            s.riding.render_pos = pos_of(e);
+            states.insert(*k, s);
+        }
+        let mut p = LocalPlayer::new(id);
+        p.camera.rot = [90.0, 0.0, 0.0];
+        p.camera.rot_target = p.camera.rot;
+        p.camera.dist = 5.0;
+        p.camera.dist_target = 5.0;
+        p.camera.target = start;
+        let ui = UiState::default();
+        p.camera.place(&world, &entities[&id], 0.0, &ui, 16, 0);
+        p.projection = Mat4(crate::controller::from_d3d(&cw_render::passes::projection([1280, 720], false)));
+        aim(&mut p, &world, &entities, &mut states, &NoModels, 16, [0x8000, 0x8000]);
+        let aimed = p.aimed_creature;
+        let mut input = InputState::default();
+        input.press(dik::R);
+        talk_or_mount(&mut p, &mut entities, &ControllerBytes::from_input(&input), &ui);
+        (aimed, p.events.contains(&Event::Talk { id: vid }))
+    }
+
+    /// The creature list of 0x004908cf..0x00490a31 (alive, render position within 60 blocks of
+    /// the player) is all the aim sees: a villager on the crosshair 59 blocks ahead is aimed
+    /// and talks, 61 blocks ahead it is neither, nor is a dead one.
+    #[test]
+    fn talk_range_is_the_creature_list_radius() {
+        assert_eq!(villager_ahead(30, 100.0), (7, true));
+        assert_eq!(villager_ahead(59, 100.0), (7, true));
+        assert_eq!(villager_ahead(61, 100.0), (0, false));
+        assert_eq!(villager_ahead(120, 100.0), (0, false));
+        assert_eq!(villager_ahead(30, 0.0), (0, false));
     }
 
     #[test]

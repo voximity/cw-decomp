@@ -22,14 +22,14 @@
 //!
 //! Not drawn here: the item models of the inventories and the panels' item icons
 //! (`0x004758c0`, [`super::gui_models`]), the previews' creature / world models, the
-//! panels' inline models (`BlueprintFrame::model`, `VoxelFrame::model`), the style palette's rectangles
-//! (engine slot 6 `drawRect`), and the node colours the widgets write into their parts'
-//! Displays ([`node_colors`]).
+//! panels' inline models (`BlueprintFrame::model`, `VoxelFrame::model`) and the node colours
+//! the widgets write into their parts' Displays ([`node_colors`]). The style palette's
+//! rectangles (engine slot 6 `drawRect`) are [`widget_rects`].
 
 use std::collections::BTreeMap;
 
 use cw_ui::font::TextStyle;
-use cw_ui::render::WidgetText;
+use cw_ui::render::{WidgetRect, WidgetText};
 use cw_ui::widget::{Gui, NodeId, WidgetId};
 use glam::{Affine2, Vec2};
 
@@ -210,6 +210,21 @@ pub fn widget_texts(ui: &GameUi, game: &GameView, out: &FrameOutput, texts: &mut
     }
 }
 
+/// The panels' slot-1 `drawRect` calls (engine slot 6 0x00689d50) of this frame, by widget:
+/// the hair colour palette of `CharacterStyleWidget` 0x00428e40 (0x0042b3f0..0x0042b707,
+/// after its texts), per cell a black 17x17 square at the cell, then the cell's colour
+/// 15x15 at `+1` (alpha 1 in both). Like the texts, only when the widget updated this frame.
+pub fn widget_rects(ui: &GameUi, out: &FrameOutput, rects: &mut BTreeMap<WidgetId, Vec<WidgetRect>>) {
+    if !out.style_rows.is_empty() && let Some(w) = ui.m.char_style {
+        let v = rects.entry(w).or_default();
+        for cell in super::character_style::palette() {
+            v.push(WidgetRect { pos: cell.pos, size: Vec2::splat(17.0), color: [0.0, 0.0, 0.0, 1.0] });
+            let c = cell.color;
+            v.push(WidgetRect { pos: cell.pos + Vec2::ONE, size: Vec2::splat(15.0), color: [c[0], c[1], c[2], 1.0] });
+        }
+    }
+}
+
 /// The colours the widgets write into their parts' Displays this frame (the tab icons and
 /// `frame`s of the InventoryWidgets, their up/down/scroll buttons, the craft button's
 /// `frame`). The renderer reads the Display fill colour of a node from its scene; a per-node
@@ -340,6 +355,34 @@ mod tests {
         let s = &t[&ui.m.char_style.unwrap()];
         assert_eq!(s.len(), 5 * 4 + 2);
         apply(&mut ui, &game, &out);
+    }
+
+    /// The hair colour palette of 0x00428e40 (0x0042b3f0..0x0042b707): per cell, engine
+    /// slot 6 `drawRect` of a black 17x17 square, then the cell colour 15x15 inset by one;
+    /// 16 columns x 7 rows. Nothing while the widget did not update this frame.
+    #[test]
+    fn style_palette_rects() {
+        let mut gui = Gui::new();
+        gui.viewport = glam::IVec2::new(1280, 720);
+        let game = GameView::default();
+        let ui = GameUi::new(gui, &mut NoPlx, &game);
+        let mut r = BTreeMap::new();
+        widget_rects(&ui, &FrameOutput::default(), &mut r);
+        assert!(r.is_empty());
+        let out = FrameOutput { style_rows: ui.char_style.rows(), ..FrameOutput::default() };
+        widget_rects(&ui, &out, &mut r);
+        let s = &r[&ui.m.char_style.unwrap()];
+        let cells = crate::ui::character_style::palette();
+        assert_eq!(cells.len(), 112);
+        assert_eq!(s.len(), 224);
+        for (k, cell) in cells.iter().enumerate() {
+            let (outer, inner) = (&s[2 * k], &s[2 * k + 1]);
+            assert_eq!((outer.pos, outer.size, outer.color), (cell.pos, Vec2::splat(17.0), [0.0, 0.0, 0.0, 1.0]));
+            let c = cell.color;
+            assert_eq!((inner.pos, inner.size, inner.color), (cell.pos + Vec2::ONE, Vec2::splat(15.0), [c[0], c[1], c[2], 1.0]));
+        }
+        // Column 0 row 3 is the base red at (13, 248).
+        assert_eq!((s[7].pos, s[7].color), (Vec2::new(14.0, 249.0), [1.0, 0.0, 0.0, 1.0]));
     }
 
     /// The tab icons (0x004a1e50 and the ctor's bag / shop tabs) are textures of `gui.plx`'s

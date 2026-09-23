@@ -465,9 +465,10 @@ impl Resources {
     }
 
     /// The size the GUI stream was laid out for (its `GuiDraw::proj` and the render surfaces'
-    /// size). When it differs from the back buffer (a GUI scaled by the window's DPI, see
-    /// cw-client's `app.rs`) the whole GUI is stretched over the back buffer, the quads of
-    /// the surfaces included. `None` (the default) is the back buffer's own size.
+    /// size). When it differs from the back buffer the whole GUI is stretched over the back
+    /// buffer, the quads of the surfaces included (text then looks blurred: cw-client draws
+    /// the stream at the back buffer's size, `cw_ui::render::GuiView::scale`). `None` (the
+    /// default) is the back buffer's own size.
     pub fn set_gui_viewport(&mut self, size: Option<(u32, u32)>) {
         self.gui_viewport = size;
     }

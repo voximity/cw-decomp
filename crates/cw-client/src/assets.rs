@@ -156,8 +156,15 @@ pub fn gui_frame(c: &Controller, s: &mut AssetState) -> Vec<GuiCommand> {
         s.game_dir = c.game_dir.clone();
     }
     let ui = &c.ui;
-    let (w, h) = (c.screen[0].max(1) as u32, c.screen[1].max(1) as u32);
-    let mut view = GuiView { width: w, height: h, time_ms: c.game.engine_time_ms, ..GuiView::default() };
+    // The stream is drawn at the back buffer's resolution (`GuiView::scale`): laid out in
+    // client units, every transform scaled to device pixels, glyphs rasterised at the size
+    // they are shown. Stretching a stream laid out at the client size instead (a HiDPI
+    // window) magnifies the glyph bitmaps, which blurs the text.
+    let (w, h, scale) = match c.back_buffer {
+        [bw, bh] if bw > 0 && bh > 0 => (bw, bh, c.pixel_scale),
+        _ => (c.screen[0].max(1) as u32, c.screen[1].max(1) as u32, 1.0),
+    };
+    let mut view = GuiView { width: w, height: h, scale, time_ms: c.game.engine_time_ms, ..GuiView::default() };
     // The game widgets' slot-1 text (the same computation `GameUi::frame` did this frame).
     if ui.visible(ui.m.start_menu_node) && let Some(wd) = ui.m.start_menu {
         let mut st = ui.start_menu;
@@ -170,6 +177,7 @@ pub fn gui_frame(c: &Controller, s: &mut AssetState) -> Vec<GuiCommand> {
         view.widget_texts.insert(wd, menu_texts(&items));
     }
     crate::ui::present::widget_texts(&c.ui, &c.game, &c.ui_out, &mut view.widget_texts);
+    crate::ui::present_panels::widget_rects(&c.ui, &c.ui_out, &mut view.widget_rects);
     view.fill_colors = crate::ui::present_panels::node_colors(&c.ui, &c.ui_out);
     let scenes: Vec<&cw_ui::loader::PlxScene> = c.plx.loaded.iter().map(|l| &l.scene).collect();
     if !s.textures_collected {
@@ -216,8 +224,8 @@ pub fn take_upload(s: &mut AssetState) -> FrameUpload {
 pub fn upload(ctx: &GpuContext<'_>, res: &mut Resources, u: FrameUpload) {
     let (device, queue) = (&ctx.device, &ctx.queue);
     res.set_gui_stream(u.vertices, u.indices);
-    // The GUI's own viewport (`Engine+0x10c`/`+0x110`, the controller's client size), which
-    // is the back buffer's divided by the DPI scale when the window is scaled (`app.rs`).
+    // The GUI's own viewport (`Engine+0x10c`/`+0x110`): the back buffer's size
+    // (`Controller::set_back_buffer`), the client size before the first `resetDevice`.
     res.set_gui_viewport((u.viewport[0] > 0 && u.viewport[1] > 0).then_some((u.viewport[0], u.viewport[1])));
     for &id in &u.surfaces {
         res.ensure_surface(device, id, u.viewport[0], u.viewport[1]);
@@ -406,5 +414,59 @@ mod tests {
         }
         assert_eq!(PROP_MODELS[18], -1);
         assert_eq!(PROP_MODELS[58], 0x9b0);
+    }
+
+    /// The screen rectangles (device pixels, through WorldView) and atlas rectangles (texels)
+    /// of the glyph quads of a GUI frame.
+    fn glyph_rects(cmds: &[GuiCommand], s: &AssetState) -> Vec<([f32; 4], [f32; 4])> {
+        let mut out = Vec::new();
+        for c in cmds {
+            let GuiCommand::Draw(g) = c else { continue };
+            if g.texture != Some(GLYPH_ATLAS_TEXTURE) {
+                continue;
+            }
+            let m = &g.world_view;
+            let screen = |p: [f32; 2]| [p[0] * m[0][0] + p[1] * m[1][0] + m[3][0], p[0] * m[0][1] + p[1] * m[1][1] + m[3][1]];
+            let (aw, ah) = (s.atlas.width as f32, s.atlas.height as f32);
+            for q in s.vertices[g.vertices.start as usize..g.vertices.end as usize].chunks_exact(4) {
+                let (a, b) = (screen(q[0].position), screen(q[2].position));
+                out.push(([a[0], a[1], b[0], b[1]], [q[0].uv[0] * aw, q[0].uv[1] * ah, q[2].uv[0] * aw, q[2].uv[1] * ah]));
+            }
+        }
+        out
+    }
+
+    /// A HiDPI window (`app.rs`: the controller at the logical size, the back buffer physical):
+    /// the GUI stream is built for the back buffer, and the start menu's text is rasterised at
+    /// the size it is displayed, one atlas texel per back-buffer pixel, where the logical
+    /// layout puts it. Skipped without `CW_GAME_DIR`.
+    #[test]
+    fn hidpi_gui_text_is_drawn_at_back_buffer_resolution() {
+        let Some(dir) = std::env::var_os("CW_GAME_DIR").map(PathBuf::from) else {
+            eprintln!("CW_GAME_DIR not set; skipped");
+            return;
+        };
+        let mut c = Controller::new(dir, [1280, 720], vec![(1280, 720)], false, String::new());
+        // Second frames: the atlas no longer grows (UVs are normalised to its size).
+        let mut s1 = AssetState::default();
+        gui_frame(&c, &mut s1);
+        let one = glyph_rects(&gui_frame(&c, &mut s1), &s1);
+        assert!(!one.is_empty(), "the start menu draws text");
+        c.set_back_buffer(2560, 1440, 2.0);
+        c.on_resize(1280, 720);
+        let mut s2 = AssetState::default();
+        gui_frame(&c, &mut s2);
+        let cmds = gui_frame(&c, &mut s2);
+        let two = glyph_rects(&cmds, &s2);
+        assert_eq!(take_upload(&mut s2).viewport, [2560, 1440], "the GUI viewport is the back buffer");
+        assert_eq!(two.len(), one.len());
+        for (k, ((r, t), (o, _))) in two.iter().zip(&one).enumerate() {
+            let (sw, sh, tw, th) = (r[2] - r[0], r[3] - r[1], t[2] - t[0], t[3] - t[1]);
+            assert!((sw - tw).abs() < 0.01 && (sh - th).abs() < 0.01, "quad {k}: {sw}x{sh} px drawn from {tw}x{th} texels");
+            assert!(r.iter().all(|v| (v - v.round()).abs() < 0.01), "quad {k} off the pixel grid: {r:?}");
+            // Where the logical layout puts it (the pen advances with the logical metrics
+            // the widgets measured with), give or take the rounding of the bitmap boxes.
+            assert!((r[0] - 2.0 * o[0]).abs() <= 3.0 && (r[1] - 2.0 * o[1]).abs() <= 3.0, "quad {k}: {r:?} vs 2 x {o:?}");
+        }
     }
 }

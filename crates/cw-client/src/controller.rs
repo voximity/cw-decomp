@@ -255,6 +255,11 @@ pub struct Controller {
     pub vk: VkState,
     /// `+0x11c`, `+0x120`: client width and height.
     pub screen: [i32; 2],
+    /// Port-only: the back buffer the GUI is drawn into, in device pixels, and the device
+    /// pixels per [`Self::screen`] unit (the window's DPI scale when windowed, see `app.rs`),
+    /// set by [`Self::set_back_buffer`]. `[0, 0]` is the screen size at scale 1.
+    pub back_buffer: [u32; 2],
+    pub pixel_scale: f32,
 
     // --- options and flags ---
     /// `+0x170..+0x19c`: the options block (mirror of 0x0076b1d8).
@@ -460,6 +465,8 @@ impl Controller {
             bytes: ControllerBytes::default(),
             vk: VkState::default(),
             screen,
+            back_buffer: [0, 0],
+            pixel_scale: 1.0,
             options,
             quit: false,
             view_distance: (crate::threads::CHUNK_WINDOW as f32) * 0.5 * 32.0,
@@ -647,6 +654,14 @@ impl Controller {
         self.ui.gui.inject_key_up(u16::from(vk));
         let focus = self.ui.gui.has_text_focus().is_some();
         input::on_key_up(&mut self.vk, focus, vk);
+    }
+
+    /// Port-only: the back buffer size in device pixels and the device pixels per client
+    /// unit, for the GUI stream (`assets::gui_frame`): the GUI is laid out in client units
+    /// and drawn, text included, at the back buffer's resolution.
+    pub fn set_back_buffer(&mut self, width: u32, height: u32, scale: f64) {
+        self.back_buffer = [width, height];
+        self.pixel_scale = if scale > 0.0 { scale as f32 } else { 1.0 };
     }
 
     /// Slot 4 `onResize` 0x00482a40 (and `resetDevice` 0x004c8940 storing `+0x11c/+0x120`).
@@ -864,11 +879,16 @@ impl Controller {
             UiAction::Connect { address } => self.connect(&address),
             UiAction::Disconnect => self.disconnect(),
             UiAction::SendChat { text, local_echo } => {
+                // 0x0047e61a: connected, the input goes to the send queue `+0x1000e60`;
+                // otherwise (0x0047e652..0x0047e6b0) it is pushed onto the received chat
+                // `+0x1000e58` under the player's id (`creature+8`), printed with the name like
+                // any received line.
                 let t: Vec<u16> = text.encode_utf16().collect();
+                let mut nw = self.net.world.lock().unwrap_or_else(|e| e.into_inner());
                 if !local_echo && self.net.socket_open.load(Ordering::SeqCst) {
-                    self.net.world.lock().unwrap_or_else(|e| e.into_inner()).queue_chat(t);
+                    nw.queue_chat(t);
                 } else {
-                    self.print(&text, [255, 255, 255]);
+                    nw.chat_in.push_back(net::ChatLine { sender: self.player.id, text: t });
                 }
             }
             UiAction::Print { text, color } => {
@@ -1835,11 +1855,19 @@ impl Controller {
         } else if self.game.style != self.applied_style {
             self.rebuild_player_appearance(true);
         }
-        // The chat received by the network thread (`+0x1000e58`).
-        let lines: Vec<net::ChatLine> = self.net.world.lock().unwrap_or_else(|e| e.into_inner()).chat_in.drain(..).collect();
-        for l in lines {
-            let t = String::from_utf16_lossy(&l.text);
-            self.print(&t, [255, 255, 255]);
+        // 0x0048cc0f..0x0048cd99: the front of the received chat (`+0x1000e58`), one entry
+        // per frame, printed with its sender's name (`World::findEntity` 0x0042f000 for ids
+        // `>= 0`), then popped (0x00486030).
+        let line = {
+            let mut nw = self.net.world.lock().unwrap_or_else(|e| e.into_inner());
+            nw.chat_in.pop_front().map(|l| {
+                let name = (l.sender >= 0).then(|| nw.entities.get(&l.sender).map(ui::hud::name_of)).flatten();
+                (name, String::from_utf16_lossy(&l.text))
+            })
+        };
+        if let Some((name, text)) = line {
+            let ui::GameUi { chat, fonts, .. } = &mut self.ui;
+            chat.print_received(name.as_deref(), &text, 400.0, &|t| fonts.measure_chat(t));
         }
     }
 
@@ -2928,6 +2956,44 @@ mod tests {
         c.player.events.push(Event::Examine { kind: 0x41 });
         c.player_events();
         assert!(c.ui.bubbles.iter().any(|b| b.creature == LOCAL_PLAYER_ID));
+    }
+
+    /// Chat typed offline (0x0047e652..0x0047e6b0) goes onto the received list under the
+    /// player's id and comes out one entry per frame (0x0048cc0f..0x0048cd99) as
+    /// `"<name>: "` then the text and `"\n"`: one line per message. Skipped without
+    /// `CW_GAME_DIR`.
+    #[test]
+    fn own_chat_is_named_one_line_each() {
+        let Some(dir) = std::env::var_os("CW_GAME_DIR").map(PathBuf::from) else {
+            eprintln!("CW_GAME_DIR not set; skipped");
+            return;
+        };
+        let mut c = Controller::new(dir, [1280, 720], vec![(1280, 720)], false, String::new());
+        let m = c.ui.m.clone();
+        for n in [m.start_root, m.char_select_root, m.char_create_root, m.world_select_root, m.world_create_root, m.server_root] {
+            c.ui.set_visible(n, false);
+        }
+        c.ui.set_visible(m.gui_root, true);
+        let set_name = |e: &mut EntityData| {
+            e.0[0x1158..0x1168].fill(0);
+            e.0[0x1158..0x115e].copy_from_slice(b"Player");
+        };
+        set_name(&mut c.game.player);
+        set_name(c.net.world.lock().unwrap().entities.get_mut(&c.player.id).unwrap());
+        c.ui.chat.lines.clear();
+        for msg in ["hello", "again"] {
+            c.ui.chat.input_active = true;
+            for ch in msg.encode_utf16() {
+                c.on_char(ch);
+            }
+            for a in c.ui.chat.enter(&c.game) {
+                c.apply_action(a);
+            }
+        }
+        c.ui_frame(16);
+        c.ui_frame(16);
+        let lines: Vec<String> = c.ui.chat.lines.iter().map(|l| l.iter().map(|t| t.text.as_str()).collect()).collect();
+        assert_eq!(lines, ["Player: hello", "Player: again", ""]);
     }
 
     #[test]

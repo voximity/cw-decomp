@@ -156,16 +156,41 @@ pub struct WidgetText {
     pub stroke_color: [f32; 4],
 }
 
+/// A game widget's `drawRect` call (engine slot 6 `D3D9Engine` 0x00689d50): a flat quad
+/// from `pos` to `pos + size` in the widget's space, one colour on every corner.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct WidgetRect {
+    /// Top-left corner (the first argument).
+    pub pos: Vec2,
+    /// Width and height.
+    pub size: Vec2,
+    /// RGBA.
+    pub color: [f32; 4],
+}
+
 /// Per-frame parameters of [`render_gui`].
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 pub struct GuiView {
-    /// Viewport (`Engine+0x10c`, `+0x110`).
+    /// Viewport (`Engine+0x10c`, `+0x110`) in device pixels: the size of the target the
+    /// stream is drawn to (the back buffer), which the projection, the culling and the
+    /// render surfaces use.
     pub width: u32,
     pub height: u32,
+    /// Device pixels per GUI unit (port-only, 1 in the original). The GUI is laid out in
+    /// units (the controller's client size, the cursor, the widget anchors) and every draw
+    /// is scaled by this factor on top of the root matrix, so a GUI laid out at the logical
+    /// size of a HiDPI window fills its physical back buffer. Text is laid out under the
+    /// unscaled transform (the original's metrics) and drawn with
+    /// [`crate::font::ScalableFont::draw_scaled`]: glyphs rasterised at their device pixel
+    /// size and placed on the device pixel grid instead of being stretched (see cw-client's
+    /// `app.rs` on DPI).
+    pub scale: f32,
     /// `Engine+0xe8`: the engine clock in ms (the caret blinks every 500 ms, 0x006897c0).
     pub time_ms: i32,
     /// The game widgets' text calls, drawn at the widget's slot-1 point of the traversal.
     pub widget_texts: BTreeMap<WidgetId, Vec<WidgetText>>,
+    /// The game widgets' `drawRect` calls, drawn after their texts.
+    pub widget_rects: BTreeMap<WidgetId, Vec<WidgetRect>>,
     /// Display visibility the caller sets for this frame before `Engine::render` (the
     /// `GameController::render` writes of 0x004ae27e..0x004ae370: `GC+0x800884` visible only
     /// when no menu screen is), overriding [`crate::widget::Node::visible`].
@@ -173,6 +198,21 @@ pub struct GuiView {
     /// Display fill colours the game widgets write this frame (`Display+0xf8`, e.g. the
     /// InventoryWidget tab icons 0x004c2050), overriding the scene's current value.
     pub fill_colors: BTreeMap<NodeId, [f32; 4]>,
+}
+
+impl Default for GuiView {
+    fn default() -> Self {
+        GuiView {
+            width: 0,
+            height: 0,
+            scale: 1.0,
+            time_ms: 0,
+            widget_texts: BTreeMap::new(),
+            widget_rects: BTreeMap::new(),
+            visibility: BTreeMap::new(),
+            fill_colors: BTreeMap::new(),
+        }
+    }
 }
 
 /// What [`render_gui`] produces: the GUI vertex and index streams
@@ -469,7 +509,7 @@ pub fn render_gui(gui: &Gui, scenes: &[&PlxScene], fonts: GuiFonts<'_>, atlas: &
     // beginFrame 0x00688b60: the current transform is the identity; the root node's own
     // Transformation (and the engine root matrix) come in through pushTransform.
     if let Some(root) = gui.root {
-        let base = mat4_of_affine(&gui.root_matrix);
+        let base = r.root_transform();
         r.node(root, &base, 1);
     }
     r.out
@@ -503,6 +543,26 @@ fn blur_of(d: Option<&Display>) -> f32 {
 }
 
 impl Renderer<'_, '_, '_, '_> {
+    /// The transform the traversal starts from: the engine root matrix, then the device
+    /// pixel scale ([`GuiView::scale`], port-only) so every transform is in device pixels.
+    fn root_transform(&self) -> Mat4 {
+        let s = self.pixel_scale();
+        Mat4::from_scale(glam::Vec3::new(s, s, 1.0)) * mat4_of_affine(&self.gui.root_matrix)
+    }
+
+    /// [`GuiView::scale`], 1 when unset.
+    fn pixel_scale(&self) -> f32 {
+        if self.view.scale > 0.0 { self.view.scale } else { 1.0 }
+    }
+
+    /// A world matrix without the device pixel scale, as the D3D flat array the font calls
+    /// take: the transform the original lays text out under. Text is laid out with it and
+    /// drawn with `ScalableFont::draw_scaled` at the device scale.
+    fn text_transform(&self, world: &Mat4) -> [f32; 16] {
+        let k = 1.0 / self.pixel_scale();
+        (Mat4::from_scale(glam::Vec3::new(k, k, 1.0)) * *world).to_cols_array()
+    }
+
     fn node_local(&self, n: NodeId) -> Mat4 {
         let node = &self.gui.nodes[n];
         Mat4::from_cols_array(&evaluate_transformation(node.translation, node.rotation, node.pivot, &node.deformation))
@@ -517,7 +577,7 @@ impl Renderer<'_, '_, '_, '_> {
             chain.push(p);
             cur = self.gui.nodes[p].parent;
         }
-        let mut m = mat4_of_affine(&self.gui.root_matrix);
+        let mut m = self.root_transform();
         for &c in chain.iter().rev() {
             m = m * self.node_local(c);
         }
@@ -563,7 +623,8 @@ impl Renderer<'_, '_, '_, '_> {
                 if !t.shape.dirty {
                     t.shape.rebuild(&mut *self.fonts.engine, self.fonts.files);
                 }
-                t.shape.rebuild_for_transform(&mut *self.fonts.engine, self.fonts.files, &world.to_cols_array());
+                let tt = self.text_transform(&world);
+                t.shape.rebuild_for_transform(&mut *self.fonts.engine, self.fonts.files, &tt);
             }
         }
         // The effective blur radius (0x00632f40..0x00632fe0): mean column length of the
@@ -747,9 +808,9 @@ impl Renderer<'_, '_, '_, '_> {
                 let color = t.shape.source.color.to_array();
                 let stroke = t.shape.source.stroke_color.to_array();
                 drop(sh);
-                let flat = world.to_cols_array();
+                let (flat, scale) = (self.text_transform(world), self.pixel_scale());
                 let td = match self.fonts.engine.get_font(self.fonts.files, &font) {
-                    Some(f) => f.draw(&text, Vec2::ZERO, &flat, &style),
+                    Some(f) => f.draw_scaled(&text, Vec2::ZERO, &flat, &style, scale),
                     None => return,
                 };
                 self.emit_text(&font, &td, color, stroke);
@@ -943,13 +1004,18 @@ impl Renderer<'_, '_, '_, '_> {
         let mark = |after_texts| GuiCommand::WidgetMark(cw_render::frame::GuiAnchor { widget: w as u32, after_texts });
         self.out.commands.push(mark(false));
         if let Some(texts) = self.view.widget_texts.get(&w) {
-            let flat = world.to_cols_array();
+            let (flat, scale) = (self.text_transform(world), self.pixel_scale());
             for t in texts.clone() {
                 let td = match self.fonts.engine.get_font(self.fonts.files, &t.font) {
-                    Some(f) => f.draw(&t.text, t.origin, &flat, &t.style),
+                    Some(f) => f.draw_scaled(&t.text, t.origin, &flat, &t.style, scale),
                     None => continue,
                 };
                 self.emit_text(&t.font, &td, t.color, t.stroke_color);
+            }
+        }
+        if let Some(rects) = self.view.widget_rects.get(&w) {
+            for r in rects.clone() {
+                self.fill_rect(world, r.pos, r.size, r.color);
             }
         }
         self.out.commands.push(mark(true));
@@ -986,7 +1052,7 @@ impl Renderer<'_, '_, '_, '_> {
             b = len;
         }
         // Layout under the text node's world matrix (`+0x148 node +0x48`).
-        let tflat = self.world_of(tn).to_cols_array();
+        let tflat = self.text_transform(&self.world_of(tn));
         let Some(f) = self.fonts.engine.get_font(self.fonts.files, &font) else { return };
         let x0 = f.caret(&text, a, &tflat, &style).0.x;
         let x1 = f.caret(&text, b, &tflat, &style).0.x;
@@ -1000,6 +1066,21 @@ impl Renderer<'_, '_, '_, '_> {
                 self.subtract_rect(world, Vec2::new(cx, -size), Vec2::new(1.0, size * 1.25));
             }
         }
+    }
+
+    /// `drawRect` 0x00689d50 (engine slot 6): the GUI vertex and pixel shaders
+    /// (`Engine+0x1f4`, `+0x1bc`), then a two-triangle fan of 48-byte vertices, `color` on
+    /// every corner and zero normals, under the current transform and blend state (no
+    /// texture).
+    fn fill_rect(&mut self, world: &Mat4, p: Vec2, s: Vec2, color: [f32; 4]) {
+        let base = self.out.vertices.len() as u32;
+        let first = self.out.indices.len() as u32;
+        for q in [p, Vec2::new(p.x + s.x, p.y), p + s, Vec2::new(p.x, p.y + s.y)] {
+            self.out.vertices.push(ExecVertex { position: q.to_array(), color, normal0: [0.0; 2], normal1: [0.0; 2], uv: [0.0; 2] });
+        }
+        self.out.indices.extend_from_slice(&[0, 1, 2, 0, 2, 3]);
+        let g = self.base_draw(world, base..base + 4, first..first + 6);
+        self.out.commands.push(GuiCommand::Draw(g));
     }
 
     /// `drawInvertedRect` 0x00689950 / `drawCaret` 0x006897c0: an opaque black (0xff000000)
@@ -1067,6 +1148,36 @@ mod tests {
         assert_eq!(f.draw_count(), 0);
     }
 
+    /// A game widget's `drawRect` call (engine slot 6 0x00689d50; the hair colour palette of
+    /// 0x00428e40) becomes one flat quad: untextured, normal blending, the given colour on
+    /// all four corners, after the widget's texts.
+    #[test]
+    fn widget_rect_is_a_flat_quad() {
+        use cw_render::frame::GuiAnchor;
+        let mut gui = Gui::new();
+        let root = gui.add_plain_node(None, "root");
+        let n = gui.add_plain_node(Some(root), "style");
+        let w = gui.add_widget(n, &crate::widget::WidgetSource::default());
+        let mut engine = FontEngine::new();
+        let files = DiskFonts { base: std::path::PathBuf::from("/nonexistent") };
+        let mut atlas = GlyphAtlas::default();
+        let mut view = GuiView { width: 800, height: 600, ..Default::default() };
+        let color = [0.2, 0.4, 0.6, 1.0];
+        view.widget_rects.insert(w, vec![WidgetRect { pos: Vec2::new(14.0, 198.0), size: Vec2::new(15.0, 15.0), color }]);
+        let f = render_gui(&gui, &[], GuiFonts { engine: &mut engine, files: &files }, &mut atlas, &view);
+        assert_eq!(f.draw_count(), 1);
+        let mark = |after_texts| GuiCommand::WidgetMark(GuiAnchor { widget: w as u32, after_texts });
+        assert_eq!(f.commands[0], mark(false));
+        assert_eq!(f.commands[2], mark(true));
+        let GuiCommand::Draw(g) = &f.commands[1] else { panic!("{:?}", f.commands[1]) };
+        assert!(!g.texture_enabled && g.texture.is_none() && !g.subtract);
+        let vs = &f.vertices[g.vertices.start as usize..g.vertices.end as usize];
+        let corners: Vec<[f32; 2]> = vs.iter().map(|v| v.position).collect();
+        assert_eq!(corners, vec![[14.0, 198.0], [29.0, 198.0], [29.0, 213.0], [14.0, 213.0]]);
+        assert!(vs.iter().all(|v| v.color == color));
+        assert_eq!(g.indices.end - g.indices.start, 6);
+    }
+
     /// A game widget's text call (the start menu's "Start Game", 0x00583320) becomes one
     /// textured draw over the atlas. Skipped without `CW_GAME_DIR` (resource1.dat).
     #[test]
@@ -1110,6 +1221,86 @@ mod tests {
         assert!((18..=20).contains(&quads), "{quads} quads");
         assert!(atlas.len() >= 16);
         assert!(atlas.rgba.chunks(4).any(|p| p[3] > 0));
+    }
+
+    /// The screen rectangles of the glyph quads of a one-text frame (device pixels, through
+    /// the draw's WorldView) with their atlas rectangles (texels).
+    fn glyph_rects(f: &GuiFrame, atlas: &GlyphAtlas) -> Vec<([f32; 4], [f32; 4])> {
+        let mut out = Vec::new();
+        for c in &f.commands {
+            let GuiCommand::Draw(g) = c else { continue };
+            if g.texture != Some(GLYPH_ATLAS_TEXTURE) {
+                continue;
+            }
+            let m = &g.world_view;
+            let screen = |p: [f32; 2]| [p[0] * m[0][0] + p[1] * m[1][0] + m[3][0], p[0] * m[0][1] + p[1] * m[1][1] + m[3][1]];
+            for q in f.vertices[g.vertices.start as usize..g.vertices.end as usize].chunks_exact(4) {
+                let (a, b) = (screen(q[0].position), screen(q[2].position));
+                let (ta, tb) = (q[0].uv, q[2].uv);
+                let (aw, ah) = (atlas.width as f32, atlas.height as f32);
+                out.push(([a[0], a[1], b[0], b[1]], [ta[0] * aw, ta[1] * ah, tb[0] * aw, tb[1] * ah]));
+            }
+        }
+        out
+    }
+
+    /// With a device pixel scale (a HiDPI window: the GUI laid out at the logical size, drawn
+    /// to the physical back buffer), text is rasterised at its displayed size: every glyph
+    /// quad covers exactly its atlas rectangle, one texel per device pixel, on the device
+    /// pixel grid, and the layout is the logical one scaled. Skipped without `CW_GAME_DIR`.
+    #[test]
+    fn widget_text_is_one_to_one_at_pixel_scale() {
+        let Some(dir) = std::env::var_os("CW_GAME_DIR").map(std::path::PathBuf::from) else {
+            eprintln!("CW_GAME_DIR not set; skipped");
+            return;
+        };
+        let render = |scale: f32, pixel_snap: bool| {
+            let mut gui = Gui::new();
+            let root = gui.add_plain_node(None, "root");
+            let n = gui.add_plain_node(Some(root), "chat");
+            gui.nodes[n].translation = Vec2::new(10.0, 300.0);
+            let w = gui.add_widget(n, &crate::widget::WidgetSource::default());
+            let mut engine = FontEngine::new();
+            let files = DiskFonts { base: dir.clone() };
+            let mut atlas = GlyphAtlas::default();
+            let style = TextStyle { size: 16.0, stroke_radius: 2.0, spacing: 0.0, line_spacing: 0.0, wrap_width: 0.0, flags: 0, pixel_snap };
+            let text = WidgetText {
+                font: "resource2.dat".into(),
+                text: "Hello, world: the quick brown fox jumps over the lazy dog".encode_utf16().collect(),
+                origin: Vec2::new(4.0, 20.0),
+                style,
+                color: [1.0; 4],
+                stroke_color: [0.0, 0.0, 0.0, 1.0],
+            };
+            let mut view = GuiView { width: (800.0 * scale) as u32, height: (600.0 * scale) as u32, scale, ..Default::default() };
+            view.widget_texts.insert(w, vec![text]);
+            let f = render_gui(&gui, &[], GuiFonts { engine: &mut engine, files: &files }, &mut atlas, &view);
+            glyph_rects(&f, &atlas)
+        };
+        for pixel_snap in [true, false] {
+            let one = render(1.0, pixel_snap);
+            for scale in [2.0f32, 1.5] {
+                let rects = render(scale, pixel_snap);
+                assert_eq!(rects.len(), one.len(), "snap={pixel_snap} scale={scale}");
+                assert!(!rects.is_empty());
+                for (k, (r, t)) in rects.iter().enumerate() {
+                    let (sw, sh) = (r[2] - r[0], r[3] - r[1]);
+                    let (tw, th) = (t[2] - t[0], t[3] - t[1]);
+                    assert!(
+                        (sw - tw).abs() < 1e-3 && (sh - th).abs() < 1e-3,
+                        "snap={pixel_snap} scale={scale} quad {k}: {sw}x{sh} device px drawn from a {tw}x{th} texel bitmap"
+                    );
+                    for v in r {
+                        assert!((v - v.round()).abs() < 1e-3, "snap={pixel_snap} scale={scale} quad {k} off the pixel grid: {r:?}");
+                    }
+                    // The layout is the logical one scaled: the pen advances with the
+                    // unscaled metrics (the words a caller measured at the logical size fit),
+                    // only the bitmap boxes differ by their rounding.
+                    let o = one[k].0;
+                    assert!((r[0] - o[0] * scale).abs() <= 3.0 && (r[1] - o[1] * scale).abs() <= 3.0, "snap={pixel_snap} quad {k}: {r:?} vs {o:?} x{scale}");
+                }
+            }
+        }
     }
 
     #[test]
@@ -1193,7 +1384,7 @@ mod tests {
         assert!(mesh_draws.len() <= expect_draws);
         assert!(mesh_verts as usize <= expect_verts);
         // Regression counts of the shipped start.plx (lyon tessellation, fringe, culling).
-        assert_eq!((mesh_draws.len(), f.vertices.len()), (76, 325_717), "start.plx draw/vertex counts changed");
+        assert_eq!((mesh_draws.len(), f.vertices.len()), (76, 294_666), "start.plx draw/vertex counts changed");
         for c in &f.commands {
             if let GuiCommand::Draw(g) = c {
                 let nv = g.vertices.end - g.vertices.start;

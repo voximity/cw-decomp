@@ -25,9 +25,11 @@
 //! `scale` times larger than its pixel sizes. winit makes the port per-monitor DPI aware, so
 //! the port keeps that look by giving the controller the logical client size and cursor
 //! ([`App::gui_scale`]) while the back buffer stays physical: the 3D scene is drawn at full
-//! resolution and the GUI stream (laid out in logical pixels) is stretched over it. In
-//! fullscreen (an exclusive mode of the chosen resolution, where no virtualisation applies)
-//! the scale is 1.
+//! resolution and the GUI, laid out in logical pixels, is drawn scaled to the back buffer
+//! (`Controller::set_back_buffer`, `cw_ui::render::GuiView::scale`) rather than stretched
+//! from a logical-size image, so its text is rasterised at the physical size (DWM's stretch,
+//! and a stretched stream, blur it). In fullscreen (an exclusive mode of the chosen
+//! resolution, where no virtualisation applies) the scale is 1.
 //!
 //! Differences (Tier C): the controller bytes are cleared when the window loses the focus
 //! (the original keeps the last DirectInput state, which leaves keys held); the first
@@ -417,8 +419,8 @@ pub struct App {
     /// `0x0076b1d0`: the cursor was put back once after mouse look ended.
     cursor_restored: bool,
     grabbed: bool,
-    /// `0x0076b234`: `timeGetTime()` of the last `frame`.
-    last: Option<Instant>,
+    /// `0x0076b234`: `timeGetTime()` of the last `frame` (whole milliseconds since `started`).
+    last: Option<u64>,
     started: Instant,
     /// `0x0076b1d8..0x0076b1e4`: the fullscreen, resolution and anti-aliasing options the
     /// device was last reset with (`frame` compares the controller's `+0x170..+0x17c` with
@@ -538,6 +540,7 @@ impl App {
         // The fullscreen flag may just have changed: the scale is re-read for the new mode.
         let scale = if o.fullscreen != 0 { 1.0 } else { w.scale_factor().max(1e-3) };
         let (lw, lh) = logical_size(width, height, scale);
+        c.set_back_buffer(width, height, scale);
         c.on_resize(lw, lh);
     }
 
@@ -660,9 +663,7 @@ impl App {
         self.mouse_delta = [0.0; 2];
         drop(input_scope);
         // `frame` 0x004c85f0.
-        let now = Instant::now();
-        let dt = self.last.map_or(0, |l| now.duration_since(l).as_millis() as i32);
-        self.last = Some(now);
+        let dt = frame_dt(self.started, &mut self.last, Instant::now());
         c.update(dt);
         // `frame` 0x004c85f0 step 3: the options block against the device's copy.
         let o = c.options;
@@ -794,6 +795,7 @@ impl ApplicationHandler for App {
                         sink.resize(s.width, s.height);
                     }
                     let (lw, lh) = logical_size(s.width, s.height, scale);
+                    c.set_back_buffer(s.width, s.height, scale);
                     c.on_resize(lw, lh);
                 }
             }
@@ -904,9 +906,34 @@ pub fn run(args: Args) -> Result<(), String> {
     el.run_app(&mut app).map_err(|e| e.to_string())
 }
 
+/// `frame` 0x004c85f0: `dt = timeGetTime() - last`, `last` the previous frame's stamp (0 on
+/// the first frame). The stamps are whole milliseconds since `started`, so no fraction of a
+/// millisecond is lost between frames.
+fn frame_dt(started: Instant, last: &mut Option<u64>, now: Instant) -> i32 {
+    let ms = now.duration_since(started).as_millis() as u64;
+    let dt = last.map_or(0, |l| ms.wrapping_sub(l) as i32);
+    *last = Some(ms);
+    dt
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// `frame` 0x004c85f0 takes `dt` as the difference of two whole-millisecond
+    /// `timeGetTime` stamps, so the frames' `dt`s add up to the elapsed time. Truncating each
+    /// frame's own duration instead drops the fraction every frame (6.8 ms frames gave 6).
+    #[test]
+    fn frame_dt_loses_no_time_between_frames() {
+        let start = Instant::now();
+        let mut last = None;
+        assert_eq!(frame_dt(start, &mut last, start), 0);
+        let mut total = 0;
+        for k in 1..=100u64 {
+            total += frame_dt(start, &mut last, start + Duration::from_micros(6_800 * k));
+        }
+        assert_eq!(total, 680);
+    }
 
     #[test]
     fn leaving_the_window_takes_the_cursor_off_the_gui() {

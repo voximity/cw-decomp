@@ -628,7 +628,44 @@ pub fn layout_quads<S: GlyphSource>(
     origin: Vec2,
     flags: u32,
 ) -> Vec<GlyphQuad> {
+    layout_quads_scaled(src, st, st, 1.0, text, origin, flags)
+}
+
+/// [`layout_quads`] for a device `scale` times finer than the layout (port-only, a HiDPI
+/// back buffer, see [`ScalableFont::draw_scaled`]): the pen runs exactly as in
+/// [`layout_quads`] with `st` (advances, kerning, alignment, line breaks), and each quad is
+/// the glyph of `st_dev` (the size state of the device transform) at the pen point scaled
+/// to device pixels, truncated the same way. Quads are in the device space of
+/// [`ScalableFont::draw_scaled`]'s transform. `scale == 1` with `st_dev == st` is
+/// [`layout_quads`].
+pub fn layout_quads_scaled<S: GlyphSource>(
+    src: &mut S,
+    st: &SizeState,
+    st_dev: &SizeState,
+    scale: f32,
+    text: &[u16],
+    origin: Vec2,
+    flags: u32,
+) -> Vec<GlyphQuad> {
     let vs = VECTOR_FONT_SCALE;
+    let unscaled = scale == 1.0 && st_dev == st;
+    // The top-left of a glyph quad at pen point `p` (in `st`'s space) from record `g` of
+    // `st_dev`.
+    let place = |p: Vec2, g: &GlyphRecord| -> Vec2 {
+        if !st.pixel_mode {
+            let d = p * scale;
+            Vec2::new((d.x + g.offset.x) as i32 as f32, (g.offset.y + d.y) as i32 as f32)
+        } else if unscaled {
+            Vec2::new(((p.x as i32) + (g.offset.x as i32)) as f32, ((p.y as i32) + (g.offset.y as i32)) as f32)
+        } else {
+            let d = Vec2::new((p.x as i32) as f32 * scale, (p.y as i32) as f32 * scale).round();
+            Vec2::new(d.x + (g.offset.x as i32) as f32, d.y + (g.offset.y as i32) as f32)
+        }
+    };
+    // The device record of a glyph (the layout's own when unscaled).
+    let dev = |src: &mut S, c: u16, stroke: bool, g: Option<GlyphRecord>| -> Option<GlyphRecord> {
+        if unscaled { g } else { src.glyph(st_dev, c, stroke) }
+    };
     let mut out = Vec::new();
     let (min0, _max0) = measure(src, st, text, 0, -1, true);
     let (min_a, max_a) = measure(src, st, text, flags, -1, true);
@@ -663,34 +700,22 @@ pub fn layout_quads<S: GlyphSource>(
             let mut adv = 0.0f32; // local_1c0
             let g = src.glyph(st, c, false);
             if let Some(g) = g {
-                if g.has_texture {
-                    let p = project(Vec2::new(pen, y));
-                    let pos = if !st.pixel_mode {
-                        Vec2::new((p.x + g.offset.x) as i32 as f32, (g.offset.y + p.y) as i32 as f32)
-                    } else {
-                        Vec2::new(
-                            ((p.x as i32) + (g.offset.x as i32)) as f32,
-                            ((p.y as i32) + (g.offset.y as i32)) as f32,
-                        )
-                    };
-                    out.push(GlyphQuad { pos, size: g.size, ch: c, layer: GlyphLayer::Fill });
+                if g.has_texture
+                    && let Some(d) = dev(src, c, false, Some(g))
+                {
+                    let pos = place(project(Vec2::new(pen, y)), &d);
+                    out.push(GlyphQuad { pos, size: d.size, ch: c, layer: GlyphLayer::Fill });
                 }
                 adv = g.advance.x;
             }
             if 0.0 < st.stroke_radius {
-                if let Some(s) = src.glyph(st, c, true) {
-                    if s.has_texture {
-                        let p = project(Vec2::new(pen, y));
-                        let pos = if !st.pixel_mode {
-                            Vec2::new((s.offset.x + p.x) as i32 as f32, (s.offset.y + p.y) as i32 as f32)
-                        } else {
-                            Vec2::new(
-                                ((p.x as i32) + (s.offset.x as i32)) as f32,
-                                ((p.y as i32) + (s.offset.y as i32)) as f32,
-                            )
-                        };
-                        out.push(GlyphQuad { pos, size: s.size, ch: c, layer: GlyphLayer::Stroke });
-                    }
+                let s = src.glyph(st, c, true);
+                if let Some(s) = s
+                    && s.has_texture
+                    && let Some(d) = dev(src, c, true, Some(s))
+                {
+                    let pos = place(project(Vec2::new(pen, y)), &d);
+                    out.push(GlyphQuad { pos, size: d.size, ch: c, layer: GlyphLayer::Stroke });
                 }
             }
             if i < len - 1 {
@@ -1233,6 +1258,43 @@ impl ScalableFont {
     /// `ScalableFont::draw` `0x0065bc70`: lays out `text` at `origin` under the engine's
     /// current `transform` and returns the quads to draw with `drawTexturedRect`.
     pub fn draw(&mut self, text: &[u16], origin: Vec2, transform: &[f32; 16], style: &TextStyle) -> TextDraw {
+        self.draw_scaled(text, origin, transform, style, 1.0)
+    }
+
+    /// [`Self::draw`] onto a target `scale` device pixels per unit of `transform`'s output
+    /// (port-only: the GUI of a HiDPI window, laid out at the logical size and drawn to the
+    /// physical back buffer, `crate::render::GuiView::scale`). The text is laid out exactly
+    /// as [`Self::draw`] lays it out under `transform` (the same advances, kerning, wrap and
+    /// pixel snapping, so text measured at the logical size fits where the caller put it),
+    /// but every glyph is rasterised under the device transform (`transform` scaled by
+    /// `scale`), at the size it is displayed, and placed on the device pixel grid. The
+    /// returned transform and quads are in device pixels; `scale == 1` is [`Self::draw`].
+    pub fn draw_scaled(&mut self, text: &[u16], origin: Vec2, transform: &[f32; 16], style: &TextStyle, scale: f32) -> TextDraw {
+        let (t4, wrap_w) = self.set_draw_state(transform, style);
+        let t = self.wrapped(text, style, wrap_w);
+        let st = self.state;
+        if scale == 1.0 {
+            let quads = layout_quads(&mut self.face, &st, &t, origin, style.flags);
+            return TextDraw { transform: t4, quads, state: st };
+        }
+        // The device transform: the outputs (x and y columns) scaled.
+        let mut dt = *transform;
+        for i in [0, 1, 4, 5, 8, 9, 12, 13] {
+            dt[i] *= scale;
+        }
+        let (mut t4_dev, _) = self.set_draw_state(&dt, style);
+        let st_dev = self.state;
+        // The layout's rounded translation, scaled: the text keeps its place in the scaled
+        // layout.
+        t4_dev[12] = (t4[12] * scale).round();
+        t4_dev[13] = (t4[13] * scale).round();
+        let quads = layout_quads_scaled(&mut self.face, &st, &st_dev, scale, &t, origin, style.flags);
+        TextDraw { transform: t4_dev, quads, state: st_dev }
+    }
+
+    /// The first half of `0x0065bc70`: `setSize` for `transform`, then the transform set on
+    /// the engine for the quads and the wrap width in the size state's units.
+    fn set_draw_state(&mut self, transform: &[f32; 16], style: &TextStyle) -> ([f32; 16], f32) {
         self.state.set(style.size, style.stroke_radius, style.spacing, style.line_spacing, transform, style.pixel_snap);
         let mut wrap_w = style.wrap_width;
         let mut t4 = *transform;
@@ -1259,10 +1321,7 @@ impl ScalableFont {
             t4[12] = tx;
             t4[13] = ty;
         }
-        let t = self.wrapped(text, style, wrap_w);
-        let st = self.state;
-        let quads = layout_quads(&mut self.face, &st, &t, origin, style.flags);
-        TextDraw { transform: t4, quads, state: st }
+        (t4, wrap_w)
     }
 }
 
@@ -1802,6 +1861,56 @@ mod tests {
         s.spacing = 5.0;
         let (p, _) = caret(&mut Mono { kern: 0 }, &s, &w("abc"), 2, 0);
         assert_eq!(p.x, 10.0 + 5.0 + 10.0);
+    }
+
+    /// A face whose pixel-mode advance is rounded per size like hinted advances
+    /// (`round(0.55 · size)`), ink box `size/2 × size` at (1, −size).
+    struct Hinted;
+
+    impl GlyphSource for Hinted {
+        fn glyph(&mut self, st: &SizeState, _c: u16, _stroke: bool) -> Option<GlyphRecord> {
+            let sz = st.size_x;
+            Some(GlyphRecord {
+                offset: Vec2::new(0.0, -1.0 - sz),
+                size: Vec2::new((sz / 2.0).ceil() + 2.0, sz + 2.0),
+                advance: Vec2::new((0.55 * sz).round(), 0.0),
+                has_texture: true,
+            })
+        }
+        fn kerning_raw(&mut self, _st: &SizeState, _l: u16, _r: u16) -> i32 {
+            0
+        }
+        fn units_per_em(&self) -> u16 {
+            1000
+        }
+    }
+
+    /// Scaled layout (a HiDPI target): the pen advances with the layout state's (rounded)
+    /// advances and lands on `scale ×` its unscaled position; the boxes are the device
+    /// state's. At 13 px, `round(0.55·13) = 7` per glyph; at 26 px, 14 (2 × 7): the same
+    /// layout. At 1.5× (19.5 px, advance 11 ≠ 1.5 × 7), the pen still steps 7 × 1.5.
+    #[test]
+    fn scaled_quads_keep_the_layout_metrics() {
+        let id = glam::Mat4::IDENTITY.to_cols_array();
+        let mut lay = SizeState::default();
+        lay.set(13.0, 0.0, 0.0, 0.0, &id, true);
+        let text = w("abcdefgh");
+        let one = layout_quads(&mut Hinted, &lay, &text, Vec2::new(3.0, 20.0), 0);
+        for scale in [2.0f32, 1.5] {
+            let dm = glam::Mat4::from_scale(glam::Vec3::new(scale, scale, 1.0)).to_cols_array();
+            let mut dev = SizeState::default();
+            dev.set(13.0, 0.0, 0.0, 0.0, &dm, true);
+            assert_eq!(dev.size_x, 13.0 * scale);
+            let q = layout_quads_scaled(&mut Hinted, &lay, &dev, scale, &text, Vec2::new(3.0, 20.0), 0);
+            assert_eq!(q.len(), one.len());
+            for (a, b) in q.iter().zip(&one) {
+                assert_eq!(a.pos.x, (b.pos.x * scale).round(), "scale {scale}");
+                assert_eq!(a.pos.y, (20.0 * scale).round() + ((-1.0 - 13.0 * scale) as i32) as f32, "scale {scale}");
+                assert_eq!(a.size, Vec2::new((6.5 * scale).ceil() + 2.0, 13.0 * scale + 2.0));
+            }
+        }
+        // Unscaled: the original's loop.
+        assert_eq!(layout_quads_scaled(&mut Hinted, &lay, &lay, 1.0, &text, Vec2::new(3.0, 20.0), 0), one);
     }
 
     #[test]

@@ -934,23 +934,51 @@ pub fn use_special_item(e: &mut EntityData, ground_z: f32) {
     }
 }
 
-/// `0x00447110` (`Creature::resetForRespawn`): the creature fields a respawn clears, then
-/// `EntityData::respawn` 0x00447270 on the block (not read; see the report) and the path.
-pub fn reset_for_respawn(st: &mut CreatureState) {
+/// `0x00447110` (`Creature::resetForRespawn`): the creature fields a respawn clears, with
+/// [`respawn_entity`] (0x00447270) on the entity block after the ground z, the hit-counter
+/// copy and the previous roll time. `+0x11d8` and `+0x1404` have no counterpart here; the
+/// static being walked to (`+0x1478..+0x1480` = -1, -1, 0) lives in a behaviour a player
+/// does not have.
+pub fn reset_for_respawn(e: &mut EntityData, st: &mut CreatureState) {
     st.ground_z = 0.0;
     st.modes.hit_count_copy = 0;
     st.prev_roll = 0;
+    respawn_entity(e);
     st.last_target = 0;
     st.ai.f13e0 = 0;
+    st.ai.hit_flash = 0.0;
     st.block = 0.0;
     st.stamina = 1.0;
     st.threat.clear();
     st.hits_landed.clear();
     st.cooldowns.clear();
     st.riding.smoothing = 0;
+    st.riding.walk = 0.0;
+    st.riding.anim = 0.0;
     st.charge = 0.0;
     st.modes.free_cast = 0;
+    // 0x0042ef10 (`clearPath`), then the search root `{-1, -1, -1}` and the goal radius 0.
     st.clear_path();
+    st.path.current = [-1; 3];
+    st.path.radius = 0.0;
+}
+
+/// `EntityData::respawn` 0x00447270: velocity, acceleration and the extra push
+/// (`+0x24..+0x48`) zeroed, the mode byte and its time 0, the stun -3000, `+0x120` 0, the
+/// flags word 0, MP 0, the hit counters `+0x60`/`+0x64` 0, `+0x12c` 0 and `+0x138..+0x150`
+/// zeroed.
+pub fn respawn_entity(e: &mut EntityData) {
+    e.0[0x24..0x48].fill(0);
+    e.0[ent::MODE] = 0;
+    wi32(&mut e.0, ent::MODE_TIME, 0);
+    wi32(&mut e.0, ent::STUN, -3000);
+    wi32(&mut e.0, 0x120, 0);
+    wu16(&mut e.0, ent::FLAGS, 0);
+    wi32(&mut e.0, 0x160, 0);
+    wi32(&mut e.0, 0x60, 0);
+    wi32(&mut e.0, 0x64, 0);
+    wi32(&mut e.0, 0x12c, 0);
+    e.0[0x138..0x150].fill(0);
 }
 
 /// `0x005a03d0(world, pos)`: the respawn point. The kind-0 statics of the 3x3 zones around the
@@ -1187,7 +1215,7 @@ impl LocalPlayer {
     /// maximum.
     pub fn respawn(&mut self, world: &World, entities: &mut BTreeMap<i64, EntityData>, states: &mut BTreeMap<i64, CreatureState>) -> bool {
         let Some(e) = entities.get_mut(&self.id) else { return false };
-        reset_for_respawn(states.entry(self.id).or_default());
+        reset_for_respawn(e, states.entry(self.id).or_default());
         self.leap_time = 0;
         let p = respawn_point(world, pos_of(e));
         set_pos(e, p);
@@ -2141,6 +2169,109 @@ mod tests {
         // The movement set the run flag (no Shift) and left the climb flag off.
         let flags = u16_at(&entities[&id].0, ent::FLAGS);
         assert!(flags & 0x40 != 0 && flags & 1 == 0);
+    }
+
+    /// Climbing parity (Cube.exe): W with Ctrl at a wall adds `80 * 0.2` to `accel.z`
+    /// (0x004a6ed6), the tick adds `accel * dt_s` to the velocity, whose vertical part is not
+    /// capped (the cap at 0x0061aa61 measures x and y only), and eases it towards zero,
+    /// `lerpRepeat3(vel, 0, dt, 0.0025)` (0x0061ab25). Per 20 ms tick
+    /// `v' = (v + 0.32) * 0.9975^20`, which levels off at about 6.23 blocks/s; the climbing
+    /// skill (0x0043e660) only drains stamina, empty after about 2.2 s at level 0.
+    #[test]
+    fn climbing_speed_levels_off_like_the_original() {
+        let (mut world, start) = flat_world();
+        {
+            // A wall across the player's heading (-y), one block ahead.
+            let z = world.zone_mut(0x8000, 0x8000).unwrap();
+            for bx in 0..256 {
+                for by in 0..=125 {
+                    z.column_mut(bx, by).height = 200;
+                }
+            }
+        }
+        let id = 1i64;
+        let mut entities = BTreeMap::new();
+        entities.insert(id, player_at(start));
+        let mut states: BTreeMap<i64, CreatureState> = BTreeMap::new();
+        states.insert(id, CreatureState { stamina: 1.0, ..CreatureState::default() });
+        let mut p = LocalPlayer::new(id);
+        let mut input = InputState::default();
+        input.press(dik::W);
+        input.press(dik::LCONTROL);
+        let bytes = ControllerBytes::from_input(&input);
+        let ui = UiState::default();
+        for _ in 0..10 {
+            tick(&mut world, &mut entities, &mut states, id);
+        }
+        let mut z_at = Vec::new();
+        for _ in 0..120 {
+            if let Some(e) = entities.get_mut(&id) {
+                p.glide_steering(e, 20);
+            }
+            p.movement(&world, &mut entities, &mut states, &bytes, &ui, 20, (0.0, false));
+            tick(&mut world, &mut entities, &mut states, id);
+            z_at.push(blocks3(pos_of(&entities[&id]))[2]);
+        }
+        let e = &entities[&id];
+        assert!(u16_at(&e.0, ent::FLAGS) & 1 != 0 && u32_at(&e.0, ent::PHYS) & 4 != 0, "still climbing");
+        // The expected terminal speed from the recurrence.
+        let r = 0.9975f64.powi(20);
+        let terminal = 0.32 * r / (1.0 - r);
+        let vz = f64::from(vec3_at(&e.0, ent::VEL)[2]);
+        assert!(vz <= terminal && vz > terminal - 0.2, "vz {vz} vs terminal {terminal}");
+        // Displacement over the last second agrees.
+        let per_s = f64::from(z_at[119] - z_at[69]) / 1.0;
+        assert!((per_s - terminal).abs() < 0.3, "climbed {per_s} blocks/s");
+    }
+
+    /// R while dead (0x00497383): `resetForRespawn` 0x00447110 runs `EntityData::respawn`
+    /// 0x00447270 on the entity block, so nothing of the death carries over: the mode (an
+    /// attack or skill in its wind-up) and its time, the stun (a fatal fall's daze) set to
+    /// -3000, velocity, acceleration and the extra push, the flags, MP, the hit counters;
+    /// and on the creature the walk cycle and the hit flash.
+    #[test]
+    fn respawn_clears_the_state_of_the_death() {
+        let (world, start) = flat_world();
+        let id = 1i64;
+        let mut e = player_at(start);
+        wf32(&mut e.0, ent::HP, 0.0);
+        e.0[ent::MODE] = 0x2f;
+        wi32(&mut e.0, ent::MODE_TIME, 150);
+        wi32(&mut e.0, ent::STUN, 2000);
+        set_vec3(&mut e.0, ent::VEL, [1.0, 2.0, -30.0]);
+        set_vec3(&mut e.0, ent::ACCEL, [0.0, 16.0, 0.0]);
+        set_vec3(&mut e.0, 0x3c, [3.0, 0.0, 0.0]);
+        wu16(&mut e.0, ent::FLAGS, 0x51);
+        wf32(&mut e.0, 0x160, 0.8);
+        wi32(&mut e.0, 0x60, 7);
+        wi32(&mut e.0, 0x64, 9);
+        wi32(&mut e.0, 0x120, 5);
+        wi32(&mut e.0, 0x12c, 5);
+        e.0[0x138..0x150].fill(0xab);
+        let mut entities = BTreeMap::new();
+        entities.insert(id, e);
+        let mut st = CreatureState { stamina: 0.1, ..CreatureState::default() };
+        st.riding.walk = 3.0;
+        st.riding.anim = 0.5;
+        st.ai.hit_flash = 1.0;
+        let mut states = BTreeMap::new();
+        states.insert(id, st);
+        let mut p = LocalPlayer::new(id);
+        assert!(p.respawn(&world, &mut entities, &mut states));
+        let e = &entities[&id];
+        assert_eq!(e.0[ent::MODE], 0);
+        assert_eq!(i32_at(&e.0, ent::MODE_TIME), 0);
+        assert_eq!(i32_at(&e.0, ent::STUN), -3000);
+        assert_eq!(e.0[0x24..0x48], [0u8; 0x24]);
+        assert_eq!(u16_at(&e.0, ent::FLAGS), 0);
+        assert_eq!(f32_at(&e.0, 0x160), 0.0);
+        for o in [0x60, 0x64, 0x120, 0x12c] {
+            assert_eq!(i32_at(&e.0, o), 0, "entity+{o:#x}");
+        }
+        assert_eq!(e.0[0x138..0x150], [0u8; 0x18]);
+        assert!(f32_at(&e.0, ent::HP) > 0.0);
+        let st = &states[&id];
+        assert_eq!((st.riding.walk, st.riding.anim, st.ai.hit_flash, st.stamina), (0.0, 0.0, 0.0, 1.0));
     }
 
     #[test]

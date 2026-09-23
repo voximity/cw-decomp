@@ -197,10 +197,10 @@ impl Drawing {
     ///   from lyon, and uv/colour/colour2 as the mean of its source edges' linear
     ///   interpolations (GLU weights up to four vertices by distance; the difference is
     ///   sub-pixel in colour and invisible in position).
-    /// - The triangulation itself (which diagonals, triangle order) differs from GLU.
-    ///   Every triangle is oriented like GLU's: counter-clockwise (positive cross product)
-    ///   when the input's total signed area is non-negative, clockwise otherwise. The
-    ///   outline and fringe passes rely on consistent orientation.
+    /// - The triangulation itself (which diagonals, triangle order, zero-area slivers)
+    ///   differs from GLU. The triangles are oriented like GLU's: counter-clockwise
+    ///   (positive cross product) when the input's total signed area is non-negative,
+    ///   clockwise otherwise. The outline and fringe passes rely on consistent orientation.
     pub fn tessellate(&mut self) {
         self.buffers.invalidate();
         self.indices.clear();
@@ -242,18 +242,27 @@ impl Drawing {
             out.triangles.clear();
         }
         let triangles = std::mem::take(&mut out.triangles);
-        let want_ccw = area >= 0.0;
-        for [a, b, c] in triangles {
+        // lyon winds every triangle the same way, including the zero-area slivers it emits
+        // along runs of collinear points. Orienting each triangle by its own cross product
+        // would flip slivers at random (their sign is rounding noise) and break the
+        // edge pairing `compute_outlines` relies on, so flip all or none, by the sign of
+        // the total.
+        let mut lyon_area = 0.0f64;
+        for &[a, b, c] in &triangles {
             let (pa, pb, pc) = (
                 self.positions[a as usize],
                 self.positions[b as usize],
                 self.positions[c as usize],
             );
-            let cross = (pb[0] - pa[0]) * (pc[1] - pa[1]) - (pc[0] - pa[0]) * (pb[1] - pa[1]);
-            if (cross >= 0.0) == want_ccw {
-                self.indices.extend_from_slice(&[a, b, c]);
-            } else {
+            lyon_area += (pb[0] - pa[0]) as f64 * (pc[1] - pa[1]) as f64
+                - (pc[0] - pa[0]) as f64 * (pb[1] - pa[1]) as f64;
+        }
+        let flip = (lyon_area >= 0.0) != (area >= 0.0);
+        for [a, b, c] in triangles {
+            if flip {
                 self.indices.extend_from_slice(&[a, c, b]);
+            } else {
+                self.indices.extend_from_slice(&[a, b, c]);
             }
         }
     }
@@ -974,6 +983,51 @@ mod tests {
         let total: f32 = d.indices.chunks_exact(3).map(|t| signed_area2(&d, t)).sum();
         // NONZERO: winding 2 inside the inner square is still filled.
         assert!((total / 2.0 - 100.0).abs() < 1e-3);
+    }
+
+    /// Straight edges flattened into many collinear points (the logo letters' strokes) make
+    /// lyon emit zero-area slivers. Their winding must follow the rest of the mesh: a sliver
+    /// oriented by the sign of its (noise) area breaks the directed-edge cancellation of
+    /// `compute_outlines`, turning interior edges into outline edges that get walls and a
+    /// fringe (faint lines across the start screen's "CUBE WORLD").
+    #[test]
+    fn tessellate_collinear_points_stay_manifold() {
+        // A V with both diagonals and the top split into many collinear points.
+        let corners = [[0.0f32, 0.0], [3.3, 7.7], [6.6, 0.0], [9.9, 0.0], [5.1, 11.3], [1.5, 11.3], [-3.3, 0.0]];
+        for ccw in [true, false] {
+            let mut d = Drawing::new();
+            let mut contour = Vec::new();
+            for k in 0..corners.len() {
+                let (a, b) = (corners[k], corners[(k + 1) % corners.len()]);
+                for j in 0..17 {
+                    let t = j as f32 / 17.0;
+                    contour.push(d.positions.len() as u32);
+                    d.positions.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]);
+                    d.colors.push([1.0; 4]);
+                    d.tex_coords.push([0.0; 2]);
+                }
+            }
+            if !ccw {
+                contour.reverse();
+            }
+            let n = contour.len();
+            d.contours.push(contour);
+            d.tessellate();
+            let mut dir = std::collections::HashMap::new();
+            for t in d.indices.chunks_exact(3) {
+                for (a, b) in [(t[0], t[1]), (t[1], t[2]), (t[2], t[0])] {
+                    *dir.entry((a, b)).or_insert(0) += 1;
+                }
+            }
+            for (&(a, b), &k) in &dir {
+                assert_eq!(k, 1, "ccw={ccw}: directed edge {a}->{b} used {k} times");
+            }
+            d.compute_outlines();
+            assert_eq!(d.outlines.len(), 1, "ccw={ccw}: one outline loop");
+            assert_eq!(d.outlines[0].len(), n, "ccw={ccw}: the outline is the contour");
+            let total: f32 = d.indices.chunks_exact(3).map(|t| signed_area2(&d, t)).sum();
+            assert_eq!(total > 0.0, ccw);
+        }
     }
 
     #[test]
