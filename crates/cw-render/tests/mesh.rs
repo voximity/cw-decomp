@@ -235,3 +235,89 @@ fn model_occlusion() {
     let v = m.vertices.iter().find(|v| v.pos == [1, 0, 1, 4]).unwrap();
     assert_eq!(&v.rgba()[..3], &[247, 247, 247]);
 }
+
+/// The client's mesher takes the `World` write lock once per step of the relight, so a step
+/// bounds how long the frame thread can wait for it: each step writes one row of columns (one
+/// `x`) at most.
+#[test]
+fn relight_steps_write_one_row_each() {
+    use cw_render::light::{ColumnAccess, compute_light_in_steps};
+    use cw_world::zone::Column;
+    use std::collections::BTreeSet;
+
+    struct Rows<'a> {
+        world: &'a mut World,
+        written: BTreeSet<i32>,
+    }
+    impl ColumnAccess for Rows<'_> {
+        fn column(&self, bx: i32, by: i32) -> Option<&Column> {
+            ColumnAccess::column(&*self.world, bx, by)
+        }
+        fn column_mut(&mut self, bx: i32, by: i32) -> Option<&mut Column> {
+            self.written.insert(bx);
+            ColumnAccess::column_mut(&mut *self.world, bx, by)
+        }
+    }
+
+    let mut world = three_block_world(|_| {});
+    let reference = {
+        let mut w = three_block_world(|_| {});
+        compute_light(&mut w, X0 - 16, Y0 - 16, X0 + 48, Y0 + 48, 0);
+        w
+    };
+    let mut rows = Rows { world: &mut world, written: BTreeSet::new() };
+    let mut steps = 0;
+    compute_light_in_steps::<Rows<'_>>(
+        &mut |step| {
+            rows.written.clear();
+            step(&mut rows);
+            assert!(rows.written.len() <= 1, "a step wrote rows {:?}", rows.written);
+            steps += 1;
+        },
+        X0 - 16,
+        Y0 - 16,
+        X0 + 48,
+        Y0 + 48,
+        0,
+    );
+    // Sky pass and 16 x (update, copy) over 64 rows, the publish over 64 rows.
+    assert_eq!(steps, 64 + 16 * 2 * 64 + 64);
+    for x in X0 - 16..X0 + 48 {
+        for y in Y0 - 16..Y0 + 48 {
+            assert_eq!(world.column(x, y).map(|c| c.blocks.clone()), reference.column(x, y).map(|c| c.blocks.clone()), "column ({x}, {y})");
+        }
+    }
+}
+
+/// The client's mesher takes the `World` read lock once per unit of a build: a row of columns
+/// of pass 1, a single column of pass 2 (meshing a whole row of 32 columns held the lock for up
+/// to a millisecond), the props under the write lock; the result is the direct build's.
+#[test]
+fn chunk_build_units() {
+    use cw_render::mesh::{WorldAccess, build_chunk_mesh_with};
+    struct Counting<'a> {
+        world: &'a mut World,
+        reads: usize,
+        writes: usize,
+    }
+    impl WorldAccess for Counting<'_> {
+        fn read(&mut self, f: &mut dyn FnMut(&World)) {
+            self.reads += 1;
+            f(self.world)
+        }
+        fn write(&mut self, f: &mut dyn FnMut(&mut World)) {
+            self.writes += 1;
+            f(self.world)
+        }
+    }
+    let mut w = three_block_world(|_| {});
+    let direct = build_chunk_mesh(&mut three_block_world(|_| {}), CX, CY, false).unwrap();
+    let mut access = Counting { world: &mut w, reads: 0, writes: 0 };
+    let b = build_chunk_mesh_with(&mut access, CX, CY, false).unwrap();
+    // An inner chunk, not dirty: no relight.
+    assert_eq!((access.reads, access.writes), (32 + 32 * 32, 1));
+    assert_eq!(b.buffers.len(), direct.buffers.len());
+    for (x, y) in b.buffers.iter().zip(&direct.buffers) {
+        assert_eq!(bytemuck::cast_slice::<_, u8>(&x.vertices), bytemuck::cast_slice::<_, u8>(&y.vertices));
+    }
+}

@@ -8,7 +8,9 @@
 #
 # Output goes to profiles/<timestamp>/:
 #   trace.csv    one row per frame: wall time, update dt, every phase and lock wait (ms)
-#   stats.log    5 s summaries, slow frames, worker operations over NOTE_MS (default 4 ms)
+#   stats.log    5 s summaries, slow frames, worker operations over NOTE_MS (default 4 ms),
+#                World lock waits over WAIT_MS (default 1 ms) with the worker holds that caused
+#                them, per-holder totals at the end
 #   meta.txt     commit, machine, display options
 #   cpu.json.gz  (with --samply) open at https://profiler.firefox.com
 #
@@ -64,6 +66,7 @@ export CW_GAME_DIR="$game_dir"
 export CW_CLIENT_TRACE="$PWD/$out/trace.csv"
 export CW_CLIENT_STATS=1
 export CW_CLIENT_STATS_NOTE_MS="${NOTE_MS:-4}"
+export CW_CLIENT_STATS_WAIT_MS="${WAIT_MS:-1}"
 
 client=(./target/release/cw-client ${client_args[@]+"${client_args[@]}"})
 if [ $samply -eq 1 ]; then

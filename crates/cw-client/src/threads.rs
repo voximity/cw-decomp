@@ -35,19 +35,25 @@
 //! the frame never nests them.
 //!
 //! The workers take lock A per small unit of work and step aside while the frame thread waits
-//! for it ([`FrameGate`]); each worker unit holds it for at most a few milliseconds, so the
-//! frame never waits long (`CW_CLIENT_STATS=1` logs the frame's lock waits and any worker
-//! hold over 8 ms, `crate::profile`).
+//! for it ([`FrameGate`]). A unit is a row of columns (a relight step, a mesh pass), a cell of
+//! a map tile, a zone insert: well under a millisecond, because the frame takes lock A several
+//! times a frame and can wait for a unit (plus a queued one) each time; units of 1..4 ms (a
+//! whole relight sweep, a row of map cells) added up to 4..8 ms frame stalls.
+//! `CW_CLIENT_STATS=1` logs the frame's lock waits and any worker hold over 8 ms
+//! (`CW_CLIENT_STATS_NOTE_MS`); `CW_CLIENT_STATS_WAIT_MS=<ms>` also logs every frame wait over
+//! `<ms>` with the worker holds that overlapped it (`crate::profile`).
 //!
 //! # Differences from the original (Tier C threading, Tier B order)
 //!
 //! - Zones are generated in a private copy of the world ([`World::generator_copy`], as the
 //!   server port's generation thread does), lit (`computeLight`, zone-local) outside the lock,
 //!   and inserted under a brief write lock; the original generates in place with no lock and
-//!   publishes the zone pointer. The algorithms and their order are unchanged.
+//!   publishes the zone pointer. The algorithms and their order are unchanged. The unload pass
+//!   takes zones and regions out under the write lock and saves them after it ([`unload_pass`]).
 //! - `buildChunkMesh` relights (writes) the world, so the mesher takes the `World` write lock
-//!   for the relight and the props and the read lock for each row of columns of its two passes
-//!   (`cw_render::mesh::build_chunk_mesh_with`); the original takes no lock. It builds without
+//!   for each row of columns of each relight step and for the props, and the read lock for
+//!   each row of columns of its two passes (`cw_render::mesh::build_chunk_mesh_with`); the
+//!   original takes no lock. It builds without
 //!   lock C (the original builds under it), so the frame never waits for a whole build.
 //! - The every-60-seconds character save of the mesher (0x00487520 when `GC+0x388 != 0`) runs
 //!   on the main thread (`Controller::update`), which owns the character records.
@@ -275,14 +281,24 @@ impl ClientShared {
     /// Lock A for reading. The frame thread goes through [`FrameGate::frame_waits`], a worker
     /// through [`FrameGate::let_frame_in`] first.
     pub fn read_world(&self) -> Held<std::sync::RwLockReadGuard<'_, World>> {
-        let g = self.gate.acquire(|| self.world.read().unwrap_or_else(|e| e.into_inner()));
-        Held::new(g, "World read lock")
+        self.read_world_as("World read lock")
     }
 
     /// Lock A for writing (see [`ClientShared::read_world`]).
     pub fn write_world(&self) -> Held<std::sync::RwLockWriteGuard<'_, World>> {
+        self.write_world_as("World write lock")
+    }
+
+    /// [`ClientShared::read_world`] for a worker unit named `what` (the diagnostics' label).
+    pub fn read_world_as(&self, what: &'static str) -> Held<std::sync::RwLockReadGuard<'_, World>> {
+        let g = self.gate.acquire(|| self.world.read().unwrap_or_else(|e| e.into_inner()));
+        Held::new(g, what)
+    }
+
+    /// [`ClientShared::write_world`] for a worker unit named `what`.
+    pub fn write_world_as(&self, what: &'static str) -> Held<std::sync::RwLockWriteGuard<'_, World>> {
         let g = self.gate.acquire(|| self.world.write().unwrap_or_else(|e| e.into_inner()));
-        Held::new(g, "World write lock")
+        Held::new(g, what)
     }
 
     pub fn lock_tiles(&self) -> std::sync::MutexGuard<'_, MapTiles> {
@@ -315,7 +331,10 @@ impl FrameGate {
     /// on a worker; the wait counts as [`Phase::WaitWorld`] on the frame thread.
     pub fn acquire<G>(&self, lock: impl FnOnce() -> G) -> G {
         if IS_FRAME_THREAD.with(|m| *m) {
-            self.frame_waits(|| profile::wait(Phase::WaitWorld, lock))
+            let t = Instant::now();
+            let g = self.frame_waits(|| profile::wait(Phase::WaitWorld, lock));
+            profile::attribute_wait(t, Instant::now());
+            g
         } else {
             self.let_frame_in();
             lock()
@@ -374,6 +393,7 @@ impl<G> Drop for Held<G> {
     fn drop(&mut self) {
         if let Some((t, what)) = self.since {
             profile::worker_note(what, t.elapsed());
+            profile::record_hold(what, t);
         }
     }
 }
@@ -485,7 +505,7 @@ pub fn chunk_mesh_pass(shared: &ClientShared) -> bool {
                 ring.records[j.slot].release();
             }
             if may_build {
-                let ready = chunk_ready(&shared.read_world(), j.x, j.y);
+                let ready = chunk_ready(&shared.read_world_as("mesh ready"), j.x, j.y);
                 if ready {
                     may_build = false;
                     // The build runs without lock C (Tier C; the original holds it, and the
@@ -521,10 +541,10 @@ struct SharedWorld<'a>(&'a ClientShared);
 
 impl WorldAccess for SharedWorld<'_> {
     fn read(&mut self, f: &mut dyn FnMut(&World)) {
-        f(&self.0.read_world());
+        f(&self.0.read_world_as("mesh read"));
     }
     fn write(&mut self, f: &mut dyn FnMut(&mut World)) {
-        f(&mut self.0.write_world());
+        f(&mut self.0.write_world_as("mesh write"));
     }
 }
 
@@ -597,9 +617,13 @@ pub type Coords = Vec<(i32, i32)>;
 /// zone distance 16 of goes (`0x005a4890`, unloadZone; with a world switch, every zone);
 /// then the region unless a centre's region is within 2 on both axes (`0x005a4800`), then its
 /// climate point unless one is within 4 (`0x005a4780`). Returns the zones, regions and points
-/// removed, for the generator copy.
-pub fn unload_pass(world: &mut World, centres: &[(i32, i32)], switching: bool) -> (Coords, Coords, Coords) {
-    let (mut zones, mut regions, mut points) = (Vec::new(), Vec::new(), Vec::new());
+/// removed, for the generator copy, and their saves.
+///
+/// The zones and regions are only taken out here, under the world lock; their saves (zlib and
+/// one SQLite write per blob, 10..15 ms for a batch) run after it ([`Unloaded::save`], Tier C:
+/// the original saves inside `unloadZone`/`unloadRegion`), in the same order.
+pub fn unload_pass(world: &mut World, centres: &[(i32, i32)], switching: bool) -> Unloaded {
+    let mut out = Unloaded { target: world.save_target(), ..Unloaded::default() };
     for (rx, ry) in world.loaded_regions() {
         for i in 0..64 {
             for j in 0..64 {
@@ -612,8 +636,13 @@ pub fn unload_pass(world: &mut World, centres: &[(i32, i32)], switching: bool) -
                         let (dx, dy) = (zx.wrapping_sub(cx), zy.wrapping_sub(cy));
                         dx.wrapping_mul(dx).wrapping_add(dy.wrapping_mul(dy)) < 0x10
                     });
-                if !near && world.unload_zone(zx, zy).is_some() {
-                    zones.push((zx, zy));
+                // `World::unload_zone` without its save.
+                if !near
+                    && world.region(region_of(zx), region_of(zy)).is_some()
+                    && let Some(zone) = world.remove_zone(zx, zy)
+                {
+                    out.zones.push((zx, zy));
+                    out.saves.push(PendingSave::Zone(zone));
                 }
             }
         }
@@ -623,14 +652,47 @@ pub fn unload_pass(world: &mut World, centres: &[(i32, i32)], switching: bool) -
                     .iter()
                     .any(|&(cx, cy)| rx.wrapping_sub(region_of(cx)).wrapping_abs() < r && ry.wrapping_sub(region_of(cy)).wrapping_abs() < r)
         };
-        if !within(3) && world.unload_region(rx, ry) {
-            regions.push((rx, ry));
+        // `World::unload_region` without its save.
+        if !within(3)
+            && let Some(region) = world.take_region(rx, ry)
+        {
+            out.regions.push((rx, ry));
+            out.saves.push(PendingSave::Region(rx, ry, region));
         }
         if !within(5) && world.remove_region(rx, ry) {
-            points.push((rx, ry));
+            out.points.push((rx, ry));
         }
     }
-    (zones, regions, points)
+    out
+}
+
+/// A zone or region the unload pass took out, still to be saved.
+enum PendingSave {
+    Zone(Box<cw_world::zone::Zone>),
+    Region(i32, i32, Box<cw_world::region::Region>),
+}
+
+/// What [`unload_pass`] removed.
+#[derive(Default)]
+pub struct Unloaded {
+    pub zones: Coords,
+    pub regions: Coords,
+    pub points: Coords,
+    saves: Vec<PendingSave>,
+    target: cw_world::save::SaveTarget,
+}
+
+impl Unloaded {
+    /// The saves of `World::unloadZone` (`saveZone`) and `World::unloadRegion`
+    /// (`saveEntities`), in the pass's order; the write results are not checked, as there.
+    pub fn save(self) {
+        for p in &self.saves {
+            let _ = match p {
+                PendingSave::Zone(zone) => self.target.save_zone(zone),
+                PendingSave::Region(rx, ry, region) => self.target.save_region_entities(*rx, *ry, region),
+            };
+        }
+    }
 }
 
 /// One pass of `zoneThread 0x0046a8a0`. Returns whether a zone was generated.
@@ -657,7 +719,7 @@ pub fn zone_pass(shared: &ClientShared, st: &mut ZoneThread) -> bool {
     };
     let mut generated = false;
     if matches {
-        let pick = nearest_missing_zone(&shared.read_world(), &centres, player_block);
+        let pick = nearest_missing_zone(&shared.read_world_as("zone search"), &centres, player_block);
         if let Some((x, y)) = pick {
             generate_one(shared, st, x, y);
             generated = true;
@@ -668,18 +730,17 @@ pub fn zone_pass(shared: &ClientShared, st: &mut ZoneThread) -> bool {
     let now = Instant::now();
     if !matches || now.duration_since(st.last_unload) >= Duration::from_millis(0x3e9) {
         st.last_unload = now;
-        // Performance note for a future optimiser: the unload pass saves every unloaded zone
-        // (zlib + SQLite) under the write lock, 8..15 ms when a batch of zones goes; the
-        // zones could be removed under the lock and saved after it.
-        let (_, regions, points) = unload_pass(&mut shared.write_world(), &centres, !matches);
+        // The zones and regions leave under the write lock; they are saved after it.
+        let unloaded = unload_pass(&mut shared.write_world_as("zone unload"), &centres, !matches);
         if let Some(g) = &mut st.generator {
-            for &(rx, ry) in &regions {
+            for &(rx, ry) in &unloaded.regions {
                 g.forget_region(rx, ry);
             }
-            for &(rx, ry) in &points {
+            for &(rx, ry) in &unloaded.points {
                 g.remove_region(rx, ry);
             }
         }
+        unloaded.save();
     }
     if !matches {
         load_world(shared, st, request.0, &request.1);
@@ -690,8 +751,8 @@ pub fn zone_pass(shared: &ClientShared, st: &mut ZoneThread) -> bool {
 /// `World::generateZone(x, y)` in the zone thread's copy of the world, then the zone lit and
 /// inserted into the client world under lock A.
 fn generate_one(shared: &ClientShared, st: &mut ZoneThread, x: i32, y: i32) {
-    let g = st.generator.get_or_insert_with(|| shared.read_world().generator_copy());
-    g.pull_play_state(&shared.read_world());
+    let g = st.generator.get_or_insert_with(|| shared.read_world_as("zone copy").generator_copy());
+    g.pull_play_state(&shared.read_world_as("zone pull"));
     // `generateZone` creates the 3x3 regions around the zone first (0x005186e1), published
     // before the zone so the tick sees them in the original's order of events.
     for dx in -1..=1 {
@@ -699,10 +760,10 @@ fn generate_one(shared: &ClientShared, st: &mut ZoneThread, x: i32, y: i32) {
             g.create_region(region_of(x) + dx, region_of(y) + dy);
         }
     }
-    g.publish_generation(&mut shared.write_world());
+    g.publish_generation(&mut shared.write_world_as("zone publish"));
     // `spawnCellNpc` at the end of `generateZone` reads the cells as the tick has them then
     // (the singleplayer world activates regions while the zone is built).
-    g.generate_zone_hooked(x, y, &mut |_, _| {}, &mut |g| g.pull_play_state(&shared.read_world()));
+    g.generate_zone_hooked(x, y, &mut |_, _| {}, &mut |g| g.pull_play_state(&shared.read_world_as("zone pull")));
     let mut zone = g.remove_zone(x, y);
     // 0x005ede84: `computeLight` over the zone with the zone as the column hint. It reads and
     // writes only the zone's own columns (`ZoneColumns`), so it runs here, before the lock:
@@ -713,7 +774,7 @@ fn generate_one(shared: &ClientShared, st: &mut ZoneThread, x: i32, y: i32) {
         cw_render::light::compute_light(&mut cw_render::light::ZoneColumns(zone), x0, y0, x0 + 256, y0 + 256, 0);
     }
     {
-        let mut w = shared.write_world();
+        let mut w = shared.write_world_as("zone insert");
         g.publish_generation(&mut w);
         if let Some(zone) = zone
             && w.zone(x, y).is_none()
@@ -871,6 +932,27 @@ mod tests {
         assert!(cs.matches());
         cs.requested_seed = 5;
         assert!(!cs.matches());
+    }
+
+    /// The unload pass takes zones and regions out under the world lock and leaves their saves
+    /// (zlib and SQLite, 10..15 ms for a batch) for after it.
+    #[test]
+    fn unload_pass_saves_after_the_lock() {
+        let mut w = World::new(1);
+        w.has_name = true;
+        w.attach_save(cw_formats::SaveDb::in_memory().unwrap());
+        w.create_region(1, 3);
+        let mut z = cw_world::zone::Zone::new(100, 200);
+        z.dirty = true;
+        w.insert_zone(Box::new(z));
+        let key = cw_world::save::zone_key(100, 200);
+        let unloaded = unload_pass(&mut w, &[], true);
+        assert_eq!(unloaded.zones, vec![(100, 200)]);
+        assert_eq!(unloaded.regions, vec![(1, 3)]);
+        assert!(w.zone(100, 200).is_none() && w.region(1, 3).is_none());
+        assert!(w.saved_blob(&key).is_none(), "saved under the lock");
+        unloaded.save();
+        assert!(w.saved_blob(&key).is_some());
     }
 
     #[test]

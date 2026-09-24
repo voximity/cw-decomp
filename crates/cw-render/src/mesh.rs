@@ -431,9 +431,9 @@ pub fn build_chunk_mesh(world: &mut World, cx: i32, cy: i32, dirty: bool) -> Opt
     build_chunk_mesh_with(&mut DirectAccess(world), cx, cy, dirty)
 }
 
-/// How [`build_chunk_mesh_with`] reaches the world: once per unit of work (the relight, each of
-/// the 32 rows of columns of the two passes, the props), so a caller can take its lock per
-/// unit instead of for the whole build.
+/// How [`build_chunk_mesh_with`] reaches the world: once per unit of work (each row of columns
+/// of each relight step, each row of columns of pass 1, each column of pass 2, the props), so a
+/// caller can take its lock per unit instead of for the whole build.
 pub trait WorldAccess {
     /// Runs `f` with the world readable.
     fn read(&mut self, f: &mut dyn FnMut(&World));
@@ -454,12 +454,12 @@ impl WorldAccess for DirectAccess<'_> {
 }
 
 /// [`build_chunk_mesh`] with the world reached through `access` per unit of work (the relight,
-/// then pass 1 and pass 2 one row of 32 columns at a time, then the props). Between two units
-/// the world may change (the original's mesher holds no lock at all while it builds; Tier C
-/// threading); with no change in between the result is exactly [`build_chunk_mesh`]'s.
+/// then pass 1 one row of 32 columns and pass 2 one column at a time, then the props). Between
+/// two units the world may change (the original's mesher holds no lock at all while it builds;
+/// Tier C threading); with no change in between the result is exactly [`build_chunk_mesh`]'s.
 ///
-/// Performance note for a future optimiser: each sweep of the relight is one unit under the
-/// write lock (up to 64x64 columns); the sweeps dominate edge-chunk builds.
+/// The relight is reached once per row of columns of each of its steps
+/// ([`compute_light_in_steps`]), so no unit under the write lock covers more than 64 columns.
 pub fn build_chunk_mesh_with(access: &mut dyn WorldAccess, cx: i32, cy: i32, dirty: bool) -> Option<ChunkBuild> {
     if cx < 0 || cy < 0 {
         return None;
@@ -473,7 +473,7 @@ pub fn build_chunk_mesh_with(access: &mut dyn WorldAccess, cx: i32, cy: i32, dir
     let (lx, ly) = (x0 & 0xff, y0 & 0xff);
     if dirty || lx == 0 || ly == 0 || lx == 0xe0 || ly == 0xe0 {
         let r = if dirty { 4 } else { 16 };
-        // One unit per step of the relight (the sky pass, each sweep, the publish).
+        // One unit per row of columns of each relight step.
         compute_light_in_steps::<World>(&mut |step| access.write(step), x0 - r, y0 - r, x0 + CHUNK_SIZE + r, y0 + CHUNK_SIZE + r, 0);
     }
 
@@ -488,14 +488,15 @@ pub fn build_chunk_mesh_with(access: &mut dyn WorldAccess, cx: i32, cy: i32, dir
     let mut slabs: Vec<ChunkMesh> =
         (0..slab_count).map(|i| ChunkMesh { base_z: min_z + i as i32 * SLAB_HEIGHT, ..Default::default() }).collect();
 
-    // Pass 2, one row of columns per unit.
+    // Pass 2, one column per unit (x outer, y inner, as the original's loops).
     for x in x0..x0 + CHUNK_SIZE {
-        access.read(&mut |w| {
-            for y in y0..y0 + CHUNK_SIZE {
-                let Some(col) = w.column(x, y) else { continue };
-                mesh_column(w, &mut slabs, x0, y0, x, y, col, min_z);
-            }
-        });
+        for y in y0..y0 + CHUNK_SIZE {
+            access.read(&mut |w| {
+                if let Some(col) = w.column(x, y) {
+                    mesh_column(w, &mut slabs, x0, y0, x, y, col, min_z);
+                }
+            });
+        }
     }
 
     let mut props = Vec::new();

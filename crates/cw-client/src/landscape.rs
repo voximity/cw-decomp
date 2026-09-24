@@ -128,9 +128,10 @@ pub fn build_zone_tile(world: &World, zone: &Zone) -> BuiltZoneTile {
     b.finish()
 }
 
-/// [`build_zone_tile`] in units: the z range ([`ZoneTileBuild::new`]), then one unit per row of
-/// 8-block cells (`cx`, the outer loop of `0x00604190..`), so the landscape thread can take the
-/// world's read lock per row.
+/// [`build_zone_tile`] in units: the z range ([`ZoneTileBuild::new`]), then one unit per
+/// 8-block cell (`cx` outer, `cy` inner, the loops of `0x00604190..`), so the landscape thread
+/// can take the world's read lock per cell (a row of 32 cells held it for up to ~4 ms, which the
+/// frame thread waited through several times a frame).
 pub struct ZoneTileBuild {
     base_z: i32,
     layers: i32,
@@ -169,8 +170,15 @@ impl ZoneTileBuild {
 
     /// The cells `(cx, 0..32)`.
     pub fn row(&mut self, world: &World, zone: &Zone, cx: i32) {
-        let (zx, zy) = (zone.x, zone.y);
         for cy in 0..32 {
+            self.cell(world, zone, cx, cy);
+        }
+    }
+
+    /// The cell `(cx, cy)` (one pass of the inner loop of `0x00604190..`).
+    pub fn cell(&mut self, world: &World, zone: &Zone, cx: i32, cy: i32) {
+        let (zx, zy) = (zone.x, zone.y);
+        {
             // 0x00604190..0x006042b6: the surface colour and height of the 8×8 columns.
             let mut rgb = [0.0f32; 3];
             let mut hsum = 0.0f32;
@@ -416,7 +424,7 @@ impl LandscapeBuilder {
     }
 
     /// [`LandscapeBuilder::zone_tile`] with the world reached through `read` per unit: the
-    /// checks, the z range, each row of cells ([`ZoneTileBuild`]). A zone unloaded between two
+    /// checks, the z range, each cell ([`ZoneTileBuild`]). A zone unloaded between two
     /// units ends the build without a tile (the zone thread only unloads zones far from the
     /// player, which the next pass no longer asks for).
     pub fn zone_tile_with(&mut self, read: &mut WorldRead<'_>, tiles: &Mutex<MapTiles>, zx: i32, zy: i32) {
@@ -424,13 +432,15 @@ impl LandscapeBuilder {
         read(&mut |world| build = self.zone_tile_start(world, tiles, zx, zy));
         let Some(mut b) = build else { return };
         for cx in 0..32 {
-            let mut gone = false;
-            read(&mut |world| match world.zone(zx, zy) {
-                Some(zone) => b.row(world, zone, cx),
-                None => gone = true,
-            });
-            if gone {
-                return;
+            for cy in 0..32 {
+                let mut gone = false;
+                read(&mut |world| match world.zone(zx, zy) {
+                    Some(zone) => b.cell(world, zone, cx, cy),
+                    None => gone = true,
+                });
+                if gone {
+                    return;
+                }
             }
         }
         self.zone_tile_finish(tiles, zx, zy, b.finish());
@@ -510,13 +520,13 @@ impl LandscapeBuilder {
 
     /// [`LandscapeBuilder::iterate`] with the world reached through `read`, once per unit of
     /// work (a region record, a landscape tile's climate points, one search for the nearest
-    /// zone, the checks and each row of cells of a zone tile): the worker takes the world's
+    /// zone, the checks and each cell of a zone tile): the worker takes the world's
     /// read lock inside `read`, so the zone thread and the frame can write between units.
     ///
     /// Performance note for a future optimiser: the original reads the world with no lock at
     /// all; one lock per unit costs a lock round trip each. A zone tile of a generated world
     /// takes 100..180 ms of CPU (`World::block` and `terrainColor` per voxel under the
-    /// surface), which is why it is cut into rows.
+    /// surface), which is why it is cut into cells.
     pub fn iterate_with(&mut self, read: &mut WorldRead<'_>, tiles: &Mutex<MapTiles>, centre: [i32; 2]) {
         let [cx, cy] = centre;
         let (rcx, rcy) = (cx / 64, cy / 64);
@@ -649,6 +659,7 @@ fn run(world: Arc<RwLock<World>>, gate: Arc<FrameGate>, tiles: Arc<Mutex<MapTile
                 let w = gate.acquire(|| world.read().unwrap_or_else(|e| e.into_inner()));
                 let t = Instant::now();
                 f(&w);
+                crate::profile::record_hold("landscape read", t);
                 drop(w);
                 crate::profile::worker_note("World read lock held", t.elapsed());
             },
@@ -719,6 +730,34 @@ mod tests {
         assert_ne!(e.tile.as_ref().unwrap().model, first);
         assert_eq!(e.fade, 0);
         assert!(!e.dirty);
+    }
+
+    /// The landscape thread takes the world's read lock once per unit: a zone tile is built one
+    /// cell (8x8 columns) per unit, so the frame thread never waits for a whole row of cells.
+    #[test]
+    fn zone_tile_units_are_cells() {
+        let w = flat_world();
+        let tiles = Mutex::new(MapTiles::new());
+        let mut b = LandscapeBuilder::new();
+        b.iterate(&w, &tiles, [10, 20]);
+        tiles.lock().unwrap().mark_dirty(10, 20);
+        let mut units = 0;
+        b.zone_tile_with(
+            &mut |f| {
+                units += 1;
+                f(&w)
+            },
+            &tiles,
+            10,
+            20,
+        );
+        // The checks, then the 32x32 cells.
+        assert_eq!(units, 1 + 32 * 32);
+        let t = tiles.lock().unwrap();
+        let e = t.entry(10, 20).unwrap();
+        let reference = build_zone_tile(&w, w.zone(10, 20).unwrap());
+        assert_eq!(e.tile.as_ref().unwrap().size, reference.size);
+        assert_eq!(b.store.get(&(10, 20)).unwrap(), &reference);
     }
 
     #[test]

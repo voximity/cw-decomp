@@ -141,10 +141,12 @@ pub fn compute_light<C: ColumnAccess + ?Sized>(cols: &mut C, x0: i32, y0: i32, x
 /// A way to run one step of [`compute_light_in_steps`] with the columns writable.
 pub type ColumnsStep<'a, C> = dyn FnMut(&mut dyn FnMut(&mut C)) + 'a;
 
-/// [`compute_light`] with the columns reached through `with` once per step: the sky pass, each
-/// of the sixteen sweeps (update and copy), the publish. A caller can take its lock per step
-/// (the chunk mesher, so the frame never waits for a whole relight); with no change to the
-/// columns between steps the result is exactly [`compute_light`]'s.
+/// [`compute_light`] with the columns reached through `with` once per step, a step being one
+/// row of columns (one `x`) of the sky pass, of a sweep's update, of its copy or of the
+/// publish. A caller can take its lock per step (the chunk mesher, so the frame never waits for
+/// more than a row); with no change to the columns between steps the result is exactly
+/// [`compute_light`]'s: every step of a phase reads only bytes that phase does not write (the
+/// update reads byte 2 and writes byte 1, the copy and the publish touch their own column).
 pub fn compute_light_in_steps<C: ColumnAccess + ?Sized>(
     with: &mut ColumnsStep<'_, C>,
     x0: i32,
@@ -157,16 +159,25 @@ pub fn compute_light_in_steps<C: ColumnAccess + ?Sized>(
     let (ya, yb) = (y0 - margin, y1 + margin);
 
     // 1. Sky pass, 0x0059a110..0x0059a1bc.
-    with(&mut |cols| sky_pass(cols, xa, xb, ya, yb));
+    for x in xa..xb {
+        with(&mut |cols| sky_pass(cols, x, x + 1, ya, yb));
+    }
 
     // 2. Sixteen sweeps, 0x0059a1c2..0x0059a6d6 (update) and 0x0059a6d6.. (copy).
     let mut scratch: Vec<Option<u8>> = Vec::new();
     for _ in 0..16 {
-        with(&mut |cols| sweep(cols, &mut scratch, xa, xb, ya, yb));
+        for x in xa..xb {
+            with(&mut |cols| sweep_update(cols, &mut scratch, x, x + 1, ya, yb));
+        }
+        for x in xa..xb {
+            with(&mut |cols| sweep_copy(cols, x, x + 1, ya, yb));
+        }
     }
 
     // 3. Publish (no margin).
-    with(&mut |cols| publish(cols, x0, x1, y0, y1));
+    for x in x0..x1 {
+        with(&mut |cols| publish(cols, x, x + 1, y0, y1));
+    }
 }
 
 /// Step 1 of [`compute_light`].
@@ -188,8 +199,8 @@ fn sky_pass<C: ColumnAccess + ?Sized>(cols: &mut C, xa: i32, xb: i32, ya: i32, y
     }
 }
 
-/// One of the sixteen sweeps of [`compute_light`] (update, then copy).
-fn sweep<C: ColumnAccess + ?Sized>(cols: &mut C, scratch: &mut Vec<Option<u8>>, xa: i32, xb: i32, ya: i32, yb: i32) {
+/// The update half of one of the sixteen sweeps of [`compute_light`] over the rows `xa..xb`.
+fn sweep_update<C: ColumnAccess + ?Sized>(cols: &mut C, scratch: &mut Vec<Option<u8>>, xa: i32, xb: i32, ya: i32, yb: i32) {
     for x in xa..xb {
         for y in ya..yb {
             let Some(col) = cols.column(x, y) else { continue };
@@ -218,7 +229,10 @@ fn sweep<C: ColumnAccess + ?Sized>(cols: &mut C, scratch: &mut Vec<Option<u8>>, 
             }
         }
     }
-    // 0x0059a6d6..0x0059a74e: byte 2 = byte 1.
+}
+
+/// The copy half of a sweep over the rows `xa..xb`, 0x0059a6d6..0x0059a74e: byte 2 = byte 1.
+fn sweep_copy<C: ColumnAccess + ?Sized>(cols: &mut C, xa: i32, xb: i32, ya: i32, yb: i32) {
     for x in xa..xb {
         for y in ya..yb {
             let Some(col) = cols.column_mut(x, y) else { continue };

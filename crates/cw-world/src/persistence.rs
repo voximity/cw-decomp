@@ -100,6 +100,15 @@ impl World {
         self.points.remove(&((rx as u32) * 1024 + ry as u32)).is_some()
     }
 
+    /// [`World::unload_region`] without the save: the region taken out, for the caller to save
+    /// with [`crate::save::SaveTarget::save_region_entities`] (after releasing the world).
+    pub fn take_region(&mut self, rx: i32, ry: i32) -> Option<Box<crate::region::Region>> {
+        if !(0..0x400).contains(&rx) || !(0..0x400).contains(&ry) {
+            return None;
+        }
+        self.regions.remove(&((rx as u32) * 1024 + ry as u32))
+    }
+
     /// Drops a region without saving it: for a copy of the world that mirrors an
     /// [`World::unload_region`] done on the served world (the copy must not write the blobs
     /// again from its possibly older cells).

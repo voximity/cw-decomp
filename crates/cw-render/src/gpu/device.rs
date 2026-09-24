@@ -159,11 +159,40 @@ pub struct Frame {
     pub view: wgpu::TextureView,
 }
 
+/// The swap chain's present mode. The original creates its windowed device with
+/// `PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE` (`resetDevice` 0x004c8a2a) and
+/// paces frames with its sleep limiter; windowed, DWM composites it, so each refresh shows the
+/// newest finished frame and nothing tears. Without `vsync` that is `Mailbox`; else
+/// `Immediate` where the platform composites it (`immediate_composited`: macOS, where a
+/// windowed CAMetalLayer without display sync never tears); else `Fifo`. Never a tearing
+/// `Immediate`, which `AutoNoVsync` picks on DX12/Vulkan. With `vsync`, `Fifo`. `requested` (`CW_PRESENT_MODE`: `fifo`, `mailbox`, `immediate`,
+/// `fiforelaxed`) wins when the surface supports it.
+pub fn choose_present_mode(vsync: bool, supported: &[wgpu::PresentMode], immediate_composited: bool, requested: Option<&str>) -> wgpu::PresentMode {
+    use wgpu::PresentMode as M;
+    let named = requested.and_then(|r| match r.to_ascii_lowercase().as_str() {
+        "fifo" => Some(M::Fifo),
+        "mailbox" => Some(M::Mailbox),
+        "immediate" => Some(M::Immediate),
+        "fiforelaxed" => Some(M::FifoRelaxed),
+        _ => None,
+    });
+    if let Some(m) = named.filter(|m| supported.contains(m)) {
+        return m;
+    }
+    if !vsync && supported.contains(&M::Mailbox) {
+        return M::Mailbox;
+    }
+    if !vsync && immediate_composited && supported.contains(&M::Immediate) {
+        return M::Immediate;
+    }
+    M::Fifo
+}
+
 impl<'w> GpuContext<'w> {
     /// Create everything for a window. `target` is anything wgpu accepts as a surface target,
     /// e.g. an `Arc<winit::window::Window>` (it implements `HasWindowHandle` and
     /// `HasDisplayHandle`). `width`/`height` are the inner size in physical pixels.
-    /// `vsync` picks FIFO; otherwise `AutoNoVsync` (the original's FPS limit lives in the
+    /// The present mode is [`choose_present_mode`] (the original's FPS limit lives in the
     /// frame loop).
     pub fn new(
         target: impl Into<wgpu::SurfaceTarget<'w>>,
@@ -196,6 +225,9 @@ impl<'w> GpuContext<'w> {
         } else {
             caps.alpha_modes.first().copied().unwrap_or(wgpu::CompositeAlphaMode::Auto)
         };
+        let requested = std::env::var("CW_PRESENT_MODE").ok();
+        let present_mode = choose_present_mode(vsync, &caps.present_modes, cfg!(target_os = "macos"), requested.as_deref());
+        eprintln!("cw-render: present mode {present_mode:?} (supported {:?})", caps.present_modes);
         // COPY_SRC where the surface allows it, for [`GpuContext::capture_requested`].
         let usage = wgpu::TextureUsages::RENDER_ATTACHMENT | (caps.usages & wgpu::TextureUsages::COPY_SRC);
         let config = wgpu::SurfaceConfiguration {
@@ -204,7 +236,7 @@ impl<'w> GpuContext<'w> {
             color_space: wgpu::SurfaceColorSpace::Auto,
             width: width.max(1),
             height: height.max(1),
-            present_mode: if vsync { wgpu::PresentMode::Fifo } else { wgpu::PresentMode::AutoNoVsync },
+            present_mode,
             desired_maximum_frame_latency: 2,
             alpha_mode,
             view_formats: if color_format != format { vec![color_format] } else { vec![] },
@@ -347,5 +379,34 @@ impl<'w> GpuContext<'w> {
     pub fn present(&self, frame: Frame) {
         drop(frame.view);
         self.queue.present(frame.texture);
+    }
+}
+
+#[cfg(test)]
+mod present_mode_tests {
+    use super::choose_present_mode;
+    use wgpu::PresentMode::{Fifo, Immediate, Mailbox};
+
+    /// Without vsync the original's windowed D3D9 device (`PresentationInterval`
+    /// `D3DPRESENT_INTERVAL_IMMEDIATE`, `resetDevice` 0x004c8a2a) is composited by DWM: the
+    /// newest frame is shown at each refresh, never torn. Mailbox is that; Immediate tears.
+    #[test]
+    fn no_vsync_prefers_mailbox_and_never_tears_by_default() {
+        assert_eq!(choose_present_mode(false, &[Fifo, Mailbox, Immediate], false, None), Mailbox);
+        assert_eq!(choose_present_mode(false, &[Fifo, Immediate], false, None), Fifo);
+        assert_eq!(choose_present_mode(true, &[Fifo, Mailbox, Immediate], false, None), Fifo);
+        // macOS: Metal has no Mailbox, and its windowed Immediate is composited.
+        assert_eq!(choose_present_mode(false, &[Fifo, Immediate], true, None), Immediate);
+        assert_eq!(choose_present_mode(true, &[Fifo, Immediate], true, None), Fifo);
+    }
+
+    /// `CW_PRESENT_MODE` picks a supported mode; an unsupported or unknown one is ignored.
+    #[test]
+    fn override_applies_when_supported() {
+        assert_eq!(choose_present_mode(false, &[Fifo, Mailbox, Immediate], false, Some("immediate")), Immediate);
+        assert_eq!(choose_present_mode(false, &[Fifo, Mailbox], false, Some("FIFO")), Fifo);
+        assert_eq!(choose_present_mode(false, &[Fifo, Immediate], false, Some("mailbox")), Fifo);
+        assert_eq!(choose_present_mode(false, &[Fifo, Mailbox], false, Some("bogus")), Mailbox);
+        assert_eq!(choose_present_mode(false, &[Fifo, Immediate], true, Some("fifo")), Fifo);
     }
 }

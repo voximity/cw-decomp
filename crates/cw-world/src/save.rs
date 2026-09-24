@@ -269,22 +269,52 @@ impl World {
     /// `World::saveZone(zone)`, `Server.exe 0x004d81b0`: for a named world, writes the zone
     /// blob when the zone is dirty or has modified blocks. Returns whether a blob was written.
     pub fn save_zone(&self, zone: &Zone) -> cw_formats::Result<bool> {
-        if !self.has_name || !(zone.dirty || !zone.modified.is_empty()) {
-            return Ok(false);
-        }
-        let Some(db) = &self.save else { return Ok(false) };
-        db.lock().expect("save database").put(&zone_key(zone.x, zone.y), &zone.save_blob())?;
-        Ok(true)
+        self.save_target().save_zone(zone)
     }
 
     /// `World::saveEntities(rx, ry)`, `Server.exe 0x004d7c50`: for a named world and a region
     /// whose missions came from the database (`region+0x15a18`), writes the mission and monster
     /// blobs of all 64 cells, cell by cell in `cx * 8 + cy` order.
     pub fn save_region_entities(&self, rx: i32, ry: i32) -> cw_formats::Result<bool> {
-        if !self.has_name || !(0..0x400).contains(&rx) || !(0..0x400).contains(&ry) {
+        if !(0..0x400).contains(&rx) || !(0..0x400).contains(&ry) {
             return Ok(false);
         }
-        let (Some(db), Some(region)) = (&self.save, self.region(rx, ry)) else { return Ok(false) };
+        let Some(region) = self.region(rx, ry) else { return Ok(false) };
+        self.save_target().save_region_entities(rx, ry, region)
+    }
+
+    /// Where this world saves, detached from it: a zone or region taken out of the world
+    /// ([`World::remove_zone`], [`World::take_region`]) can be saved without holding the world
+    /// (the client's zone thread saves after releasing the world lock).
+    pub fn save_target(&self) -> SaveTarget {
+        SaveTarget { has_name: self.has_name, db: self.save.clone() }
+    }
+}
+
+/// A world's name flag and save database ([`World::save_target`]).
+#[derive(Clone, Default)]
+pub struct SaveTarget {
+    has_name: bool,
+    db: Option<Arc<Mutex<SaveDb>>>,
+}
+
+impl SaveTarget {
+    /// [`World::save_zone`].
+    pub fn save_zone(&self, zone: &Zone) -> cw_formats::Result<bool> {
+        if !self.has_name || !(zone.dirty || !zone.modified.is_empty()) {
+            return Ok(false);
+        }
+        let Some(db) = &self.db else { return Ok(false) };
+        db.lock().expect("save database").put(&zone_key(zone.x, zone.y), &zone.save_blob())?;
+        Ok(true)
+    }
+
+    /// [`World::save_region_entities`] for region `(rx, ry)`, given as `region`.
+    pub fn save_region_entities(&self, rx: i32, ry: i32, region: &crate::region::Region) -> cw_formats::Result<bool> {
+        if !self.has_name {
+            return Ok(false);
+        }
+        let Some(db) = &self.db else { return Ok(false) };
         if !region.missions_active {
             return Ok(false);
         }
@@ -298,7 +328,9 @@ impl World {
         }
         Ok(true)
     }
+}
 
+impl World {
     /// `Zone::deserialize(reader, world, zone)`, `Server.exe 0x0041ee20`, applied at the end of
     /// `generateZone` when the zone has a blob: replaces the ground items with the saved ones
     /// that have not expired (marking the zone dirty when that changes anything), replays the

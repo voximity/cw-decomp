@@ -8,10 +8,13 @@ profile.sh for macOS and Linux).
   .\profile.ps1 -DebugOverlay         build with the debug overlay
   .\profile.ps1 -ClientArgs '--quit-after','60'   arguments for cw-client
   .\profile.ps1 -NoteMs 2             log worker operations over 2 ms (default 4)
+  .\profile.ps1 -WaitMs 0.5           log World lock waits of the frame over 0.5 ms with the
+                                      worker holds that caused them (default 1)
 
 Output goes to profiles\<timestamp>\:
   trace.csv    one row per frame: wall time, update dt, every phase and lock wait (ms)
-  stats.log    5 s summaries, slow frames, worker operations over NoteMs
+  stats.log    5 s summaries, slow frames, worker operations over NoteMs, World lock waits
+               over WaitMs with their holders (per-holder totals at the end)
   meta.txt     commit, OS, CPU, GPU and driver, display options
   cpu.json.gz  (with -Samply) open at https://profiler.firefox.com
 
@@ -22,7 +25,8 @@ param(
     [switch]$Samply,
     [switch]$DebugOverlay,
     [string[]]$ClientArgs = @(),
-    [int]$NoteMs = 4
+    [int]$NoteMs = 4,
+    [double]$WaitMs = 1
 )
 $ErrorActionPreference = 'Stop'
 Set-Location -Path $PSScriptRoot
@@ -84,6 +88,7 @@ $env:CW_GAME_DIR = $gameDir
 $env:CW_CLIENT_TRACE = Join-Path $out 'trace.csv'
 $env:CW_CLIENT_STATS = '1'
 $env:CW_CLIENT_STATS_NOTE_MS = "$NoteMs"
+$env:CW_CLIENT_STATS_WAIT_MS = "$WaitMs"
 
 $exe = Join-Path $PWD 'target\release\cw-client.exe'
 if ($Samply) {

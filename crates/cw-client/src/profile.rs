@@ -10,6 +10,10 @@
 //! ([`trace_header`]): the time since start, the frame's wall time, the `dt` the update was
 //! given and every phase and lock wait, all in ms. It turns the counters on by itself.
 //!
+//! `CW_CLIENT_STATS_WAIT_MS=<ms>` records every worker hold of the `World` lock and logs each
+//! frame-thread wait for it over `<ms>` with the holds that overlapped it, plus per-holder
+//! totals at exit ([`attribute_wait`]).
+//!
 //! Everything is a no-op (one relaxed load of a cached flag) when neither variable is set.
 
 use std::cell::RefCell;
@@ -171,6 +175,111 @@ pub fn worker_note(what: &str, d: Duration) {
     }
 }
 
+// ---------------------------------------------------------------------------------------------
+// Lock A wait attribution (`CW_CLIENT_STATS_WAIT_MS=<ms>`).
+
+/// With `CW_CLIENT_STATS_WAIT_MS=<ms>` every worker hold of the `World` lock is recorded, and
+/// every frame-thread wait for it longer than `<ms>` is logged with the worker holds that
+/// overlapped it; the run's totals per holder are printed at exit.
+pub fn wait_attribution_ms() -> Option<f64> {
+    static MS: OnceLock<Option<f64>> = OnceLock::new();
+    *MS.get_or_init(|| if enabled() { std::env::var("CW_CLIENT_STATS_WAIT_MS").ok().and_then(|v| v.parse().ok()) } else { None })
+}
+
+#[derive(Clone, Copy)]
+struct HoldRec {
+    thread: &'static str,
+    what: &'static str,
+    start: Instant,
+    end: Instant,
+}
+
+#[derive(Default)]
+struct Attribution {
+    /// Recent worker holds (the last second or so).
+    holds: std::collections::VecDeque<HoldRec>,
+    /// Per `(thread, what)`: holds, total held ms, longest hold, the frame waits it overlapped
+    /// and the overlap in ms.
+    totals: std::collections::BTreeMap<(&'static str, &'static str), [f64; 5]>,
+    /// Frame waits over the threshold and their total ms.
+    waits: [f64; 2],
+}
+
+fn attribution() -> &'static std::sync::Mutex<Attribution> {
+    static A: OnceLock<std::sync::Mutex<Attribution>> = OnceLock::new();
+    A.get_or_init(Default::default)
+}
+
+fn thread_label() -> &'static str {
+    thread_local! {
+        static NAME: &'static str = Box::leak(std::thread::current().name().unwrap_or("?").to_string().into_boxed_str());
+    }
+    NAME.with(|n| *n)
+}
+
+/// A worker released the `World` lock it took at `start` (unit `what`).
+pub fn record_hold(what: &'static str, start: Instant) {
+    if wait_attribution_ms().is_none() {
+        return;
+    }
+    let end = Instant::now();
+    let held = ms(end - start);
+    let mut a = attribution().lock().unwrap_or_else(|e| e.into_inner());
+    let rec = HoldRec { thread: thread_label(), what, start, end };
+    let t = a.totals.entry((rec.thread, what)).or_default();
+    t[0] += 1.0;
+    t[1] += held;
+    t[2] = t[2].max(held);
+    a.holds.push_back(rec);
+    while a.holds.front().is_some_and(|h| end.duration_since(h.end) > Duration::from_secs(1)) {
+        a.holds.pop_front();
+    }
+}
+
+/// The frame thread waited for the `World` lock from `start` to `end`.
+pub fn attribute_wait(start: Instant, end: Instant) {
+    let Some(limit) = wait_attribution_ms() else { return };
+    let waited = ms(end - start);
+    if waited <= limit {
+        return;
+    }
+    let mut a = attribution().lock().unwrap_or_else(|e| e.into_inner());
+    a.waits[0] += 1.0;
+    a.waits[1] += waited;
+    let overlapping: Vec<HoldRec> = a.holds.iter().filter(|h| h.end > start && h.start < end).copied().collect();
+    let mut line = String::new();
+    for h in &overlapping {
+        let lo = h.start.max(start);
+        let hi = h.end.min(end);
+        let overlap = ms(hi - lo);
+        line.push_str(&format!(" {}:{} {:.2}/{:.2}", h.thread, h.what, overlap, ms(h.end - h.start)));
+        if let Some(t) = a.totals.get_mut(&(h.thread, h.what)) {
+            t[3] += 1.0;
+            t[4] += overlap;
+        }
+    }
+    let at = epoch().elapsed().as_secs_f64();
+    eprintln!("cw-client: World wait {waited:.2} ms (ended at {at:.3} s) | overlapping holds (overlap/held ms):{line}");
+}
+
+fn attribution_summary() {
+    if wait_attribution_ms().is_none() {
+        return;
+    }
+    let a = attribution().lock().unwrap_or_else(|e| e.into_inner());
+    eprintln!("cw-client: World waits over {:.1} ms: {} ({:.1} ms total); worker holds:", wait_attribution_ms().unwrap_or(0.0), a.waits[0], a.waits[1]);
+    for ((th, what), t) in &a.totals {
+        eprintln!(
+            "cw-client:   {th}:{what}: {} holds, mean {:.3} ms, max {:.2} ms; in {} waits, {:.1} ms of overlap",
+            t[0],
+            t[1] / t[0].max(1.0),
+            t[2],
+            t[3],
+            t[4]
+        );
+    }
+}
+
 /// Frame times of the main thread: per-frame breakdowns, summaries, the total.
 pub struct FrameLog {
     started: Instant,
@@ -288,6 +397,7 @@ impl FrameLog {
         }
         if enabled() {
             eprintln!("cw-client: run of {:.1} s: {}", self.started.elapsed().as_secs_f64(), summary(&self.all));
+            attribution_summary();
         }
     }
 }
