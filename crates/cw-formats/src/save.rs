@@ -78,11 +78,35 @@ impl SaveDb {
     /// Runs `f`'s writes as one transaction (one journal and one sync of the file instead of one
     /// per statement; the stored rows are the same). The transaction is committed whatever `f`
     /// returns, so a failure keeps the writes before it, as separate `putBlob` calls would.
+    ///
+    /// Inside an outer transaction ([`SaveDb::begin`]) the writes join it instead.
     pub fn batch<T>(&self, f: impl FnOnce(&SaveDb) -> Result<T>) -> Result<T> {
+        if !self.conn.is_autocommit() {
+            return f(self);
+        }
         let tx = self.conn.unchecked_transaction()?;
         let r = f(self);
         tx.commit()?;
         r
+    }
+
+    /// Starts a transaction that later writes (and batches) join until [`SaveDb::commit`], for
+    /// groups of writes made through several calls. Returns false, doing nothing, when one is
+    /// already open.
+    pub fn begin(&self) -> Result<bool> {
+        if !self.conn.is_autocommit() {
+            return Ok(false);
+        }
+        self.conn.execute_batch("BEGIN")?;
+        Ok(true)
+    }
+
+    /// Commits the transaction [`SaveDb::begin`] started (nothing when none is open).
+    pub fn commit(&self) -> Result<()> {
+        if !self.conn.is_autocommit() {
+            self.conn.execute_batch("COMMIT")?;
+        }
+        Ok(())
     }
 
     /// Delete one blob (Cube.exe 0x00449720, called with the key by the client's
@@ -144,6 +168,29 @@ mod tests {
         .unwrap();
         assert_eq!(other.get("a").unwrap(), Some(b"new".to_vec()));
         assert_eq!(other.get("b").unwrap(), Some(b"2".to_vec()));
+        drop((db, other));
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// An outer transaction (`begin`/`commit`) spans several batches: a batch inside it joins it
+    /// instead of failing to nest, and nothing is visible to another connection until the
+    /// outer commit (the shutdown save of every zone and region in one sync).
+    #[test]
+    fn batches_join_an_outer_transaction() {
+        let dir = std::env::temp_dir().join(format!("cw-save-outer-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("world_outer.db");
+        let db = SaveDb::open(&path).unwrap();
+        let other = SaveDb::open(&path).unwrap();
+        assert!(db.begin().unwrap(), "a new transaction");
+        assert!(!db.begin().unwrap(), "already inside one");
+        db.put("z", b"1").unwrap();
+        db.batch(|db| db.put("r", b"2")).unwrap();
+        assert_eq!(other.get("z").unwrap(), None, "committed before the outer commit");
+        assert_eq!(other.get("r").unwrap(), None, "the inner batch committed");
+        db.commit().unwrap();
+        assert_eq!(other.get("z").unwrap(), Some(b"1".to_vec()));
+        assert_eq!(other.get("r").unwrap(), Some(b"2".to_vec()));
         drop((db, other));
         let _ = std::fs::remove_dir_all(&dir);
     }

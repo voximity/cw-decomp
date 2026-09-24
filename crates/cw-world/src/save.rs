@@ -326,6 +326,19 @@ pub struct SaveTarget {
 }
 
 impl SaveTarget {
+    /// Runs `f` with the database in one transaction (Tier C: the original commits each
+    /// `putBlob`, one journal sync each): the saves `f` makes, each taking the database lock on
+    /// its own, join it and commit together at the end. The lock is not held while `f` runs.
+    pub fn batch<T>(&self, f: impl FnOnce() -> T) -> T {
+        let Some(db) = &self.db else { return f() };
+        let began = db.lock().expect("save database").begin().unwrap_or(false);
+        let r = f();
+        if began {
+            let _ = db.lock().expect("save database").commit();
+        }
+        r
+    }
+
     /// [`World::save_zone`].
     pub fn save_zone(&self, zone: &Zone) -> cw_formats::Result<bool> {
         if !self.has_name || !(zone.dirty || !zone.modified.is_empty()) {

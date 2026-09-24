@@ -941,6 +941,12 @@ impl ApplicationHandler for App {
     /// The shutdown of `WinMain` (`timeEndPeriod`, the controller's deleting destructor, ...).
     fn exiting(&mut self, _el: &ActiveEventLoop) {
         self.log.finish();
+        // The original's window is gone (WM_CLOSE → DestroyWindow) before the controller's
+        // destructor saves the world; hidden here, so the saves below (seconds on a hard disk)
+        // do not leave a window that stopped answering ("Not Responding").
+        if let Some(w) = &self.window {
+            w.set_visible(false);
+        }
         if let Some(mut c) = self.controller.take() {
             c.shutdown();
         }

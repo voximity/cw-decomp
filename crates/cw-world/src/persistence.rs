@@ -162,15 +162,19 @@ impl World {
     /// The saves of `World::~World`, `Server.exe 0x004cd940` (run when the server quits): for
     /// every loaded region, `rx` outer and `ry` inner, `saveZone` on each of its zone slots in
     /// table order and then `saveEntities` on the region. Nothing is unloaded.
+    ///
+    /// The writes go in one transaction ([`crate::save::SaveTarget::batch`]; the same rows).
     pub fn save_all(&self) {
-        for (rx, ry) in self.loaded_regions() {
-            for (zx, zy) in self.region_zones(rx, ry) {
-                if let Some(zone) = self.zone(zx, zy) {
-                    let _ = self.save_zone(zone);
+        self.save_target().batch(|| {
+            for (rx, ry) in self.loaded_regions() {
+                for (zx, zy) in self.region_zones(rx, ry) {
+                    if let Some(zone) = self.zone(zx, zy) {
+                        let _ = self.save_zone(zone);
+                    }
                 }
+                let _ = self.save_region_entities(rx, ry);
             }
-            let _ = self.save_region_entities(rx, ry);
-        }
+        })
     }
 
     /// `World::tick` 0x0054710b..0x005471d6: every block action the tick produced (the output

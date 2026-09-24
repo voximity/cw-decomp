@@ -239,3 +239,25 @@ fn unload_pass_decisions() {
     // Climate points of neighbouring regions that were never loaded stay.
     assert!(world.climate_point(513, 512).is_some());
 }
+
+/// `SaveTarget::batch`: the writes made inside it through the world's database (each taking
+/// the lock on its own, as `save_zone`/`save_region_entities` do) land in one transaction,
+/// invisible to another connection until the batch ends. `World::save_all` saves the whole
+/// world this way at shutdown (one sync instead of one per zone, seconds on a hard disk).
+#[test]
+fn save_target_batch_is_one_transaction() {
+    let dir = std::env::temp_dir().join(format!("cw-world-batch-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let path = dir.join("world_batch.db");
+    let mut world = World::new(SEED);
+    world.attach_save(SaveDb::open(&path).unwrap());
+    let other = SaveDb::open(&path).unwrap();
+    let target = world.save_target();
+    target.batch(|| {
+        world.time_save().unwrap().write().unwrap();
+        assert_eq!(other.get("time").unwrap(), None, "committed inside the batch");
+    });
+    assert!(other.get("time").unwrap().is_some());
+    drop((world, other));
+    let _ = std::fs::remove_dir_all(&dir);
+}

@@ -390,65 +390,75 @@ pub fn save_map(game_dir: &Path, name: &str, tiles: &Mutex<MapTiles>, world: Opt
     }
     let db = SaveDb::open(&path).map_err(|e| format!("{}: {e}", path.display()))?;
     let t = tiles.lock().unwrap_or_else(|e| e.into_inner());
-    db.put("discovered", &t.discovered.to_le_bytes()).map_err(|e| e.to_string())?;
-    for rx in 0..0x400 {
-        for ry in 0..0x400 {
-            if !t.has_record(rx, ry) {
+    // One transaction for the whole map (Tier C: the original commits each `putBlob`, one
+    // journal sync per region and tile, many seconds on a hard disk at shutdown). It is
+    // committed whatever the writes return, so a failure keeps the rows before it.
+    let began = db.begin().map_err(|e| e.to_string())?;
+    let written = (|| -> Result<(), String> {
+        db.put("discovered", &t.discovered.to_le_bytes()).map_err(|e| e.to_string())?;
+        for rx in 0..0x400 {
+            for ry in 0..0x400 {
+                if !t.has_record(rx, ry) {
+                    continue;
+                }
+                let mut blob = blobs.regions.get(&(rx, ry)).cloned().unwrap_or_default();
+                let region = world.and_then(|w| w.region(rx, ry));
+                for i in 0..64 {
+                    for j in 0..64 {
+                        let Some(e) = t.entry(rx * 64 + i, ry * 64 + j) else { continue };
+                        let z = &mut blob.zones[(i * 64 + j) as usize];
+                        let site = region.map_or(e.site, |r| r.zones[(i * 64 + j) as usize]);
+                        z.flags = e.flags;
+                        z.b10[0] = site.kind;
+                        z.b10[1] = site.sub;
+                        z.seed = site.seed;
+                        z.level = site.level;
+                        z.b1c = site.byte0c;
+                    }
+                }
+                if let Some(r) = region {
+                    for (k, c) in r.cells.iter().enumerate() {
+                        blob.cells[k] = cell_bytes(c);
+                    }
+                }
+                db.put(&region_key(rx, ry), &blob.to_bytes()).map_err(|e| e.to_string())?;
+                blobs.regions.insert((rx, ry), blob);
+            }
+        }
+        for (zx, zy) in t.tiled_zones() {
+            let Some(e) = t.entry(zx, zy) else { continue };
+            let Some(tile) = &e.tile else { continue };
+            let b = TileBlob { header: MAP_HEADER, base_z: e.base_z, size: tile.size, voxels: tile.voxels.clone(), posts: e.posts.clone() };
+            db.put(&tile_key(zx, zy), &b.to_bytes()).map_err(|e| e.to_string())?;
+        }
+        let land_point = |p: [i32; 2], elevation: i32| {
+            let mut point = [0u8; 0x1c];
+            point[0..4].copy_from_slice(&p[0].to_le_bytes());
+            point[4..8].copy_from_slice(&p[1].to_le_bytes());
+            point[0x18..0x1c].copy_from_slice(&elevation.to_le_bytes());
+            point
+        };
+        for (rx, ry) in t.region_tile_keys() {
+            let Some(l) = t.region_tile(rx, ry) else { continue };
+            let Some(tile) = &l.tile else { continue };
+            let b = LandBlob { header: MAP_HEADER, min_zone: l.min_zone, visible: u8::from(l.visible), size: tile.size, voxels: tile.voxels.clone(), point: land_point(l.point, l.elevation) };
+            db.put(&land_key(rx, ry), &b.to_bytes()).map_err(|e| e.to_string())?;
+        }
+        // Landscape tiles evicted this session (0x005fbed0 wrote them through 0x006050b0 before
+        // freeing) and blobs loaded but not yet taken.
+        for (&(rx, ry), l) in t.saved_land() {
+            if t.region_tile(rx, ry).is_some() || !l.size.iter().all(|&n| n > 0) {
                 continue;
             }
-            let mut blob = blobs.regions.get(&(rx, ry)).cloned().unwrap_or_default();
-            let region = world.and_then(|w| w.region(rx, ry));
-            for i in 0..64 {
-                for j in 0..64 {
-                    let Some(e) = t.entry(rx * 64 + i, ry * 64 + j) else { continue };
-                    let z = &mut blob.zones[(i * 64 + j) as usize];
-                    let site = region.map_or(e.site, |r| r.zones[(i * 64 + j) as usize]);
-                    z.flags = e.flags;
-                    z.b10[0] = site.kind;
-                    z.b10[1] = site.sub;
-                    z.seed = site.seed;
-                    z.level = site.level;
-                    z.b1c = site.byte0c;
-                }
-            }
-            if let Some(r) = region {
-                for (k, c) in r.cells.iter().enumerate() {
-                    blob.cells[k] = cell_bytes(c);
-                }
-            }
-            db.put(&region_key(rx, ry), &blob.to_bytes()).map_err(|e| e.to_string())?;
-            blobs.regions.insert((rx, ry), blob);
+            let b = LandBlob { header: MAP_HEADER, min_zone: l.min_zone, visible: u8::from(l.visible), size: l.size, voxels: l.voxels.clone(), point: land_point(l.point, l.elevation) };
+            db.put(&land_key(rx, ry), &b.to_bytes()).map_err(|e| e.to_string())?;
         }
+        Ok(())
+    })();
+    if began {
+        db.commit().map_err(|e| e.to_string())?;
     }
-    for (zx, zy) in t.tiled_zones() {
-        let Some(e) = t.entry(zx, zy) else { continue };
-        let Some(tile) = &e.tile else { continue };
-        let b = TileBlob { header: MAP_HEADER, base_z: e.base_z, size: tile.size, voxels: tile.voxels.clone(), posts: e.posts.clone() };
-        db.put(&tile_key(zx, zy), &b.to_bytes()).map_err(|e| e.to_string())?;
-    }
-    let land_point = |p: [i32; 2], elevation: i32| {
-        let mut point = [0u8; 0x1c];
-        point[0..4].copy_from_slice(&p[0].to_le_bytes());
-        point[4..8].copy_from_slice(&p[1].to_le_bytes());
-        point[0x18..0x1c].copy_from_slice(&elevation.to_le_bytes());
-        point
-    };
-    for (rx, ry) in t.region_tile_keys() {
-        let Some(l) = t.region_tile(rx, ry) else { continue };
-        let Some(tile) = &l.tile else { continue };
-        let b = LandBlob { header: MAP_HEADER, min_zone: l.min_zone, visible: u8::from(l.visible), size: tile.size, voxels: tile.voxels.clone(), point: land_point(l.point, l.elevation) };
-        db.put(&land_key(rx, ry), &b.to_bytes()).map_err(|e| e.to_string())?;
-    }
-    // Landscape tiles evicted this session (0x005fbed0 wrote them through 0x006050b0 before
-    // freeing) and blobs loaded but not yet taken.
-    for (&(rx, ry), l) in t.saved_land() {
-        if t.region_tile(rx, ry).is_some() || !l.size.iter().all(|&n| n > 0) {
-            continue;
-        }
-        let b = LandBlob { header: MAP_HEADER, min_zone: l.min_zone, visible: u8::from(l.visible), size: l.size, voxels: l.voxels.clone(), point: land_point(l.point, l.elevation) };
-        db.put(&land_key(rx, ry), &b.to_bytes()).map_err(|e| e.to_string())?;
-    }
-    Ok(())
+    written
 }
 
 /// Reads `Save/map_<name>.db` into a fresh cache: `"discovered"` (`WorldMap::load 0x005fbc90`),
