@@ -75,8 +75,6 @@ pub struct ExecSink {
     pub exec: Executor,
     pub res: Resources,
     chunk_versions: Vec<u64>,
-    /// Frames drawn (for `CW_CLIENT_STATS`).
-    frames: u64,
     /// Port-only debug overlay (`debug_overlay.rs`): the egui renderer.
     #[cfg(feature = "debug-overlay")]
     pub overlay: crate::debug_overlay::OverlayRenderer,
@@ -89,7 +87,6 @@ impl ExecSink {
         let exec = Executor::new(&ctx.device, &ctx.queue, ctx.color_format());
         let res = Resources::new(&ctx.device, exec.color_format());
         Ok(ExecSink { ctx, exec, res, chunk_versions: Vec::new(),
-            frames: 0,
             #[cfg(feature = "debug-overlay")]
             overlay: Default::default(),
         })
@@ -158,20 +155,14 @@ impl FrameSink for ExecSink {
         drop(uploads);
         // Port-only debug overlay: drawn last when it has a paint (`debug_overlay.rs`).
         #[cfg(feature = "debug-overlay")]
-        let stats = self.exec.render_with_overlay(&mut self.ctx, frame, &mut self.res, self.overlay.pass());
+        self.exec.render_with_overlay(&mut self.ctx, frame, &mut self.res, self.overlay.pass());
         #[cfg(not(feature = "debug-overlay"))]
-        let stats = self.exec.render(&mut self.ctx, frame, &mut self.res);
+        self.exec.render(&mut self.ctx, frame, &mut self.res);
         let t = self.exec.timings;
         profile::add(Phase::Acquire, t.acquire);
         profile::add(Phase::Encode, t.encode);
         profile::add(Phase::Submit, t.submit);
         profile::add(Phase::Present, t.present);
-        if profile::enabled() {
-            self.frames += 1;
-            if self.frames % 300 == 1 {
-                eprintln!("cw-client: frame {:?} passes {:?} {:?}", stats, frame.pass_kinds(), frame.passes.iter().map(|p| p.draws.len()).collect::<Vec<_>>());
-            }
-        }
     }
 
     fn resize(&mut self, width: u32, height: u32) {
@@ -778,7 +769,13 @@ impl ApplicationHandler for App {
         window.set_cursor_visible(false);
         let size = window.inner_size();
         let sink: Box<dyn FrameSink> = match ExecSink::new(Arc::clone(&window)) {
-            Ok(s) => Box::new(s),
+            Ok(s) => {
+                if profile::enabled() {
+                    let a = s.ctx.adapter.get_info();
+                    eprintln!("cw-client: {} ({:?}), present mode {:?}", a.name, a.backend, s.ctx.config.present_mode);
+                }
+                Box::new(s)
+            }
             Err(e) => {
                 // The original shows "Could not initialize Direct3D" and exits; the port runs
                 // without drawing.

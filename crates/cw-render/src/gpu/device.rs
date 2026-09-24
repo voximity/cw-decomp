@@ -227,7 +227,6 @@ impl<'w> GpuContext<'w> {
         };
         let requested = std::env::var("CW_PRESENT_MODE").ok();
         let present_mode = choose_present_mode(vsync, &caps.present_modes, cfg!(target_os = "macos"), requested.as_deref());
-        eprintln!("cw-render: present mode {present_mode:?} (supported {:?})", caps.present_modes);
         // COPY_SRC where the surface allows it, for [`GpuContext::capture_requested`].
         let usage = wgpu::TextureUsages::RENDER_ATTACHMENT | (caps.usages & wgpu::TextureUsages::COPY_SRC);
         let config = wgpu::SurfaceConfiguration {

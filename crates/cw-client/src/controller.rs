@@ -338,8 +338,6 @@ pub struct Controller {
     pub frame_ms: i32,
     /// Per ring record: the distance key `+0x6c` render keeps between frames.
     chunk_keys: Vec<f32>,
-    /// Milliseconds counted for `CW_CLIENT_STATS`.
-    stats_ms: i32,
     /// Zones the tick changed, to mark for remeshing after the world lock is released.
     dirty_zones: std::collections::BTreeSet<(i32, i32)>,
     /// The join asked for every chunk to be remeshed.
@@ -431,12 +429,14 @@ impl Controller {
         for (f, e) in &plx.errors {
             eprintln!("cw-client: {f}: {e}");
         }
-        eprintln!(
-            "cw-client: game folder {}, {} models, loaded {:?}",
-            game_dir.display(),
-            models.len(),
-            plx.loaded.iter().map(|l| l.file.as_str()).collect::<Vec<_>>()
-        );
+        if profile::enabled() {
+            eprintln!(
+                "cw-client: game folder {}, {} models, loaded {:?}",
+                game_dir.display(),
+                models.len(),
+                plx.loaded.iter().map(|l| l.file.as_str()).collect::<Vec<_>>()
+            );
+        }
         // The local creature (+0x8006d0, 0x004620..0x0046222c): the player entity, in the
         // creature map under id 1 and set as the world's local player (`world+0xb8`).
         let net = NetShared::new();
@@ -506,7 +506,6 @@ impl Controller {
             world_ms: 0,
             frame_ms: 0,
             chunk_keys: Vec::new(),
-            stats_ms: 0,
             dirty_zones: std::collections::BTreeSet::new(),
             remesh_all: false,
             map_state: cw_render::map::MapState::default(),
@@ -1500,60 +1499,6 @@ impl Controller {
         }
         // 0x0049cee0..0x0049d110.
         self.publish_thread_inputs();
-        self.stats(dt);
-    }
-
-    /// `CW_CLIENT_STATS=1`: a line every five seconds (the port's own diagnostics).
-    fn stats(&mut self, dt: i32) {
-        if !profile::enabled() {
-            return;
-        }
-        let before = self.stats_ms;
-        self.stats_ms = self.stats_ms.wrapping_add(dt);
-        if before / 5000 == self.stats_ms / 5000 {
-            return;
-        }
-        if std::env::var_os("CW_DUMP_GUI").is_some() {
-            // The visible nodes with a shape or widget under the engine root: name path and
-            // screen position (the port's own diagnostics).
-            let g = &self.ui.gui;
-            let mut stack: Vec<(cw_ui::widget::NodeId, String)> = g.root.map(|r| (r, String::new())).into_iter().collect();
-            while let Some((n, path)) = stack.pop() {
-                let node = &g.nodes[n];
-                if !node.visible {
-                    continue;
-                }
-                let p = format!("{path}/{}", node.name);
-                if node.shape.is_some() || node.widget.is_some() {
-                    let o = g.node_world(n).transform_point2(glam::Vec2::ZERO);
-                    eprintln!("gui: {p} at ({:.0}, {:.0})", o.x, o.y);
-                }
-                for &c in node.children.iter().rev() {
-                    stack.push((c, p.clone()));
-                }
-            }
-        }
-        let zones = self.shared.read_world().loaded_zones().len();
-        let (meshed, verts) = {
-            let r = self.shared.lock_mesh_cs();
-            (r.records.iter().filter(|c| c.build.is_some()).count(), r.records.iter().map(|c| c.vertex_count()).sum::<usize>())
-        };
-        let (creatures, pos) = {
-            let nw = self.net.world.lock().unwrap_or_else(|e| e.into_inner());
-            (nw.entities.len(), nw.entities.get(&self.player.id).map(scene::entity_pos).unwrap_or([0; 3]))
-        };
-        eprintln!(
-            "cw-client: {} zones, {} chunks meshed ({} vertices), {} creatures, player {:.1},{:.1},{:.1}, fog {:.1}, connected {}",
-            zones,
-            meshed,
-            verts,
-            creatures,
-            pos[0] as f64 / 65536.0,
-            pos[1] as f64 / 65536.0,
-            pos[2] as f64 / 65536.0,
-            self.fog_distance,
-            self.net.connected.load(Ordering::SeqCst)
-        );
     }
 
     /// The zone thread's world loads, finished on the main thread: the map database
