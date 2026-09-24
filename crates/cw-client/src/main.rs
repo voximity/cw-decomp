@@ -21,6 +21,7 @@ mod player;
 mod profile;
 mod prompts;
 mod received;
+mod save_writer;
 mod scene;
 mod singleplayer;
 mod threads;

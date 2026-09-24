@@ -257,7 +257,8 @@ pub struct AudioEngine {
     manager: Option<kira::AudioManager>,
     /// `data2.db` (`XAudio2Engine+0x2c`), opened by the constructor 0x00622da0.
     db: Option<AssetDb>,
-    /// `loadSound`'s name cache (`+0x1c`): name → handle, handles from 1 (`+0x30`).
+    /// `loadSound`'s name cache (`+0x1c`): name → handle, handles from 1 (`+0x30`); 0 for a
+    /// name that did not load (port).
     handles: HashMap<String, u32>,
     /// Handle - 1 → decoded sound (`+0x30`'s map of `XAudio2Engine::Sound`).
     sounds: Vec<kira::sound::static_sound::StaticSoundData>,
@@ -285,11 +286,21 @@ impl AudioEngine {
 
     /// `XAudio2Engine::loadSound` 0x00623a60: the handle of `name`, loading it on first use
     /// (`getBlobVec` 0x004498d0 + `decodeBlob` 0x004496a0, then the RIFF chunks). 0 when the
-    /// blob is missing or not RIFF/WAVE; such a name is looked up again next time.
+    /// blob is missing or not RIFF/WAVE. The original looks such a name up again on every
+    /// play; the port remembers the 0 (Tier C: the read-only database cannot change, and the
+    /// lookup, with the case-insensitive retry's scan of every key, ran on the frame thread for
+    /// every ambient `bird3.wav`).
     pub fn load_sound(&mut self, name: &str) -> u32 {
         if let Some(&h) = self.handles.get(name) {
             return h;
         }
+        let h = self.read_sound(name);
+        self.handles.insert(name.to_string(), h);
+        h
+    }
+
+    /// The load of [`AudioEngine::load_sound`]: the new handle, or 0.
+    fn read_sound(&mut self, name: &str) -> u32 {
         let Some(db) = &self.db else { return 0 };
         // `AssetDb::get` is getBlobVec followed by decodeBlob. The original's lookup is
         // case-sensitive and three names of the switch (`cry.wav`, `fireball.wav`,
@@ -312,9 +323,7 @@ impl AudioEngine {
             return 0;
         };
         self.sounds.push(data);
-        let h = self.sounds.len() as u32;
-        self.handles.insert(name.to_string(), h);
-        h
+        self.sounds.len() as u32
     }
 
     /// `XAudio2Engine::playSound` (slot 6, 0x00623610): nothing unless `0 < volume` and the
@@ -436,6 +445,26 @@ mod tests {
         assert!(!e.centred_audio);
         e.play_record(&identity_listener(), &cw_net::packet::Sound(raw));
         assert_eq!(e.load_sound("hit.wav"), 0);
+    }
+
+    /// A name with no usable blob is remembered as handle 0: `play_sound` runs on the frame
+    /// thread, and the ambient birds ask for `bird3.wav` (not in data2.db) again and again; each
+    /// miss was two SQLite lookups and a scan of every key.
+    #[test]
+    fn a_missing_sound_is_looked_up_once() {
+        let dir = std::env::temp_dir().join(format!("cw-audio-miss-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("data2.db");
+        cw_formats::SaveDb::open(&path).unwrap().put("junk.wav", b"not a wave").unwrap();
+        let mut e = AudioEngine::silent(Some(AssetDb::open(&path).unwrap()));
+        assert_eq!(e.load_sound("bird3.wav"), 0);
+        assert_eq!(e.load_sound("junk.wav"), 0);
+        assert_eq!(e.handles.get("bird3.wav"), Some(&0));
+        assert_eq!(e.handles.get("junk.wav"), Some(&0));
+        assert_eq!(e.load_sound("bird3.wav"), 0);
+        assert!(e.sounds.is_empty());
+        drop(e);
+        let _ = std::fs::remove_dir_all(&dir);
     }
 
     #[test]

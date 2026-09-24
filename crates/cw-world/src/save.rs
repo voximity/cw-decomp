@@ -291,6 +291,33 @@ impl World {
     }
 }
 
+/// One save-database write taken out of the world, to be done later on any thread
+/// ([`World::time_save`]).
+pub struct DeferredPut {
+    db: Arc<Mutex<SaveDb>>,
+    key: String,
+    value: Vec<u8>,
+}
+
+impl DeferredPut {
+    pub fn key(&self) -> &str {
+        &self.key
+    }
+
+    /// `putBlob` of the blob into the database it was taken for.
+    pub fn write(self) -> cw_formats::Result<()> {
+        self.db.lock().expect("save database").put(&self.key, &self.value)
+    }
+}
+
+impl World {
+    /// The tick's `time` blob write (0x0053254d) for the attached database, when there is one.
+    pub fn time_save(&self) -> Option<DeferredPut> {
+        let db = self.save.as_ref()?;
+        Some(DeferredPut { db: Arc::clone(db), key: TIME_KEY.to_string(), value: self.time_blob() })
+    }
+}
+
 /// A world's name flag and save database ([`World::save_target`]).
 #[derive(Clone, Default)]
 pub struct SaveTarget {
@@ -318,15 +345,18 @@ impl SaveTarget {
         if !region.missions_active {
             return Ok(false);
         }
-        let db = db.lock().expect("save database");
-        for cx in 0..8 {
-            for cy in 0..8 {
-                let cell = &region.cells[(cx * 8 + cy) as usize];
-                db.put(&mission_key(rx * 8 + cx, ry * 8 + cy), &cell.mission.to_blob())?;
-                db.put(&monster_key(rx * 8 + cx, ry * 8 + cy), &cell.monster.to_blob())?;
+        // The 128 writes go in one transaction (Tier C: the original commits each `putBlob`,
+        // 128 journal syncs, seconds on a hard disk); the same rows result.
+        db.lock().expect("save database").batch(|db| {
+            for cx in 0..8 {
+                for cy in 0..8 {
+                    let cell = &region.cells[(cx * 8 + cy) as usize];
+                    db.put(&mission_key(rx * 8 + cx, ry * 8 + cy), &cell.mission.to_blob())?;
+                    db.put(&monster_key(rx * 8 + cx, ry * 8 + cy), &cell.monster.to_blob())?;
+                }
             }
-        }
-        Ok(true)
+            Ok(true)
+        })
     }
 }
 

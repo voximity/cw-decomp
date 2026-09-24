@@ -528,6 +528,15 @@ impl RecordDb {
         let _ = self.db.put(&index.to_string(), blob);
     }
 
+    /// The write of `saveCharacter` 0x00487520 and `saveWorld` 0x004878a0: `"num"` rewritten
+    /// when it is not `count`, then the record under `index`.
+    pub fn store(&self, count: i32, index: i32, blob: &[u8]) {
+        if self.count() != count {
+            self.set_count(count);
+        }
+        self.put(index, blob);
+    }
+
     /// `deleteCharacter` 0x004816f0: `"num"` rewritten with the new count, the record at
     /// `index` deleted (0x00449720), and every later record moved down one key.
     pub fn remove_shift(&self, index: i32, new_count: i32) {
@@ -637,6 +646,23 @@ mod tests {
         assert_eq!(WorldRecord::from_blob(&b), w);
         let w = WorldRecord { name: b"x".to_vec(), seed: -3, explored: 0, preview: Some(([2, 1, 1], vec![1, 2, 3, 4, 5, 6])) };
         assert_eq!(WorldRecord::from_blob(&w.to_blob()), w);
+    }
+
+    /// `saveCharacter`/`saveWorld`'s write: `"num"` when it differs from the list, then the
+    /// record.
+    #[test]
+    fn record_db_store() {
+        let dir = std::env::temp_dir().join(format!("cw-client-store-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        let db = RecordDb::open(&dir.join("Save").join("characters.db")).unwrap();
+        db.store(1, 0, &[7]);
+        assert_eq!((db.count(), db.get(0)), (1, Some(vec![7])));
+        db.store(1, 0, &[8]);
+        assert_eq!((db.count(), db.get(0)), (1, Some(vec![8])));
+        db.store(2, 1, &[9]);
+        assert_eq!((db.count(), db.get(1)), (2, Some(vec![9])));
+        drop(db);
+        let _ = std::fs::remove_dir_all(&dir);
     }
 
     #[test]

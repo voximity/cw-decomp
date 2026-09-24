@@ -297,8 +297,11 @@ pub struct Controller {
     items8: BTreeMap<(i32, i32), Vec<cw_net::packet::Item8>>,
     /// The last day and time of packet 5 applied to the world.
     applied_time: Option<(u32, u32)>,
-    /// `GC+0x1001008`: `Save/characters.db`.
-    char_db: Option<RecordDb>,
+    /// `GC+0x1001008`: `Save/characters.db`, written through [`ClientShared::saves`] (reads go
+    /// through it too, so they see the queued writes).
+    char_db: Option<Arc<Mutex<RecordDb>>>,
+    /// The tick's save-database writes, handed to [`ClientShared::saves`] after lock A.
+    deferred_saves: Vec<cw_world::save::DeferredPut>,
     /// `GC+0x1001010`: `Save/worlds.db`.
     world_db: Option<RecordDb>,
     /// `GC+0x800984`: the saved characters' creatures, as records.
@@ -485,6 +488,7 @@ impl Controller {
             items8: BTreeMap::new(),
             applied_time: None,
             char_db: None,
+            deferred_saves: Vec::new(),
             world_db: None,
             characters: Vec::new(),
             world_previews: Vec::new(),
@@ -551,7 +555,7 @@ impl Controller {
             Ok(db) => {
                 let n = db.count();
                 self.characters = (0..n).map(|i| db.get(i).map(|b| CharacterRecord::from_blob(&b)).unwrap_or_default()).collect();
-                self.char_db = Some(db);
+                self.char_db = Some(Arc::new(Mutex::new(db)));
             }
             Err(e) => eprintln!("cw-client: {e}"),
         }
@@ -1192,10 +1196,10 @@ impl Controller {
             return;
         }
         if let Some(db) = &self.char_db {
-            if db.count() != self.characters.len() as i32 {
-                db.set_count(self.characters.len() as i32);
-            }
-            db.put(index, &rec.to_blob());
+            // The SQLite write (a journal sync, up to tens of ms on a hard disk) runs on the
+            // save thread; the every-60-seconds save comes mid-game.
+            let (db, count) = (Arc::clone(db), self.characters.len() as i32);
+            self.shared.saves.submit(move || lock_records(&db).store(count, index, &rec.to_blob()));
         }
         self.refresh_character_entries();
     }
@@ -1206,7 +1210,11 @@ impl Controller {
         if index < 0 {
             return;
         }
-        let rec = self.char_db.as_ref().and_then(|db| db.get(index)).map(|b| CharacterRecord::from_blob(&b)).or_else(|| self.characters.get(index as usize).cloned());
+        let stored = self.char_db.as_ref().and_then(|db| {
+            let db = Arc::clone(db);
+            self.shared.saves.call(move || lock_records(&db).get(index))
+        });
+        let rec = stored.map(|b| CharacterRecord::from_blob(&b)).or_else(|| self.characters.get(index as usize).cloned());
         if let Some(r) = rec {
             self.apply_record(&r);
         }
@@ -1250,7 +1258,8 @@ impl Controller {
         }
         self.characters.remove(index as usize);
         if let Some(db) = &self.char_db {
-            db.remove_shift(index, self.characters.len() as i32);
+            let (db, count) = (Arc::clone(db), self.characters.len() as i32);
+            self.shared.saves.submit(move || lock_records(&db).remove_shift(index, count));
         }
         self.refresh_character_entries();
     }
@@ -1259,8 +1268,13 @@ impl Controller {
     /// database (0x004806c0 per index).
     fn reload_characters(&mut self) {
         if let Some(db) = &self.char_db {
-            for (i, c) in self.characters.iter_mut().enumerate() {
-                if let Some(b) = db.get(i as i32) {
+            let (db, n) = (Arc::clone(db), self.characters.len() as i32);
+            let stored = self.shared.saves.call(move || {
+                let db = lock_records(&db);
+                (0..n).map(|i| db.get(i)).collect::<Vec<_>>()
+            });
+            for (c, b) in self.characters.iter_mut().zip(stored) {
+                if let Some(b) = b {
                     *c = CharacterRecord::from_blob(&b);
                 }
             }
@@ -1295,10 +1309,7 @@ impl Controller {
         }
         let rec = WorldRecord { name: w.name.as_bytes().to_vec(), seed: w.seed, explored: w.explored, preview: self.world_previews[i].clone() };
         if let Some(db) = &self.world_db {
-            if db.count() != self.game.worlds.len() as i32 {
-                db.set_count(self.game.worlds.len() as i32);
-            }
-            db.put(index, &rec.to_blob());
+            db.store(self.game.worlds.len() as i32, index, &rec.to_blob());
         }
     }
 
@@ -1976,6 +1987,15 @@ impl Controller {
         self.world_ms = self.clock.play_ms;
         drop(nw_guard);
         drop(world_guard);
+        // The tick's `time` blob (every ten seconds) is written off the frame thread.
+        let puts = std::mem::take(&mut self.deferred_saves);
+        if !puts.is_empty() {
+            shared.saves.submit(move || {
+                for p in puts {
+                    let _ = p.write();
+                }
+            });
+        }
         // Lock C after lock A is released (the mesher takes C, then A).
         if self.remesh_all || !self.dirty_zones.is_empty() {
             let mut ring = shared.lock_mesh_cs();
@@ -2029,7 +2049,7 @@ impl Controller {
                 pose::advance_walk_cycle(e, w, step, guard, haste, mount);
             };
             {
-                let mut ctx = cw_server::server::TickCtx { clock: &mut self.clock, projectiles: &mut self.projectiles, verbose: false, log_regions: false };
+                let mut ctx = cw_server::server::TickCtx { clock: &mut self.clock, projectiles: &mut self.projectiles, verbose: false, log_regions: false, deferred_saves: Some(&mut self.deferred_saves) };
                 cw_server::server::world_tick_with(&mut ctx, world, entities, states, step, std::mem::take(&mut interacts), Vec::new(), Vec::new(), &mut missions, &mut slice, &mut hook);
             }
             // The region activations and discoveries of the player loop join the tick's
@@ -2676,6 +2696,8 @@ impl Controller {
             // `World::~World`: every loaded zone and region saved (a named world only).
             w.save_all();
         }
+        // The handed-off writes land before the process ends.
+        self.shared.saves.flush();
     }
 }
 
@@ -2688,6 +2710,11 @@ impl Drop for Controller {
 /// `creature+0x418`: the first equipment slot the UI shows (`GameView::equipment[0]`, entity
 /// `+0x408`).
 const EQUIPMENT_AT: usize = 0x408;
+
+/// The character database, its lock taken even when poisoned.
+fn lock_records(db: &Mutex<RecordDb>) -> std::sync::MutexGuard<'_, RecordDb> {
+    db.lock().unwrap_or_else(|e| e.into_inner())
+}
 
 /// A raw item of any length as the 0x118 bytes of `cube::Item`.
 fn item_bytes(b: &[u8]) -> [u8; Item::SIZE] {

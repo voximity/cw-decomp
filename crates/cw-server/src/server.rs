@@ -264,6 +264,10 @@ pub struct TickCtx<'a> {
     pub verbose: bool,
     /// Print the "Missions of region .. activated." line (the dedicated server's log).
     pub log_regions: bool,
+    /// Where the tick puts its save-database writes (the `time` blob) instead of doing them:
+    /// the client ticks on its frame thread and writes them on a worker. `None` writes them
+    /// in place, as the original does.
+    pub deferred_saves: Option<&'a mut Vec<cw_world::save::DeferredPut>>,
 }
 
 /// What the tick calls per creature after its update and move (`cw-client` advances the walk
@@ -281,7 +285,7 @@ pub fn world_tick(server: &Server, world: &mut World, entities: &mut BTreeMap<i6
     let mut projectiles = server.projectiles.lock().unwrap();
     let mut rng = server.tick_rng.lock().unwrap();
     std::mem::swap(&mut world.rng, &mut rng);
-    let mut ctx = TickCtx { clock: &mut clock, projectiles: &mut projectiles, verbose: server.verbose, log_regions: true };
+    let mut ctx = TickCtx { clock: &mut clock, projectiles: &mut projectiles, verbose: server.verbose, log_regions: true, deferred_saves: None };
     world_tick_with(&mut ctx, world, entities, states, dt, interacts, hits, passives, missions, out, &mut |_, _, _, _| {});
     std::mem::swap(&mut world.rng, &mut rng);
 }
@@ -299,9 +303,14 @@ pub fn world_tick_with(ctx: &mut TickCtx<'_>, world: &mut World, entities: &mut 
     // region's missions, and the `time` blob every ten seconds of ticks.
     let play_ms = {
         if cw_sim::day::advance_clock(world, ctx.clock, entities, dt)
-            && let Some(db) = &world.save
+            && let Some(put) = world.time_save()
         {
-            let _ = db.lock().unwrap().put(cw_world::save::TIME_KEY, &world.time_blob());
+            match ctx.deferred_saves.as_deref_mut() {
+                Some(sink) => sink.push(put),
+                None => {
+                    let _ = put.write();
+                }
+            }
         }
         ctx.clock.play_ms
     };

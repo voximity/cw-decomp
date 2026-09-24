@@ -55,8 +55,9 @@
 //!   each row of columns of its two passes (`cw_render::mesh::build_chunk_mesh_with`); the
 //!   original takes no lock. It builds without
 //!   lock C (the original builds under it), so the frame never waits for a whole build.
-//! - The every-60-seconds character save of the mesher (0x00487520 when `GC+0x388 != 0`) runs
-//!   on the main thread (`Controller::update`), which owns the character records.
+//! - The every-60-seconds character save of the mesher (0x00487520 when `GC+0x388 != 0`) is
+//!   captured on the main thread (`Controller::update`), which owns the character records, and
+//!   written by [`ClientShared::saves`], as is the tick's `time` blob.
 //!
 //! # The client's world
 //!
@@ -241,6 +242,9 @@ pub struct ClientShared {
     /// `std::map<std::pair<int, std::string>, vec3i64>`), which the zone thread reads when it
     /// places the player in a loaded world (0x0044b880 find). The controller keeps it current.
     pub positions: Mutex<std::collections::BTreeMap<crate::persist::WorldKey, [i64; 3]>>,
+    /// The save-database writes the frame thread hands off (the tick's `time` blob, the
+    /// character saves): [`crate::save_writer`].
+    pub saves: crate::save_writer::SaveWriter,
 }
 
 impl ClientShared {
@@ -265,6 +269,7 @@ impl ClientShared {
             game_dir,
             loaded_events: Mutex::new(Vec::new()),
             positions: Mutex::new(std::collections::BTreeMap::new()),
+            saves: crate::save_writer::SaveWriter::new(),
         }
     }
 
@@ -620,7 +625,7 @@ pub type Coords = Vec<(i32, i32)>;
 /// removed, for the generator copy, and their saves.
 ///
 /// The zones and regions are only taken out here, under the world lock; their saves (zlib and
-/// one SQLite write per blob, 10..15 ms for a batch) run after it ([`Unloaded::save`], Tier C:
+/// one SQLite commit per zone and per region, 10..15 ms for a batch on an SSD) run after it ([`Unloaded::save`], Tier C:
 /// the original saves inside `unloadZone`/`unloadRegion`), in the same order.
 pub fn unload_pass(world: &mut World, centres: &[(i32, i32)], switching: bool) -> Unloaded {
     let mut out = Unloaded { target: world.save_target(), ..Unloaded::default() };
@@ -811,6 +816,9 @@ fn generate_one(shared: &ClientShared, st: &mut ZoneThread, x: i32, y: i32) {
 
 /// The world switch of the zone thread (0x0046af68..0x0046b6a0).
 fn load_world(shared: &ClientShared, st: &mut ZoneThread, seed: i32, name: &str) {
+    // The old world's handed-off writes land before the database is opened again (the `time`
+    // blob read below).
+    shared.saves.flush();
     let world = client_world(seed, name, &shared.models, &shared.game_dir);
     let spawn = [world.spawn[0], world.spawn[1], 0.0f32];
     let saved = shared.positions.lock().unwrap_or_else(|e| e.into_inner()).get(&(seed, name.as_bytes().to_vec())).copied();

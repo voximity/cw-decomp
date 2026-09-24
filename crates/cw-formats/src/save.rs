@@ -75,6 +75,16 @@ impl SaveDb {
         Ok(())
     }
 
+    /// Runs `f`'s writes as one transaction (one journal and one sync of the file instead of one
+    /// per statement; the stored rows are the same). The transaction is committed whatever `f`
+    /// returns, so a failure keeps the writes before it, as separate `putBlob` calls would.
+    pub fn batch<T>(&self, f: impl FnOnce(&SaveDb) -> Result<T>) -> Result<T> {
+        let tx = self.conn.unchecked_transaction()?;
+        let r = f(self);
+        tx.commit()?;
+        r
+    }
+
     /// Delete one blob (Cube.exe 0x00449720, called with the key by the client's
     /// `deleteCharacter` 0x004816f0; its statement was not read, a `DELETE` is assumed).
     pub fn delete(&self, key: &str) -> Result<()> {
@@ -112,5 +122,41 @@ mod tests {
         assert_eq!(db.get("k").unwrap().unwrap(), b"v".to_vec());
         drop(db);
         let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// A batch of puts is one transaction (one journal and sync instead of one per blob):
+    /// nothing is visible to another connection until it ends, then everything is.
+    #[test]
+    fn a_batch_commits_once_at_the_end() {
+        let dir = std::env::temp_dir().join(format!("cw-save-batch-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("world_batch.db");
+        let db = SaveDb::open(&path).unwrap();
+        db.put("a", b"old").unwrap();
+        let other = SaveDb::open(&path).unwrap();
+        db.batch(|db| {
+            db.put("a", b"new")?;
+            db.put("b", b"2")?;
+            assert_eq!(other.get("a").unwrap(), Some(b"old".to_vec()), "committed inside the batch");
+            assert_eq!(other.get("b").unwrap(), None, "committed inside the batch");
+            Ok(())
+        })
+        .unwrap();
+        assert_eq!(other.get("a").unwrap(), Some(b"new".to_vec()));
+        assert_eq!(other.get("b").unwrap(), Some(b"2".to_vec()));
+        drop((db, other));
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// A failed batch keeps what was written before the failure, as the separate writes did.
+    #[test]
+    fn a_failed_batch_keeps_the_earlier_writes() {
+        let db = SaveDb::in_memory().unwrap();
+        let r: crate::Result<()> = db.batch(|db| {
+            db.put("a", b"1")?;
+            Err(crate::Error::NotFound("x".into()))
+        });
+        assert!(r.is_err());
+        assert_eq!(db.get("a").unwrap(), Some(b"1".to_vec()));
     }
 }
