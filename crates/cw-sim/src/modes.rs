@@ -13,7 +13,8 @@
 //! ([`World::local_player`]) NULL on a server, so there the standard guard `(b4 == 0 &&
 //! hostile != 0) || c == b8` ([`Cx::auth`]) is `hostile != 0`, case 15 (mode 0x69, the local
 //! player's home teleport) does nothing and `computeLighting` after a terrain destruction runs.
-//! In the client's world the guard admits only the local player, the terrain destruction, the
+//! In the client's world the guard admits only the local player (case 0's own guard,
+//! [`Cx::generic_guard`], admits every creature there), the terrain destruction, the
 //! applied heals and life steal of other creatures, the poison ticks and cases 10 and 16 are
 //! the server's, and case 15 runs for the local player (`client::home_teleport`).
 //!
@@ -657,6 +658,15 @@ impl Cx<'_> {
         (!self.world.is_client && self.e().0[0x50] != 0) || self.world.local_player == Some(self.id)
     }
 
+    /// Case 0's own guard `world+0xb4 != 0 || hostile != 0 || c == world+0xb8` (0x00538117,
+    /// `Cube.exe 0x00612357`: the first `jne` skips the other two tests, unlike the standard
+    /// guard's): on a server a non-player creature, in the client's world every creature, so
+    /// another player's swing sounds and particles play locally (its hits stay the server's:
+    /// 0x0053a6cc, 0x0053a941 and `creatureAttack`'s local-player return).
+    fn generic_guard(&self) -> bool {
+        self.world.is_client || self.e().0[0x50] != 0 || self.world.local_player == Some(self.id)
+    }
+
     /// `world+0xb4 == 0 || c == world+0xb8` (0x0053a6cc): the server, or the local player.
     fn server_or_local(&self) -> bool {
         !self.world.is_client || self.world.local_player == Some(self.id)
@@ -783,8 +793,8 @@ pub fn run_mode_machine(world: &mut World, entities: &mut BTreeMap<i64, EntityDa
 /// multi-hit periods, the dodge flush, the attack-speed rescale, the MP cost and charge, the
 /// reach and centre, the big-creature terrain destruction and the creature-hit loop.
 fn case_generic(cx: &mut Cx) {
-    // 0x00538117: non-player creatures only on the server.
-    if !cx.auth() {
+    // 0x00538117: non-player creatures on the server, every creature in the client's world.
+    if !cx.generic_guard() {
         return;
     }
     let dt = cx.dt;

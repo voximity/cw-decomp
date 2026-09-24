@@ -20,7 +20,10 @@
 //! - **Player**: level and XP (set, or "Add XP" which then runs the kill's `levelUp`
 //!   `cw_sim::combat::level_up`), HP and MP, full heal, god mode. God mode refills HP to
 //!   `maxHp` every frame after the tick (it stays on while the overlay is hidden); a hit that
-//!   takes more than the full HP within one frame's tick still kills.
+//!   takes more than the full HP within one frame's tick still kills. Money: "+1g".."+1000g"
+//!   or a typed number of copper coins (negative removes) added to the coins field
+//!   (`creature+0x1304`, the one a coin pickup adds to), which the inventory shows and the
+//!   character save stores.
 //! - **Skills**: the eleven skill levels (`entity+0x1128`). The game stores no point pool: the
 //!   cap is `manaCubes / 4 + level * 2 - 2` (`SkillWidget` 0x0047b8c5), so "+1 point" adds
 //!   four mana cubes (`entity+0x1154`) and "−1 point" removes four. Mana cubes are also what
@@ -34,8 +37,11 @@
 //!   cursor. Open the map (M), point at a zone outside the overlay's window (the zone shown
 //!   follows the cursor while it is not over the overlay), then press "Teleport to map
 //!   cursor". The position is written as the bed teleport writes it (`creature+0x10`,
-//!   0x0047df65; its zone centre formula), with the velocity cleared and a height of the
-//!   world's base height + 2 blocks at the target (or 0 as the bed does, or a typed value).
+//!   0x0047df65; its zone centre formula), with the velocity, acceleration and push cleared,
+//!   the player off any mount, its path cleared and its render position at the target, and a
+//!   height of 2 blocks over the ground at the target (the column top where the zone is
+//!   loaded, else the world's base height; or 0 as the bed does, or a typed value). Only the
+//!   local player is written. The block and zone fields start at the player's position.
 //!
 //! Every write goes to the client's creature map and states under the world lock, then lock A
 //! (the order of the tick in `Controller::simulate`). In singleplayer that world is the
@@ -243,19 +249,41 @@ pub enum Action {
     AddSkillPoints(i32),
     /// Blocks x, y.
     Teleport([f64; 2], TeleportZ),
+    /// Coins (copper; 100 = 1 silver, 10000 = 1 gold), negative to remove.
+    AddMoney(i32),
 }
 
-/// Applies `a` to the local player `id`; `base_height` is `World::baseHeight` at a block.
-/// Returns whether the skill levels changed.
-pub fn apply_action(entities: &mut std::collections::BTreeMap<i64, EntityData>, states: &mut std::collections::BTreeMap<i64, CreatureState>, id: i64, a: &Action, base_height: &dyn Fn(i32, i32) -> f32) -> bool {
-    if let Action::Give(spec) = a {
-        // The tick's pickup: `states.entry(player).or_default().inventory.add_item(item, -1)`.
-        give_items(&mut states.entry(id).or_default().inventory, spec);
-        return false;
+/// Where "Ground" puts a teleport: the top of the column (`height + block count`, as the menu
+/// camera reads it, 0x0049c6d3) where the zone is loaded, else `World::baseHeight`.
+pub fn ground_height(world: &cw_world::World, bx: i32, by: i32) -> f32 {
+    match world.column(bx, by) {
+        Some(c) => c.height.wrapping_add(c.blocks.len() as i32) as f32,
+        None => world.base_height(bx, by),
+    }
+}
+
+/// Applies `a` to the local player `id` (and nothing else); `ground` is the height a "Ground"
+/// teleport lands on at a block ([`ground_height`]). Returns whether the skill levels changed.
+pub fn apply_action(entities: &mut std::collections::BTreeMap<i64, EntityData>, states: &mut std::collections::BTreeMap<i64, CreatureState>, id: i64, a: &Action, ground: &dyn Fn(i32, i32) -> f32) -> bool {
+    match *a {
+        Action::Give(spec) => {
+            // The tick's pickup: `states.entry(player).or_default().inventory.add_item(item, -1)`.
+            give_items(&mut states.entry(id).or_default().inventory, &spec);
+            return false;
+        }
+        Action::AddMoney(n) => {
+            // The coins' own field (`creature+0x1304`, what `addItem` adds a coin pickup to),
+            // saved with the character (`CharacterRecord::coins`) and shown by the inventory.
+            if let Some(st) = states.get_mut(&id) {
+                st.inventory.gold = st.inventory.gold.saturating_add(n).max(0);
+            }
+            return false;
+        }
+        _ => {}
     }
     let Some(e) = entities.get_mut(&id) else { return false };
     match *a {
-        Action::Give(_) => {}
+        Action::Give(_) | Action::AddMoney(_) => {}
         Action::SetLevel(l) => w32(e, ent::LEVEL, l.max(1)),
         Action::SetXp(x) => w32(e, ent::XP, x.max(0)),
         Action::AddXp(x) => {
@@ -292,11 +320,20 @@ pub fn apply_action(entities: &mut std::collections::BTreeMap<i64, EntityData>, 
             let fz = match z {
                 TeleportZ::Zero => 0,
                 TeleportZ::Blocks(b) => block_to_fixed(f64::from(b)),
-                TeleportZ::Ground => block_to_fixed(f64::from(base_height(bx.floor() as i32, by.floor() as i32)) + 2.0),
+                TeleportZ::Ground => block_to_fixed(f64::from(ground(bx.floor() as i32, by.floor() as i32)) + 2.0),
             };
-            set_pos(e, [fx, fy, fz]);
-            for i in 0..3 {
-                wf32(&mut e.0, ent::VEL + 4 * i, 0.0);
+            let p = [fx, fy, fz];
+            set_pos(e, p);
+            // Velocity, acceleration and the extra push (`+0x24..+0x48`, as `respawn_entity`).
+            e.0[ent::VEL..ent::EXTRA_VEL + 12].fill(0);
+            // Off any mount, no path, and the smoothed render position at the target (as the
+            // world switch places the player, `threads::load_world`).
+            if let Some(st) = states.get_mut(&id) {
+                st.modes.mount = 0;
+                st.clear_path();
+                st.path.current = [-1; 3];
+                st.step_offset = 0.0;
+                st.riding.render_pos = p;
             }
         }
     }
@@ -400,6 +437,8 @@ struct Snapshot {
     mp: f32,
     skills: [i32; 11],
     mana_cubes: i32,
+    /// `creature+0x1304`: the coins, in copper.
+    coins: i32,
     creatures: usize,
     world: Option<(i32, String)>,
     map_open: bool,
@@ -421,11 +460,16 @@ struct Form {
     target_zone: [i32; 2],
     z_mode: usize,
     z_blocks: f32,
+    /// Copper coins for "Add money".
+    money: i32,
+    /// The teleport targets were filled in from the player's position (they start at the
+    /// player's block and zone, not at zone (0, 0) in the world's corner).
+    targets_filled: bool,
 }
 
 impl Default for Form {
     fn default() -> Self {
-        Form { item: ItemSpec::default(), level: 1, xp: 0, add_xp: 100, hp: 100.0, mp: 1.0, target_block: [0.0; 2], target_zone: [0; 2], z_mode: 0, z_blocks: 0.0 }
+        Form { item: ItemSpec::default(), level: 1, xp: 0, add_xp: 100, hp: 100.0, mp: 1.0, target_block: [0.0; 2], target_zone: [0; 2], z_mode: 0, z_blocks: 0.0, money: 10_000, targets_filled: false }
     }
 }
 
@@ -608,6 +652,7 @@ fn snapshot(c: &Controller) -> Snapshot {
             }
             s.mana_cubes = i32_at(&e.0, MANA_CUBES_AT);
         }
+        s.coins = nw.states.get(&id).map_or(0, |st| st.inventory.gold);
     }
     if s.map_open
         && let (Some(view), Some(projection)) = (c.map_state.stored_view, c.map_state.stored_projection)
@@ -630,9 +675,9 @@ fn apply_actions(c: &mut Controller, actions: &[Action]) {
         let world = c.shared.write_world();
         let mut nw = c.net.world.lock().unwrap_or_else(|e| e.into_inner());
         let nw = &mut *nw;
-        let base_height = |x: i32, y: i32| world.base_height(x, y);
+        let ground = |x: i32, y: i32| ground_height(&world, x, y);
         for a in actions {
-            skills |= apply_action(&mut nw.entities, &mut nw.states, id, a, &base_height);
+            skills |= apply_action(&mut nw.entities, &mut nw.states, id, a, &ground);
         }
     }
     c.mirror_to_view();
@@ -643,11 +688,21 @@ fn apply_actions(c: &mut Controller, actions: &[Action]) {
     }
 }
 
-const Z_MODES: [&str; 3] = ["base height + 2", "0 (as the bed)", "blocks"];
+const Z_MODES: [&str; 3] = ["ground + 2", "0 (as the bed)", "blocks"];
+
+/// Copper coins as the inventory shows them: gold (10000), silver (100), copper.
+pub fn money_text(copper: i32) -> String {
+    format!("{}g {}s {}c", copper / 10_000, copper / 100 % 100, copper % 100)
+}
 
 fn panels(ui: &mut egui::Ui, s: &Snapshot, f: &mut Form, god: &mut bool, map_zone: Option<[i32; 2]>, fps: f32, out: &mut Vec<Action>) {
     let b = s.pos.map(fixed_to_block);
     let (zx, zy) = (zone_of(s.pos[0]), zone_of(s.pos[1]));
+    if s.has_player && !f.targets_filled {
+        f.target_block = [b[0], b[1]];
+        f.target_zone = [zx, zy];
+        f.targets_filled = true;
+    }
     egui::CollapsingHeader::new("State").default_open(true).show(ui, |ui| {
         ui.label(format!("Position: {:.2}, {:.2}, {:.2}", b[0], b[1], b[2]));
         ui.label(format!("Zone: {zx}, {zy}   Region: {}, {}", region_of(zx), region_of(zy)));
@@ -700,6 +755,20 @@ fn panels(ui: &mut egui::Ui, s: &Snapshot, f: &mut Form, god: &mut bool, map_zon
                 out.push(Action::FullHeal);
             }
             ui.checkbox(god, "God mode (HP refilled every frame)");
+        });
+        ui.label(format!("Money: {}", money_text(s.coins)));
+        ui.horizontal(|ui| {
+            for (text, n) in [("+1g", 10_000), ("+10g", 100_000), ("+100g", 1_000_000), ("+1000g", 10_000_000)] {
+                if ui.button(text).clicked() {
+                    out.push(Action::AddMoney(n));
+                }
+            }
+        });
+        ui.horizontal(|ui| {
+            ui.add(egui::DragValue::new(&mut f.money).range(-i32::MAX..=i32::MAX).prefix("copper "));
+            if ui.button("Add money").on_hover_text("100 copper = 1 silver, 10000 = 1 gold; negative removes").clicked() {
+                out.push(Action::AddMoney(f.money));
+            }
         });
     });
     egui::CollapsingHeader::new("Skills").show(ui, |ui| {
@@ -792,6 +861,9 @@ fn panels(ui: &mut egui::Ui, s: &Snapshot, f: &mut Form, god: &mut bool, map_zon
         ui.horizontal(|ui| {
             ui.add(egui::DragValue::new(&mut f.target_zone[0]).prefix("zx "));
             ui.add(egui::DragValue::new(&mut f.target_zone[1]).prefix("zy "));
+            if ui.button("Here").on_hover_text("Fill in the current zone").clicked() {
+                f.target_zone = [zx, zy];
+            }
             if ui.button("Go (zone centre)").clicked() {
                 let c = zone_centre(f.target_zone[0], f.target_zone[1]);
                 out.push(Action::Teleport([fixed_to_block(c[0]), fixed_to_block(c[1])], f.z()));
@@ -969,6 +1041,94 @@ mod tests {
 
         apply_action(&mut ents, &mut states, id, &Action::Give(ItemSpec { item_type: 3, count: 2, ..ItemSpec::default() }), &ground);
         assert_eq!(states[&id].inventory.pages[0].len(), 2);
+    }
+
+    #[test]
+    fn money_text_splits_gold_silver_copper() {
+        assert_eq!(money_text(1_234_567), "123g 45s 67c");
+        assert_eq!(money_text(0), "0g 0s 0c");
+    }
+
+    #[test]
+    fn add_money_changes_only_the_players_coins() {
+        let (me, other) = (1, 7);
+        let mut ents = BTreeMap::new();
+        ents.insert(me, EntityData::ZERO);
+        ents.insert(other, EntityData::ZERO);
+        let mut states = BTreeMap::new();
+        states.insert(me, CreatureState::default());
+        states.get_mut(&me).unwrap().inventory.gold = 50;
+        states.insert(other, CreatureState::default());
+        states.get_mut(&other).unwrap().inventory.gold = 3;
+        let ground = |_x: i32, _y: i32| 0.0f32;
+        apply_action(&mut ents, &mut states, me, &Action::AddMoney(12_345), &ground);
+        assert_eq!(states[&me].inventory.gold, 12_395);
+        assert_eq!(states[&other].inventory.gold, 3);
+        // Negative removes, down to nothing; no overflow past `i32::MAX`.
+        apply_action(&mut ents, &mut states, me, &Action::AddMoney(-100_000), &ground);
+        assert_eq!(states[&me].inventory.gold, 0);
+        apply_action(&mut ents, &mut states, me, &Action::AddMoney(i32::MAX), &ground);
+        apply_action(&mut ents, &mut states, me, &Action::AddMoney(10), &ground);
+        assert_eq!(states[&me].inventory.gold, i32::MAX);
+        // The platinum coins are left alone.
+        assert_eq!(states[&me].inventory.f12c, 0);
+    }
+
+    /// A teleport writes the local player only: every other creature (id 0 included, the
+    /// id of zone (0, 0)'s first spawn) keeps its position, and the player leaves its mount,
+    /// its path and its smoothed render position behind, as the world switch does.
+    #[test]
+    fn teleport_moves_only_the_local_player() {
+        let me = 1;
+        let mut ents = BTreeMap::new();
+        for (id, x) in [(0i64, 10i64), (me, 20), (7, 30)] {
+            let mut e = EntityData::ZERO;
+            set_pos(&mut e, [x << 16, 5 << 16, 100 << 16]);
+            wf32(&mut e.0, ent::VEL, 3.0);
+            wf32(&mut e.0, ent::ACCEL, 4.0);
+            wf32(&mut e.0, ent::EXTRA_VEL, 5.0);
+            ents.insert(id, e);
+        }
+        let before = ents.clone();
+        let mut states = BTreeMap::new();
+        let mut st = CreatureState::default();
+        st.modes.mount = 7;
+        st.riding.render_pos = [20 << 16, 5 << 16, 100 << 16];
+        st.path.current = [4, 5, 6];
+        states.insert(me, st);
+        let ground = |_x: i32, _y: i32| 40.0f32;
+        apply_action(&mut ents, &mut states, me, &Action::Teleport([1000.5, 2000.5], TeleportZ::Ground), &ground);
+        let target = [block_to_fixed(1000.5), block_to_fixed(2000.5), block_to_fixed(42.0)];
+        assert_eq!(crate::player::pos_of(&ents[&me]), target);
+        for id in [0, 7] {
+            assert_eq!(ents[&id], before[&id], "creature {id} was moved");
+        }
+        let e = &ents[&me];
+        for o in [ent::VEL, ent::ACCEL, ent::EXTRA_VEL] {
+            assert_eq!(crate::player::vec3_at(&e.0, o), [0.0; 3]);
+        }
+        let st = &states[&me];
+        assert_eq!(st.modes.mount, 0);
+        assert_eq!(st.riding.render_pos, target);
+        assert_eq!(st.path.current, [-1; 3]);
+        assert_eq!(states.len(), 1, "no state made for another creature");
+    }
+
+    /// "Ground": the top of the column where the zone is loaded (`height + block count`, as
+    /// the menu camera reads it), else `World::baseHeight`.
+    #[test]
+    fn ground_is_the_column_top_where_loaded() {
+        let mut world = cw_world::World::new(1);
+        let (bx, by) = (0x80_0000 + 10, 0x80_0000 + 20);
+        let mut z = cw_world::zone::Zone::new(bx / 256, by / 256);
+        let col = z.column_mut(bx, by);
+        col.height = 150;
+        col.blocks = vec![[1, 1, 1, 1]; 25];
+        world.insert_zone(Box::new(z));
+        assert_eq!(ground_height(&world, bx, by), 175.0);
+        // No zone: the base height.
+        let (fx, fy) = (0x10_0000, 0x10_0000);
+        assert_eq!(ground_height(&world, fx, fy), world.base_height(fx, fy));
     }
 
     #[test]

@@ -1419,8 +1419,13 @@ fn dodge(world: &mut World, e: &mut EntityData, t_pos: [i64; 3], my_pos: [i64; 3
 /// [`crate::combat::apply_hit`].
 pub fn creature_attack(world: &mut World, entities: &mut BTreeMap<i64, EntityData>, states: &mut BTreeMap<i64, CreatureState>, target: i64, attacker: Option<i64>, damage: f32, critical: bool, strong: bool, stun_factor: f32, _p7: u32, dir: [f32; 3], out: &mut ServerUpdate, dirty: &mut std::collections::BTreeSet<(i32, i32)>, verbose: bool, magic: bool, hit_kind: i32, _p13: u32, show: bool) -> bool {
     let Some(t0) = entities.get(&target) else { return false };
-    // 0x004cfd9f: a dead target takes nothing (the local-player check is client-only).
+    // 0x004cfd9f: a dead target takes nothing; 0x004cfdbf (`Cube.exe 0x00596d9f`): in the
+    // client's world (`world+0xb4`) neither does the local player (`world+0xb8`), whose hits
+    // are the server's (other creatures' case 0 runs there).
     if 0.0 >= f32_at(&t0.0, 0x15c) {
+        return false;
+    }
+    if world.is_client && world.local_player == Some(target) {
         return false;
     }
     let t_pos = pos_at(&t0.0);

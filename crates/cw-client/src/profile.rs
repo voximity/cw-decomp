@@ -6,9 +6,14 @@
 //! breakdown, prints a summary every five seconds and a total at exit. Worker threads report
 //! long lock holds and long units of work with [`worker_note`].
 //!
-//! Everything is a no-op (one relaxed load of a cached flag) when the variable is not set.
+//! `CW_CLIENT_TRACE=<file.csv>` also records every frame to that file, one row per frame
+//! ([`trace_header`]): the time since start, the frame's wall time, the `dt` the update was
+//! given and every phase and lock wait, all in ms. It turns the counters on by itself.
+//!
+//! Everything is a no-op (one relaxed load of a cached flag) when neither variable is set.
 
 use std::cell::RefCell;
+use std::io::Write;
 use std::sync::OnceLock;
 use std::time::{Duration, Instant};
 
@@ -30,10 +35,30 @@ fn epoch() -> Instant {
     *T.get_or_init(Instant::now)
 }
 
-/// Whether `CW_CLIENT_STATS` is set (read once).
+/// Whether `CW_CLIENT_STATS` or `CW_CLIENT_TRACE` is set (read once).
 pub fn enabled() -> bool {
     static ON: OnceLock<bool> = OnceLock::new();
-    *ON.get_or_init(|| std::env::var_os("CW_CLIENT_STATS").is_some())
+    *ON.get_or_init(|| std::env::var_os("CW_CLIENT_STATS").is_some() || std::env::var_os("CW_CLIENT_TRACE").is_some())
+}
+
+/// The CSV header of `CW_CLIENT_TRACE`.
+pub fn trace_header() -> String {
+    let mut h = String::from("t_s,frame_ms,dt_ms");
+    for n in NAMES {
+        h.push(',');
+        h.push_str(n);
+    }
+    h
+}
+
+/// One `CW_CLIENT_TRACE` row: `t_s` since start, the frame's wall time, the update's `dt` and
+/// the phase times.
+fn trace_row(t_s: f64, total: Duration, dt: i32, acc: &[Duration; PHASES]) -> String {
+    let mut r = format!("{t_s:.6},{:.3},{dt}", ms(total));
+    for d in acc {
+        r.push_str(&format!(",{:.3}", ms(*d)));
+    }
+    r
 }
 
 /// The measured pieces of a frame. The `Wait*` entries are lock waits, which also count in the
@@ -156,13 +181,27 @@ pub struct FrameLog {
     window_start: Instant,
     /// The phase sums of the current summary window.
     window_phases: [Duration; PHASES],
+    /// `CW_CLIENT_TRACE`'s file.
+    trace: Option<std::io::BufWriter<std::fs::File>>,
 }
 
 impl Default for FrameLog {
     fn default() -> Self {
         let now = Instant::now();
         epoch();
-        FrameLog { started: now, frames: 0, window: Vec::new(), all: Vec::new(), window_start: now, window_phases: [Duration::ZERO; PHASES] }
+        let trace = std::env::var_os("CW_CLIENT_TRACE").and_then(|p| match std::fs::File::create(&p) {
+            Ok(f) => {
+                let mut w = std::io::BufWriter::new(f);
+                let _ = writeln!(w, "{}", trace_header());
+                eprintln!("cw-client: tracing frames to {}", std::path::Path::new(&p).display());
+                Some(w)
+            }
+            Err(e) => {
+                eprintln!("cw-client: CW_CLIENT_TRACE {}: {e}", std::path::Path::new(&p).display());
+                None
+            }
+        });
+        FrameLog { started: now, frames: 0, window: Vec::new(), all: Vec::new(), window_start: now, window_phases: [Duration::ZERO; PHASES], trace }
     }
 }
 
@@ -193,12 +232,16 @@ fn summary(v: &[f64]) -> String {
 }
 
 impl FrameLog {
-    /// One frame of `total` done: the slow-frame line and the five-second summary.
-    pub fn end_frame(&mut self, total: Duration) {
+    /// One frame of `total` done (its update given `dt` ms): the trace row, the slow-frame
+    /// line and the five-second summary.
+    pub fn end_frame(&mut self, total: Duration, dt: i32) {
         if !enabled() {
             return;
         }
         let acc = take();
+        if let Some(w) = self.trace.as_mut() {
+            let _ = writeln!(w, "{}", trace_row(epoch().elapsed().as_secs_f64(), total, dt, &acc));
+        }
         self.frames += 1;
         let t = ms(total);
         self.window.push(t);
@@ -238,8 +281,11 @@ impl FrameLog {
         }
     }
 
-    /// The whole run's summary (at exit).
-    pub fn finish(&self) {
+    /// The whole run's summary (at exit), and the trace flushed.
+    pub fn finish(&mut self) {
+        if let Some(w) = self.trace.as_mut() {
+            let _ = w.flush();
+        }
         if enabled() {
             eprintln!("cw-client: run of {:.1} s: {}", self.started.elapsed().as_secs_f64(), summary(&self.all));
         }
@@ -255,5 +301,22 @@ mod tests {
         let s = summary(&[10.0, 40.0, 60.0, 120.0]);
         assert!(s.contains(">33 ms: 3, >50 ms: 2, >100 ms: 1"), "{s}");
         assert_eq!(NAMES.len(), PHASES);
+    }
+
+    /// `CW_CLIENT_TRACE`: one CSV row per frame, the columns of [`trace_header`].
+    #[test]
+    fn trace_rows_match_the_header() {
+        let h = trace_header();
+        assert!(h.starts_with("t_s,frame_ms,dt_ms,input,head,ui,tick,"));
+        let mut acc = [Duration::ZERO; PHASES];
+        acc[Phase::Tick as usize] = Duration::from_micros(4_250);
+        acc[Phase::Sleep as usize] = Duration::from_micros(6_000);
+        let r = trace_row(1.5, Duration::from_micros(16_700), 17, &acc);
+        let cols: Vec<&str> = r.split(',').collect();
+        assert_eq!(cols.len(), h.split(',').count());
+        assert_eq!(&cols[..3], ["1.500000", "16.700", "17"]);
+        assert_eq!(cols[3 + Phase::Tick as usize], "4.250");
+        assert_eq!(cols[3 + Phase::Sleep as usize], "6.000");
+        assert_eq!(cols[3 + Phase::Input as usize], "0.000");
     }
 }

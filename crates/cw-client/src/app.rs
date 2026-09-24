@@ -28,8 +28,12 @@
 //! resolution and the GUI, laid out in logical pixels, is drawn scaled to the back buffer
 //! (`Controller::set_back_buffer`, `cw_ui::render::GuiView::scale`) rather than stretched
 //! from a logical-size image, so its text is rasterised at the physical size (DWM's stretch,
-//! and a stretched stream, blur it). In fullscreen (an exclusive mode of the chosen
-//! resolution, where no virtualisation applies) the scale is 1.
+//! and a stretched stream, blur it). In fullscreen `resetDevice` 0x004c8940 sizes the back
+//! buffer, and so the GUI's pixel space, to the resolution option and the monitor scales that
+//! mode to the screen; the port lays the GUI out at the resolution and draws it at the
+//! fullscreen window's physical size, fitted to the screen ([`gui_layout`]). The resolution
+//! option, its default and the mode list are in the virtualised process's logical units
+//! ([`logical_display_modes`]), so the default fullscreen GUI is the size of the windowed one.
 //!
 //! Differences (Tier C): the controller bytes are cleared when the window loses the focus
 //! (the original keeps the last DirectInput state, which leaves keys held); the first
@@ -442,6 +446,49 @@ fn logical_size(width: u32, height: u32, scale: f64) -> (i32, i32) {
     (l(width), l(height))
 }
 
+/// The GUI (client) size the controller gets (`GC+0x11c/+0x120`) and the device pixels per
+/// GUI unit ([`App::gui_scale`], `Controller::set_back_buffer`), for a back buffer of
+/// `physical` pixels in a window of DPI scale `scale_factor`; `fullscreen` is the resolution
+/// option (`0x0076b1dc`/`0x0076b1e0`) when fullscreen.
+///
+/// Windowed, the logical client size (the DPI virtualisation of the module doc). Fullscreen,
+/// `resetDevice` 0x004c8940 makes the back buffer, and so the GUI's pixel space, the
+/// resolution option, which the monitor then scales to the screen. The port's back buffer is
+/// the fullscreen window's physical size (a borderless window at the native size, or the
+/// exclusive mode's): the GUI is laid out at the resolution, fitted to the screen (the largest
+/// uniform scale at which the resolution fits, so the GUI fills the screen and is at least the
+/// resolution on both axes), and drawn crisply at that scale.
+fn gui_layout(physical: (u32, u32), scale_factor: f64, fullscreen: Option<(i32, i32)>) -> ((i32, i32), f64) {
+    let scale = match fullscreen {
+        Some((rx, ry)) if rx > 0 && ry > 0 => (f64::from(physical.0) / f64::from(rx)).min(f64::from(physical.1) / f64::from(ry)),
+        _ => scale_factor,
+    }
+    .max(1e-3);
+    (logical_size(physical.0, physical.1, scale), scale)
+}
+
+/// `WinMain` 0x004c8ae0 step 5 (the unique width/height pairs of the adapter's modes) in the
+/// units of the virtualised process: each mode divided by the monitor's DPI scale, so the
+/// resolution option, its default (`GetSystemMetrics(0/1)`, virtualised to the logical screen
+/// size) and the windowed client size share the GUI's units.
+fn logical_display_modes(modes: impl IntoIterator<Item = (u32, u32)>, scale_factor: f64) -> Vec<(i32, i32)> {
+    let mut out: Vec<(i32, i32)> = Vec::new();
+    for (w, h) in modes {
+        let p = logical_size(w, h, scale_factor.max(1e-3));
+        if !out.contains(&p) {
+            out.push(p);
+        }
+    }
+    out
+}
+
+/// The device pixel size of a resolution in GUI units (the exclusive mode `resetDevice` looks
+/// for): the inverse of [`logical_display_modes`].
+fn physical_mode_size(resolution: (i32, i32), scale_factor: f64) -> (u32, u32) {
+    let p = |v: i32| (f64::from(v.max(0)) * scale_factor).round() as u32;
+    (p(resolution.0), p(resolution.1))
+}
+
 /// The slot 6 `onMouseMove` argument of a frame: the absolute client position when the
 /// cursor is free, the relative motion (mouse look) when it is not and the window has the
 /// focus.
@@ -489,11 +536,15 @@ impl App {
     /// the window's DPI scale when windowed (the DPI virtualisation Cube.exe gets, see the
     /// module doc), 1 in fullscreen.
     fn gui_scale(&self) -> f64 {
-        let fullscreen = self.controller.as_ref().is_some_and(|c| c.options.fullscreen != 0);
-        match &self.window {
-            Some(w) if !fullscreen => w.scale_factor().max(1e-3),
-            _ => 1.0,
-        }
+        let Some(w) = &self.window else { return 1.0 };
+        let s = w.inner_size();
+        gui_layout((s.width, s.height), w.scale_factor(), self.fullscreen_resolution()).1
+    }
+
+    /// The resolution option when fullscreen (the argument of [`gui_layout`]).
+    fn fullscreen_resolution(&self) -> Option<(i32, i32)> {
+        let o = self.controller.as_ref()?.options;
+        (o.fullscreen != 0).then_some((o.resolution_x, o.resolution_y))
     }
 
     /// `resetDevice` 0x004c8940 (WM_SIZE, WM_MOVE, and `frame` when the options changed):
@@ -511,8 +562,10 @@ impl App {
         self.device_options = Some(opts);
         if changed_mode {
             if o.fullscreen != 0 {
+                // The resolution is in GUI units (`logical_display_modes`).
                 let mode = w.current_monitor().and_then(|m| {
-                    m.video_modes().find(|v| v.size().width as i32 == o.resolution_x && v.size().height as i32 == o.resolution_y)
+                    let want = physical_mode_size((o.resolution_x, o.resolution_y), m.scale_factor());
+                    m.video_modes().find(|v| (v.size().width, v.size().height) == want)
                 });
                 match mode {
                     Some(v) => w.set_fullscreen(Some(winit::window::Fullscreen::Exclusive(v))),
@@ -522,12 +575,11 @@ impl App {
                 w.set_fullscreen(None);
             }
         }
+        // The back buffer is the window's physical size in both modes; fullscreen, the GUI is
+        // laid out at the resolution option instead (`gui_layout`). A mode change resizes the
+        // window asynchronously, and its `Resized` redoes this with the new size.
         let size = w.inner_size();
-        let (width, height) = if o.fullscreen != 0 && o.resolution_x > 0 && o.resolution_y > 0 {
-            (o.resolution_x as u32, o.resolution_y as u32)
-        } else {
-            (size.width, size.height)
-        };
+        let (width, height) = (size.width, size.height);
         if width == 0 || height == 0 {
             return;
         }
@@ -538,8 +590,8 @@ impl App {
             sink.resize(width, height);
         }
         // The fullscreen flag may just have changed: the scale is re-read for the new mode.
-        let scale = if o.fullscreen != 0 { 1.0 } else { w.scale_factor().max(1e-3) };
-        let (lw, lh) = logical_size(width, height, scale);
+        let fullscreen = (o.fullscreen != 0).then_some((o.resolution_x, o.resolution_y));
+        let ((lw, lh), scale) = gui_layout((width, height), w.scale_factor(), fullscreen);
         c.set_back_buffer(width, height, scale);
         c.on_resize(lw, lh);
     }
@@ -703,7 +755,7 @@ impl App {
         let now = Instant::now();
         let total = self.frame_start.map_or(now - t0, |s| now - s);
         self.frame_start = Some(now);
-        self.log.end_frame(total);
+        self.log.end_frame(total, dt);
     }
 }
 
@@ -734,19 +786,18 @@ impl ApplicationHandler for App {
                 Box::new(NullSink)
             }
         };
-        // Step 5: the display modes (unique width/height pairs).
-        let mut modes: Vec<(i32, i32)> = Vec::new();
-        if let Some(m) = window.current_monitor() {
-            for v in m.video_modes() {
-                let s = v.size();
-                let p = (s.width as i32, s.height as i32);
-                if !modes.contains(&p) {
-                    modes.push(p);
-                }
-            }
-        }
-        // Step 6: the screen size as the default resolution.
-        let screen = window.current_monitor().map(|m| m.size()).map_or([size.width as i32, size.height as i32], |s| [s.width as i32, s.height as i32]);
+        // Step 5: the display modes (unique width/height pairs), in the logical units of the
+        // DPI-virtualised process (`logical_display_modes`).
+        let monitor = window.current_monitor();
+        let monitor_scale = monitor.as_ref().map_or(window.scale_factor(), |m| m.scale_factor());
+        let modes = monitor.as_ref().map_or_else(Vec::new, |m| {
+            logical_display_modes(m.video_modes().map(|v| (v.size().width, v.size().height)), monitor_scale)
+        });
+        // Step 6: the screen size as the default resolution (`GetSystemMetrics(0/1)`, the
+        // logical screen size in the virtualised process).
+        let screen = monitor.as_ref().map_or((size.width, size.height), |m| (m.size().width, m.size().height));
+        let screen = logical_size(screen.0, screen.1, monitor_scale);
+        let screen = [screen.0, screen.1];
         let mut c = Controller::new(default_game_dir(), screen, modes, self.args.server_flag, self.args.server_address.clone());
         c.on_resize(size.width as i32, size.height as i32);
         if let Some((seed, name)) = self.args.start_world.clone() {
@@ -781,6 +832,7 @@ impl ApplicationHandler for App {
             return;
         }
         let scale = self.gui_scale();
+        let window_scale = self.window.as_ref().map_or(1.0, |w| w.scale_factor());
         let Some(c) = self.controller.as_mut() else { return };
         match event {
             // WM_CLOSE → DestroyWindow → WM_DESTROY → PostQuitMessage.
@@ -794,7 +846,8 @@ impl ApplicationHandler for App {
                     if let Some(sink) = self.sink.as_mut() {
                         sink.resize(s.width, s.height);
                     }
-                    let (lw, lh) = logical_size(s.width, s.height, scale);
+                    let fullscreen = (c.options.fullscreen != 0).then_some((c.options.resolution_x, c.options.resolution_y));
+                    let ((lw, lh), scale) = gui_layout((s.width, s.height), window_scale, fullscreen);
                     c.set_back_buffer(s.width, s.height, scale);
                     c.on_resize(lw, lh);
                 }
@@ -982,6 +1035,51 @@ mod tests {
         assert!(!a.server_flag && a.server_address == "10.0.0.1");
         let a = parse_args(&["cube".into(), "--quit-after".into(), "3".into()]);
         assert_eq!(a.quit_after, Some(3.0));
+    }
+
+    /// Windowed, the controller gets the logical client size (the DPI virtualisation of the
+    /// module doc) and the GUI is drawn at `scale_factor` device pixels per unit.
+    #[test]
+    fn windowed_gui_is_the_logical_client_size() {
+        assert_eq!(gui_layout((3456, 1956), 2.0, None), ((1728, 978), 2.0));
+        assert_eq!(gui_layout((1920, 1080), 1.0, None), ((1920, 1080), 1.0));
+        assert_eq!(gui_layout((1, 1), 2.0, None), ((1, 1), 2.0));
+    }
+
+    /// `resetDevice` 0x004c8940: fullscreen, the back buffer and `GC+0x11c/+0x120` are the
+    /// resolution option, so the GUI (laid out in back-buffer pixels) covers the fraction of
+    /// the screen that resolution implies. The port's back buffer is the window's physical
+    /// size: the GUI is laid out at the resolution and drawn scaled up to it.
+    #[test]
+    fn fullscreen_gui_is_laid_out_at_the_resolution_option() {
+        // Borderless on a Retina panel (3456x2234 pixels, scale 2) at its logical size: the
+        // same GUI size as a maximised window, not the 3456x2234 pixels at scale 1.
+        assert_eq!(gui_layout((3456, 2234), 2.0, Some((1728, 1117))), ((1728, 1117), 2.0));
+        // A lower resolution: bigger GUI, as the monitor's upscale of the original's mode.
+        assert_eq!(gui_layout((3456, 2234), 2.0, Some((1152, 744))).1, 3.0);
+        // 1280x720 on a 1920x1080 monitor at scale 1.
+        assert_eq!(gui_layout((1920, 1080), 1.0, Some((1280, 720))), ((1280, 720), 1.5));
+        // An exclusive mode of the resolution itself: scale 1.
+        assert_eq!(gui_layout((1280, 720), 1.0, Some((1280, 720))), ((1280, 720), 1.0));
+        // Another aspect ratio: the scale fits the resolution in and the GUI fills the screen
+        // (at least the resolution on both axes).
+        let ((w, h), s) = gui_layout((3456, 2234), 2.0, Some((1280, 720)));
+        assert_eq!(s, 2.7);
+        assert_eq!((w, h), (1280, 827));
+        // No resolution (0x0): the windowed layout rather than a division by zero.
+        assert_eq!(gui_layout((1920, 1080), 2.0, Some((0, 0))), ((960, 540), 2.0));
+    }
+
+    /// `WinMain` 0x004c8ae0 steps 5..6 in the virtualised process: the modes and the default
+    /// resolution (`GetSystemMetrics(0/1)`) in the logical units the windowed GUI uses, so the
+    /// default fullscreen resolution gives the windowed GUI size.
+    #[test]
+    fn display_modes_are_in_gui_units() {
+        let modes = [(1920, 1200), (1920, 1200), (2624, 1696), (3456, 2234), (3456, 2234)];
+        assert_eq!(logical_display_modes(modes, 2.0), vec![(960, 600), (1312, 848), (1728, 1117)]);
+        assert_eq!(logical_display_modes([(1280, 720), (1920, 1080)], 1.0), vec![(1280, 720), (1920, 1080)]);
+        assert_eq!(physical_mode_size((1728, 1117), 2.0), (3456, 2234));
+        assert_eq!(physical_mode_size((1280, 720), 1.5), (1920, 1080));
     }
 
     #[test]

@@ -96,10 +96,15 @@ pub fn peer(entities: &BTreeMap<i64, EntityData>, states: &BTreeMap<i64, Creatur
 /// The mount and the owner of creature `id`, looked up before its movement borrows it: the
 /// mount by `creature+0x11c0` (`ModeState::mount`), the owner by the parent id
 /// `entity+0x188`.
+///
+/// Port guard: id 0 (either field unset) finds nothing. The spawn ids of zone (0, 0) start at
+/// 0 (`spawn_id(0, 0, 0)`), and with that creature in the map every unmounted creature, the
+/// player included, would otherwise ride it and be placed on top of it every tick.
 pub fn gather(entities: &BTreeMap<i64, EntityData>, states: &BTreeMap<i64, CreatureState>, id: i64) -> (Option<Peer>, Option<Peer>) {
     let mount_id = states.get(&id).map_or(0, |s| s.modes.mount);
     let owner_id = entities.get(&id).map_or(0, |e| i64_at(&e.0, 0x188));
-    (peer(entities, states, mount_id), peer(entities, states, owner_id))
+    let find = |k: i64| if k == 0 { None } else { peer(entities, states, k) };
+    (find(mount_id), find(owner_id))
 }
 
 /// 0x005430e2: a pet (hostile 5) whose box touches lava (`liquid_contact`, block type 3 under
@@ -213,5 +218,32 @@ pub fn follow_owner(e: &mut EntityData, st: &mut CreatureState, owner: Option<&P
         // 0x00545af6
         st.riding.render_pos = pos_at(&e.0);
         st.riding.render_rot = vec3f_at(&e.0, 0x18);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Id 0 is "no creature" (`creature+0x11c0` and `entity+0x188` are 0 when unset), but the
+    /// spawn ids of zone (0, 0) start at 0 (`spawn_id(0, 0, 0)`): with that creature in the map
+    /// an unmounted creature must not find it as its mount or owner, or every creature (the
+    /// player too) is placed on top of it each tick.
+    #[test]
+    fn gather_ignores_the_id_zero_creature() {
+        let mut entities = BTreeMap::new();
+        let mut zero = EntityData::ZERO;
+        set_pos(&mut zero.0, [24 << 16, 31 << 16, 244 << 16]);
+        wf32_(&mut zero, 0x15c, 100.0);
+        entities.insert(0, zero);
+        entities.insert(5, EntityData::ZERO);
+        let states = BTreeMap::new();
+        let (mount, owner) = gather(&entities, &states, 5);
+        assert!(mount.is_none());
+        assert!(owner.is_none());
+    }
+
+    fn wf32_(e: &mut EntityData, o: usize, v: f32) {
+        e.0[o..o + 4].copy_from_slice(&v.to_le_bytes());
     }
 }

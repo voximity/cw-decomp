@@ -27,3 +27,6 @@ __pycache__/
 # Shader bytecode extracted from Cube.exe is game binary content; tools/extract_shaders.py
 # regenerates it (the .asm disassembly and manifest stay)
 /analysis/shaders/*.bin
+
+# Recorded sessions from ./profile.sh
+/profiles/
