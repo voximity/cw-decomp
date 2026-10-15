@@ -97,6 +97,14 @@ pub struct World {
     /// the item once a second. With this on, the client tick does that write-back every tick.
     /// Off reproduces the original.
     pub fix_pet_leveling: bool,
+    /// Not in the original. `populateZoneCreatures` sets up each camp creature
+    /// (`initClassAndEquipment` 0x004fb480) and `generateZone` sets up every spawn of the zone
+    /// again, so the boss boost of a camp leader (the ruler of a landscape cell) runs twice:
+    /// health 225x capped at 10000, damage 9x, armour and resistance +4, where every other
+    /// boss gets 15x, 3x and +2. With this on, the first setup leaves the five combat
+    /// multipliers as it found them, so the boost counts once; the `rand()` draws stay the
+    /// same. Off reproduces the original.
+    pub fix_camp_boss_boost: bool,
 }
 
 impl World {
@@ -129,6 +137,7 @@ impl World {
             boss_removals: Vec::new(),
             is_client: false,
             fix_pet_leveling: true,
+            fix_camp_boss_boost: true,
             local_player: None,
             flags84: 0,
         }

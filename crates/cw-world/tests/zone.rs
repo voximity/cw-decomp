@@ -49,3 +49,31 @@ fn zone_stages_match_the_original_snapshots() {
     assert!(checked >= 2, "no stages checked");
     assert!(errors.is_empty(), "{}", errors.join("\n"));
 }
+
+/// `World::fix_camp_boss_boost`: the ruler of a landscape cell (the leader of the camp at the
+/// cell centre) gets the boss boost once, and nothing else in the zone changes. Zone
+/// 32820,32827 of seed 26879 holds the centre of a Valley cell.
+#[test]
+fn camp_leader_gets_one_boss_boost() {
+    use cw_world::zone::{Spawn, SpawnAi};
+    let (seed, zx, zy) = (26879, 32820, 32827);
+    let mut alpha = world_with_models(seed);
+    let mut fixed = world_with_models(seed);
+    fixed.fix_camp_boss_boost = true;
+    alpha.generate_zone(zx, zy);
+    fixed.generate_zone(zx, zy);
+    let a = alpha.zone(zx, zy).unwrap();
+    let f = fixed.zone(zx, zy).unwrap();
+    let leaders: Vec<usize> = (0..a.spawns.len()).filter(|&i| matches!(a.spawns[i].ai, Some(SpawnAi::Camp { .. })) && a.spawns[i].appearance.flags & 0x200 != 0).collect();
+    assert_eq!(leaders.len(), 1);
+    let i = leaders[0];
+    let multipliers = |s: &Spawn| (s.f_f58, s.f_f5c, s.f_f60, s.f_f64, s.f_f68);
+    // The alpha's two boosts: health 100 * 15 * 15 capped at 10000, attack speed 0.75^2,
+    // damage 3^2, armour and resistance 1 + 2 + 2.
+    assert_eq!(multipliers(&a.spawns[i]), (10000.0, 0.5625, 9.0, 5.0, 5.0));
+    assert_eq!(multipliers(&f.spawns[i]), (1500.0, 0.75, 3.0, 3.0, 3.0));
+    let mut f = f.clone();
+    let s = &mut f.spawns[i];
+    (s.f_f58, s.f_f5c, s.f_f60, s.f_f64, s.f_f68) = multipliers(&a.spawns[i]);
+    assert!(serialize_zone(&f) == serialize_zone(a), "the fix changed more than the leader's multipliers");
+}
