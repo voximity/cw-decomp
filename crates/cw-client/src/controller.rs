@@ -1898,7 +1898,7 @@ impl Controller {
             [((p[0] / 65536) as i32) / 256, ((p[1] / 65536) as i32) / 256]
         };
         let mut after = ServerUpdate::default();
-        let fi = FrameInput { input: &self.bytes, ui: &ui, opts: &opts, dt, world_ms: self.world_ms, center_zone, models: &self.models };
+        let fi = FrameInput { input: &self.bytes, ui: &ui, opts: &opts, dt, world_ms: self.world_ms, center_zone, models: &self.models, hits: &out.hits };
         // 0x0049732f..0x0049735f (inside the gameplay ranges, before the R key that can open
         // the map from a bed): map closed, bed mode and the pick cleared. Nothing between
         // 0x00491f16 and here reads them.
