@@ -1979,19 +1979,7 @@ impl Controller {
             let mut missions = Vec::new();
             let walk = &mut self.walk;
             let mut hook = |_w: &World, entities: &BTreeMap<i64, EntityData>, states: &BTreeMap<i64, CreatureState>, cid: i64| {
-                let Some(e) = entities.get(&cid) else { return };
-                let (guard, haste) = cw_sim::util::guard_haste(states, cid);
-                let mount_id = states.get(&cid).map_or(0, |s| s.modes.mount);
-                let mount = if mount_id != 0
-                    && entities.get(&mount_id).is_some_and(|m| f32::from_le_bytes(m.0[0x15c..0x160].try_into().unwrap()) > 0.0)
-                    && e.0[0x50] != 5
-                {
-                    walk.get(&mount_id).copied()
-                } else {
-                    None
-                };
-                let w = walk.entry(cid).or_default();
-                pose::advance_walk_cycle(e, w, step, guard, haste, mount);
+                advance_walk(walk, entities, states, cid, step);
             };
             {
                 let mut ctx = cw_server::server::TickCtx { clock: &mut self.clock, projectiles: &mut self.projectiles, verbose: false, log_regions: false, deferred_saves: Some(&mut self.deferred_saves) };
@@ -2656,6 +2644,34 @@ impl Drop for Controller {
 /// `+0x408`).
 const EQUIPMENT_AT: usize = 0x408;
 
+/// The walk cycle of creature `cid` after its update and move in a tick slice of `step` ms
+/// ([`pose::advance_walk_cycle`], 0x005447a6..0x00544e3e), then 0x005458c5: a pet (hostile 5)
+/// whose owner (`entity+0x188`) rides it (mode 0x6a) takes the owner's walk cycle, as
+/// `cw_sim::riding::follow_owner` does for the sim's copy (`CreatureState::riding`). Without
+/// it the pet, its velocity cleared under its rider, keeps its feet still while it carries
+/// the player.
+fn advance_walk(walk: &mut BTreeMap<i64, WalkCycle>, entities: &BTreeMap<i64, EntityData>, states: &BTreeMap<i64, CreatureState>, cid: i64, step: i32) {
+    let Some(e) = entities.get(&cid) else { return };
+    let (guard, haste) = cw_sim::util::guard_haste(states, cid);
+    let mount_id = states.get(&cid).map_or(0, |s| s.modes.mount);
+    let mount = if mount_id != 0
+        && entities.get(&mount_id).is_some_and(|m| f32::from_le_bytes(m.0[0x15c..0x160].try_into().unwrap()) > 0.0)
+        && e.0[0x50] != 5
+    {
+        walk.get(&mount_id).copied()
+    } else {
+        None
+    };
+    let w = walk.entry(cid).or_default();
+    pose::advance_walk_cycle(e, w, step, guard, haste, mount);
+    // Id 0 is no owner (the guard of `cw_sim::riding::gather`).
+    let owner_id = i64::from_le_bytes(e.0[0x188..0x190].try_into().unwrap());
+    if e.0[0x50] == 5 && owner_id != 0 && entities.get(&owner_id).is_some_and(|o| o.0[0x58] == 0x6a) {
+        let o = walk.get(&owner_id).copied().unwrap_or_default();
+        walk.insert(cid, o);
+    }
+}
+
 /// The character database, its lock taken even when poisoned.
 fn lock_records(db: &Mutex<RecordDb>) -> std::sync::MutexGuard<'_, RecordDb> {
     db.lock().unwrap_or_else(|e| e.into_inner())
@@ -2966,6 +2982,44 @@ mod tests {
         c.ui_frame(16);
         let lines: Vec<String> = c.ui.chat.lines.iter().map(|l| l.iter().map(|t| t.text.as_str()).collect()).collect();
         assert_eq!(lines, ["Player: hello", "Player: again", ""]);
+    }
+
+    /// A pet carrying its owner (mode 0x6a) strides with the owner (0x005458c5), though the
+    /// ride clears its own velocity; once the owner gets off, the pet's own still cycle
+    /// takes over again.
+    #[test]
+    fn a_ridden_pet_strides_with_its_rider() {
+        let (rider, pet) = (LOCAL_PLAYER_ID, 7i64);
+        let mut entities = BTreeMap::new();
+        for id in [rider, pet] {
+            let mut e = EntityData::ZERO;
+            e.0[0x4c..0x50].copy_from_slice(&1u32.to_le_bytes());
+            for o in [0x70, 0x74, 0x78] {
+                e.0[o..o + 4].copy_from_slice(&1.0f32.to_le_bytes());
+            }
+            entities.insert(id, e);
+        }
+        let r = entities.get_mut(&rider).unwrap();
+        r.0[0x58] = 0x6a;
+        r.0[0x24..0x28].copy_from_slice(&5.0f32.to_le_bytes());
+        let p = entities.get_mut(&pet).unwrap();
+        p.0[0x50] = 5;
+        p.0[0x188..0x190].copy_from_slice(&rider.to_le_bytes());
+        let states = BTreeMap::new();
+        let mut walk = BTreeMap::new();
+        for _ in 0..10 {
+            advance_walk(&mut walk, &entities, &states, rider, TICK_MS);
+            advance_walk(&mut walk, &entities, &states, pet, TICK_MS);
+        }
+        assert!(walk[&rider].phase > 0.0 && walk[&rider].blend > 0.0, "{:?}", walk[&rider]);
+        assert_eq!(walk[&pet], walk[&rider]);
+        // Off the pet: it stands, so its stride stays where it was and its blend fades.
+        entities.get_mut(&rider).unwrap().0[0x58] = 0;
+        let before = walk[&pet];
+        advance_walk(&mut walk, &entities, &states, rider, TICK_MS);
+        advance_walk(&mut walk, &entities, &states, pet, TICK_MS);
+        assert_eq!(walk[&pet].phase, before.phase);
+        assert!(walk[&pet].blend < before.blend);
     }
 
     #[test]
