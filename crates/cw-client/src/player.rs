@@ -49,6 +49,7 @@ use std::collections::BTreeMap;
 use cw_net::EntityData;
 use cw_net::ServerUpdate;
 use cw_net::packet::{Hit, Interact, Passive};
+use cw_render::passes::MAP_MIN_PITCH;
 use cw_sim::combat::{Buff, CreatureState};
 use cw_world::World;
 use cw_world::inventory::Item;
@@ -518,6 +519,16 @@ impl Camera {
         }
         self.clamp_pitch();
         self.rot_target[2] = self.rot_target[2] - cursor_dx * s * 0.005f32;
+    }
+
+    /// Port-only: [`Self::on_mouse_drag`] over the open map. The map draws any pitch below
+    /// [`MAP_MIN_PITCH`] as that, so the pitch starts there and stays there; else the first
+    /// stretch of a drag down turns nothing on the map.
+    pub fn on_map_drag(&mut self, opts: &CameraOptions, cursor_dx: f32, cursor_dy: f32) {
+        self.rot[0] = self.rot[0].max(MAP_MIN_PITCH);
+        self.rot_target[0] = self.rot_target[0].max(MAP_MIN_PITCH);
+        self.on_mouse_drag(opts, cursor_dx, cursor_dy);
+        self.rot_target[0] = self.rot_target[0].max(MAP_MIN_PITCH);
     }
 
     fn clamp_pitch(&mut self) {
@@ -2168,6 +2179,21 @@ mod tests {
         c.on_mouse_move(&o, 10.0, -1000.0);
         assert_eq!(c.rot_target[0], 0.0);
         assert_eq!(c.rot_target[2], -5.0);
+    }
+
+    /// A drag over the open map turns it from the first pixel: the pitch jumps to the map's
+    /// least and never drops below it, while a drag elsewhere keeps the full range.
+    #[test]
+    fn map_drag_starts_at_the_maps_pitch() {
+        let o = CameraOptions { camera_speed: 100, camera_smoothness: 50, invert_y: false };
+        let mut c = Camera { rot: [95.0, 0.0, 0.0], rot_target: [95.0, 0.0, 0.0], ..Camera::default() };
+        c.on_map_drag(&o, 0.0, 2.0);
+        assert_eq!(c.rot[0], MAP_MIN_PITCH);
+        assert_eq!(c.rot_target[0], MAP_MIN_PITCH + 1.0);
+        c.on_map_drag(&o, 0.0, -100.0);
+        assert_eq!(c.rot_target[0], MAP_MIN_PITCH);
+        c.on_mouse_drag(&o, 0.0, -100.0);
+        assert_eq!(c.rot_target[0], MAP_MIN_PITCH - 50.0);
     }
 
     #[test]

@@ -2297,6 +2297,9 @@ pub fn build_frame(inputs: &RenderInputs) -> FrameCommands {
     b.out
 }
 
+/// The least pitch the map screen draws at: a lower camera pitch draws as this.
+pub const MAP_MIN_PITCH: f32 = 110.0;
+
 /// Map-screen arguments (`0x004adede..0x004ae004`): centre = player + pan·65536
 /// (truncated), centre pixel `(w/2, h/2)`, rotation `(min(-pitch, -110), 0, -yaw)`,
 /// zoom `GC+0x1c4`, radius 16, full map.
@@ -2306,8 +2309,8 @@ pub fn map_screen_view(inputs: &RenderInputs) -> MapView {
     for (c, p) in center.iter_mut().zip(inputs.map_pan) {
         *c += ftol(p * 65536.0);
     }
-    let mut tilt = -110.0f32;
-    if -cam.pitch <= -110.0 {
+    let mut tilt = -MAP_MIN_PITCH;
+    if -cam.pitch <= -MAP_MIN_PITCH {
         tilt = -cam.pitch;
     }
     MapView {

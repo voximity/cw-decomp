@@ -713,7 +713,11 @@ impl Controller {
             if self.ui.gui.current_target().is_none() && self.bytes.left_mouse() {
                 let d = self.ui.gui.cursor - self.ui.gui.prev_cursor;
                 let opts = self.camera_options();
-                self.player.camera.on_mouse_drag(&opts, d.x, d.y);
+                if self.game.map_open {
+                    self.player.camera.on_map_drag(&opts, d.x, d.y);
+                } else {
+                    self.player.camera.on_mouse_drag(&opts, d.x, d.y);
+                }
             }
         } else {
             let opts = self.camera_options();
