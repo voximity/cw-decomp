@@ -138,6 +138,23 @@ fn seat(e: &mut EntityData, s: &Static, kind: Seat, set_mode: bool) {
     }
 }
 
+/// Whether a creature may take a free seat. The original takes modes 0, 0x53 and 0x54 only
+/// (0x00536955, and 0x005368ce on a client). Port fix: a skill's mode stays on the creature
+/// after the skill is over, until the player's 10 s timeout ends it (`Cube.exe 0x0049c272`),
+/// so R on a seat did nothing for 10 s after an attack, such as the one that gets a player
+/// off a pet. A mode that timeout ends counts as standing once its skill time has run out.
+fn may_sit(e: &EntityData, guard: f32, haste: bool) -> bool {
+    let mode = e.0[0x58];
+    if matches!(mode, 0 | 0x53 | 0x54) {
+        return true;
+    }
+    // The modes the timeout leaves alone: riding, the boat, the held skills and the rest.
+    if matches!(mode, 0x6a | 0x6b | 0x52 | 8 | 0x23 | 0x4f | 0x1c | 0x1d | 0x24) {
+        return false;
+    }
+    i32_at(&e.0, 0x5c) >= crate::skills::skill_total_time(e, guard, haste)
+}
+
 /// The ground-items pass (0x00532ca2..0x00533097) over one zone around players: every item's
 /// `+0x140` and `+0x13c` countdowns lose `dt`, and an item whose `+0x13c` countdown just
 /// ran out lands with a sound at its position (kind 0x3a for coins, type 0xc, else 0x3b;
@@ -406,8 +423,9 @@ pub fn handle_interacts(world: &mut World, entities: &mut BTreeMap<i64, EntityDa
                     // A bed is used through the client's own world only.
                     0x2d => continue,
                     0x10 | 0x12 | 0x13 | 0x44 | 0x45 => {
+                        let (guard, haste) = crate::util::guard_haste(states, player);
                         let e = entities.get_mut(&player).expect("player");
-                        if (s.f40 == 0 && s.f44 == 0) && matches!(e.0[0x58], 0 | 0x53 | 0x54) {
+                        if (s.f40 == 0 && s.f44 == 0) && may_sit(e, guard, haste) {
                             s.f40 = player as u32;
                             s.f44 = (player >> 32) as u32;
                             if let Some(kind) = seat_kind(s.kind) {
@@ -584,8 +602,9 @@ pub fn client_interact(world: &mut World, entities: &mut BTreeMap<i64, EntityDat
     }
     // 0x005368ce: a free seat.
     if matches!(s.kind, 0x10 | 0x12 | 0x13 | 0x45 | 0x44) && s.f40 == 0 && s.f44 == 0 {
+        let (guard, haste) = crate::util::guard_haste(states, player);
         let e = entities.get_mut(&player).expect("player");
-        if matches!(e.0[0x58], 0 | 0x53 | 0x54) {
+        if may_sit(e, guard, haste) {
             // 0x00536b64
             e.0[0x30..0x3c].fill(0);
         }
@@ -619,5 +638,64 @@ pub fn tail(world: &mut World, dirty: &BTreeSet<(i32, i32)>, out: &mut ServerUpd
         if let Some(z) = world.zone_mut(zx, zy) {
             z.statics_dirty = true;
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::combat::CreatureState;
+    use cw_world::zone::Zone;
+
+    /// R on a sleeping mat (Interact 3) from a player one block off it, in `mode` for
+    /// `mode_ms`: the player's mode after it and the mat's user.
+    fn use_mat(mode: u8, mode_ms: i32) -> (u8, u32) {
+        let mut world = World::new(1);
+        let mut z = Zone::new(100, 100);
+        let mut mat = Static::NEW;
+        mat.kind = 0x45;
+        mat.x = (100 * 256 + 10) << 16;
+        mat.y = (100 * 256 + 10) << 16;
+        mat.z = 10 << 16;
+        mat.scale = [2.0, 1.0, 0.25];
+        z.statics.push(mat.clone());
+        world.insert_zone(Box::new(z));
+        let mut e = EntityData::constructed();
+        e.0[0x50] = 0;
+        set_pos(&mut e, [mat.x + (1 << 16), mat.y, mat.z]);
+        e.0[0x58] = mode;
+        w32(&mut e.0, 0x5c, mode_ms as u32);
+        let mut entities = BTreeMap::from([(1i64, e)]);
+        let mut states = BTreeMap::from([(1i64, CreatureState::default())]);
+        let mut it = [0u8; Interact::SIZE];
+        for (i, v) in [100i32, 100, 0].iter().enumerate() {
+            it[0x118 + i * 4..0x11c + i * 4].copy_from_slice(&v.to_le_bytes());
+        }
+        it[0x128] = 3;
+        let mut out = ServerUpdate::default();
+        let mut dirty = BTreeSet::new();
+        handle_interacts(&mut world, &mut entities, &mut states, 1, &[Interact(it)], &mut out, &mut dirty, false);
+        (entities[&1].0[0x58], world.zone(100, 100).unwrap().statics[0].f40)
+    }
+
+    #[test]
+    fn a_standing_player_lies_down() {
+        assert_eq!(use_mat(0, 5000), (0x54, 1));
+    }
+
+    /// A left click gets a player off a pet and leaves the attack's mode 0x1a behind.
+    #[test]
+    fn a_finished_attack_does_not_keep_a_player_off_the_mat() {
+        assert_eq!(use_mat(0x1a, 2000), (0x54, 1));
+    }
+
+    #[test]
+    fn an_attack_still_running_does() {
+        assert_eq!(use_mat(0x1a, 0), (0x1a, 0));
+    }
+
+    #[test]
+    fn a_rider_stays_on_the_pet() {
+        assert_eq!(use_mat(0x6a, 60_000), (0x6a, 0));
     }
 }
