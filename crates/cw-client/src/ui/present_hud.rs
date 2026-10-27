@@ -181,6 +181,17 @@ fn move_after(gui: &mut Gui, parent: NodeId, child: NodeId, anchor: Option<NodeI
     }
 }
 
+/// Moves `child` (a child of `parent`) to directly before `anchor` in the child list (draw
+/// order), or to the end when `anchor` is not a child.
+fn move_before(gui: &mut Gui, parent: NodeId, child: NodeId, anchor: Option<NodeId>) {
+    let ch = &mut gui.nodes[parent].children;
+    ch.retain(|&c| c != child);
+    match anchor.and_then(|a| ch.iter().position(|&c| c == a)) {
+        Some(i) => ch.insert(i, child),
+        None => ch.push(child),
+    }
+}
+
 /// A clone of `src` into `parent` placed after `after` (the original clones in ctor order;
 /// the clones follow the template's position in the GUI root here).
 fn clone_after(gui: &mut Gui, src: NodeId, parent: NodeId, after: NodeId) -> NodeId {
@@ -262,15 +273,20 @@ pub fn build_nodes(ui: &mut GameUi) -> HudNodes {
     h.cast_fill = find(gui, m.cast_bar, "bar");
     h.stamina_fill = find(gui, m.stamina_bar, "bar");
     // 0x00461741: the nameplate container, then the crosshairs re-attached after it
-    // (0x00636950 moves a node to the end of its new parent).
+    // (0x00636950 moves a node to the end of its new parent). The ctor adds these and the
+    // bubbles below to the GUI root before the dialog's node (`speech_node`) and the panels,
+    // so the panels draw over them. This runs after the whole ctor, so each goes in before
+    // the dialog's node, not at the end (where the merchant's plate drew over the shop).
+    let hud_end = m.speech_node;
     let plates = gui.add_plain_node(Some(g), "");
+    move_before(gui, g, plates, hud_end);
     h.plates = Some(plates);
     for c in [m.crosshair, m.zoomcrosshair].into_iter().flatten() {
         if let Some(p) = gui.nodes[c].parent {
             gui.nodes[p].children.retain(|&x| x != c);
         }
         gui.nodes[c].parent = Some(g);
-        gui.nodes[g].children.push(c);
+        move_before(gui, g, c, hud_end);
     }
     set_vis(gui, m.zoomcrosshair, false);
     // 0x00461a68..0x00461c21: four bubbles cloned from `speech` (Display and
@@ -279,6 +295,7 @@ pub fn build_nodes(ui: &mut GameUi) -> HudNodes {
     if let Some(t) = find_node(gui, g, "speech") {
         for _ in 0..4 {
             let c = clone_subtree(gui, t, Some(g));
+            move_before(gui, g, c, hud_end);
             // 0x00461b7b..0x00461bbc: `new SpeechWidget(gui, clone, gc)` (0x004e5c90), whose
             // `0x00627c00` makes it 250x200 (the width the text wraps against).
             let w = match gui.nodes[c].widget {
@@ -940,6 +957,25 @@ mod tests {
         apply(&mut ui, &view, &out);
         let second = ui.gui.nodes[c].children[1];
         assert!(!ui.gui.nodes[second].visible);
+    }
+
+    /// The nameplate container sits in the GUI root where the ctor makes it (0x00461741),
+    /// before the dialog's node and the panels, so an open shop draws over the merchant's
+    /// plate.
+    #[test]
+    fn plates_draw_under_the_panels() {
+        let mut gui = Gui::new();
+        gui.viewport = glam::IVec2::new(1280, 720);
+        let game = GameView::default();
+        let mut ui = GameUi::new(gui, &mut crate::ui::members::NoPlx, &game);
+        apply(&mut ui, &game, &FrameOutput::default());
+        let plates = ui.hud_state.nodes.as_ref().unwrap().plates.unwrap();
+        let kids = &ui.gui.nodes[ui.m.gui_root.unwrap()].children;
+        let at = |n: Option<NodeId>| kids.iter().position(|&c| Some(c) == n).unwrap();
+        assert!(at(Some(plates)) < at(ui.m.speech_node));
+        for p in [ui.m.shop_panel, ui.m.inventory_panel, ui.m.chat_node] {
+            assert!(at(Some(plates)) < at(p));
+        }
     }
 
     #[test]
