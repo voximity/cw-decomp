@@ -2584,6 +2584,9 @@ impl Controller {
             if self.scene.explode_pending.contains(&id) {
                 let models = &self.models;
                 self.scene.pose_parts.entry(id).or_default().record_pose(&pose, |n| models.info(n as i32));
+                // The trails, root offset and render origin the same call leaves in the pose
+                // object: next frame's ray and beam starts, shadows, ribbons and charge glow.
+                self.scene.poses.insert(id, scene::PoseView { root_off: ps.root_off, trails: ps.trails, origin: ps.origin });
             }
             let parts: Vec<ModelDraw> = pose
                 .parts
@@ -2613,6 +2616,7 @@ impl Controller {
         self.poses.retain(|k, _| entities.contains_key(k));
         // A deleted creature takes its pose object (and its flag) with it.
         self.scene.pose_parts.retain(|k, _| entities.contains_key(k));
+        self.scene.poses.retain(|k, _| entities.contains_key(k));
         self.scene.explode_pending.retain(|k| entities.contains_key(k));
         out
     }
@@ -2872,6 +2876,30 @@ mod tests {
         let a: [f32; 16] = core::array::from_fn(|i| i as f32);
         assert_eq!(from_d3d(&to_d3d(&a)), a);
         assert_eq!(to_d3d(&a)[3][0], 12.0);
+    }
+
+    /// A posed creature the creature pass drew leaves its pose object's render origin, trails
+    /// and root offset in the gather's mirror, so next frame's ray (modes 0x1c, 0x5e, 0x5f)
+    /// starts at the hand in world space; a culled one keeps its old entry. Skipped without
+    /// `CW_GAME_DIR`.
+    #[test]
+    fn a_drawn_pose_reaches_the_scene_mirror() {
+        let Some(dir) = std::env::var_os("CW_GAME_DIR").map(PathBuf::from) else {
+            eprintln!("CW_GAME_DIR not set; skipped");
+            return;
+        };
+        let mut c = Controller::new(dir, [1280, 720], vec![(1280, 720)], false, String::new());
+        c.player.camera.origin = [-5 << 16, 7 << 16];
+        let net = Arc::clone(&c.net);
+        let nw = net.world.lock().unwrap();
+        let id = LOCAL_PLAYER_ID;
+        c.pose_creatures(&nw.entities, &nw.states, &[id], &BTreeMap::new());
+        assert!(!c.scene.poses.contains_key(&id));
+        c.scene.explode_pending.insert(id);
+        c.pose_creatures(&nw.entities, &nw.states, &[id], &BTreeMap::new());
+        let v = c.scene.poses[&id];
+        assert_eq!(v.origin, [-5 << 16, 7 << 16]);
+        assert_eq!((v.root_off, v.trails), (c.poses[&id].root_off, c.poses[&id].trails));
     }
 
     /// Slot 8 `onMouseUp` 0x0047ddd0 reaches the system menu (0x0047e00e): "Exit Game" sets
