@@ -17,7 +17,7 @@ use cw_world::inventory::Item;
 use cw_world::zone::{GroundItem, Spawn, Static};
 
 use crate::stats::{item_power, max_hp};
-use crate::util::{f32_at, i32_at, pos_of, u16_at, w32, w64};
+use crate::util::{diff_blocks, f32_at, i32_at, len_sq3, pos_of, u16_at, w32, w64};
 
 /// 2^-16, the fixed-point block scale.
 pub const K: f32 = 1.5258789e-05;
@@ -543,8 +543,24 @@ pub fn handle_interacts(world: &mut World, entities: &mut BTreeMap<i64, EntityDa
                     println!("[{player}] build interaction not ported");
                 }
             }
-            // Call the pet: no pets yet.
-            8 => {}
+            // 0x00536459, T: call the pet. The pet (`creature+0x11c8`, alive or dead) forgets
+            // its threat and, more than 200 blocks off (squared, `> 40000`), is put on the
+            // player; the player forgets its hits and its last target (`+0x11d0`), so the pet
+            // has nothing left to fight and walks back.
+            8 => {
+                // Id 0 is no pet; the original looks it up all the same, and would find the
+                // first spawn of zone (0, 0).
+                let pet = states.get(&player).map_or(0, |s| s.pet);
+                if pet != 0 && let Some(pe) = entities.get_mut(&pet) {
+                    states.entry(pet).or_default().threat.clear();
+                    if len_sq3(diff_blocks(pos_of(pe), ppos)) > 40000.0f32 {
+                        set_pos(pe, ppos);
+                    }
+                }
+                let st = states.entry(player).or_default();
+                st.hits_landed.clear();
+                st.last_target = 0;
+            }
             _ => {}
         }
     }
