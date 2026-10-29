@@ -2096,6 +2096,14 @@ impl Controller {
                     let ui::GameUi { gui, m, crafting, inv, .. } = &mut self.ui;
                     ui::crafting::open_from_station(gui, m, crafting, &self.game, &mut inv.crafting, kind);
                 }
+                Event::LevelUp { level } => {
+                    // 0x00493ec4: `0x0047fae0(level)`, the recipes the new level teaches
+                    // ([`ui::character_style::learn_level_formulas`]), with the main thread's
+                    // `rand()`.
+                    let mut rng: MsvcRand = std::mem::take(&mut self.shared.write_world().rng);
+                    ui::character_style::learn_level_formulas(&mut self.game, level, &mut rng);
+                    self.shared.write_world().rng = rng;
+                }
                 Event::InventoryFull => {
                     // 0x00497653..0x004976ae: "You can't carry more of these items." in
                     // (1, 0.2, 0.2) through the ChatWidget (`GC+0x800a14`, 0x0043ab30).
@@ -2991,6 +2999,29 @@ mod tests {
         c.player.events.push(Event::Examine { kind: 0x41 });
         c.player_events();
         assert!(c.ui.bubbles.iter().any(|b| b.creature == LOCAL_PLAYER_ID));
+    }
+
+    /// A level-up (0x00493ec4) teaches the new level's recipes (`0x0047fae0(level)`): for a
+    /// Warrior at level 2, the Pumpkin Muffin (1, 9), iron boots (6, material 1) and an iron
+    /// shield (3, 0xd), all at level 2. Skipped without `CW_GAME_DIR`.
+    #[test]
+    fn level_up_teaches_the_level_recipes() {
+        let Some(dir) = std::env::var_os("CW_GAME_DIR").map(PathBuf::from) else {
+            eprintln!("CW_GAME_DIR not set; skipped");
+            return;
+        };
+        let mut c = Controller::new(dir, [1280, 720], vec![(1280, 720)], false, String::new());
+        c.game.player.0[0x130] = 1;
+        c.game.formulas.clear();
+        c.player.events.push(Event::LevelUp { level: 2 });
+        c.player_events();
+        let knows = |ty: u8, sub: Option<u8>, mat: u8| {
+            c.game.formulas.iter().any(|f| f[0] == ty && sub.is_none_or(|s| f[1] == s) && f[0xd] == mat && f[0x10..0x12] == 2u16.to_le_bytes())
+        };
+        assert_eq!(c.game.formulas.len(), 3);
+        assert!(knows(1, Some(9), 0));
+        assert!(knows(6, None, 1));
+        assert!(knows(3, Some(0xd), 1));
     }
 
     /// Chat typed offline (0x0047e652..0x0047e6b0) goes onto the received list under the
