@@ -1890,6 +1890,10 @@ impl Controller {
         let mut out = ServerUpdate::default();
         let interacts = std::mem::take(&mut self.pending_interacts);
         self.world_tick(world, &mut nw.entities, &mut nw.states, dt, interacts, &mut out);
+        // In singleplayer the tick runs the server passes, so a big creature's swing or a bomb
+        // breaks blocks here rather than in a received list: their zones need a new mesh (and
+        // light) all the same.
+        received::mark_zones(&mut self.dirty_zones, &out.block_actions);
         drop(tick_scope);
         let net_scope = profile::scope(Phase::Net);
         // 0x0048d5f0..0x0049081b: the received lists, applied and spliced into the output.
