@@ -371,6 +371,10 @@ pub struct Controller {
     pub assets: crate::assets::AssetState,
     /// The style the local player's appearance was last built from.
     applied_style: ui::Style,
+    /// The local player as [`GameView::player`] last took it from the creature map
+    /// ([`Controller::mirror_to_view`]): [`Controller::write_back_from_view`] stores only the
+    /// bytes the UI changed since.
+    mirrored_player: EntityData,
     /// The last `GameUi::frame` output (what the widgets show; `ui::present`).
     pub ui_out: ui::FrameOutput,
     /// The client state the UI reads.
@@ -517,6 +521,7 @@ impl Controller {
             ui,
             ui_out: ui::FrameOutput::default(),
             applied_style: ui::Style::default(),
+            mirrored_player: game.player.clone(),
             map_pan: [0.0; 3],
             teleport_map: false,
             teleport_pick: crate::map_screen::TeleportPick::default(),
@@ -812,6 +817,7 @@ impl Controller {
                 }
                 appearance_from_style(e, &style, &mut rng);
                 self.game.player = e.clone();
+                self.mirrored_player = e.clone();
             }
         }
         self.shared.write_world().rng = rng;
@@ -1014,6 +1020,7 @@ impl Controller {
         self.game.sheet = ui::character_sheet::SheetState::of(nw.states.get(&id));
         if let Some(e) = nw.entities.get(&id) {
             self.game.player = e.clone();
+            self.mirrored_player = e.clone();
             for (k, slot) in self.game.equipment.iter_mut().enumerate() {
                 let o = EQUIPMENT_AT + k * Item::SIZE;
                 slot.clear();
@@ -1049,13 +1056,21 @@ impl Controller {
     }
 
     /// The UI's edits back into the authoritative state (after the UI frame and the click
-    /// handlers): the inverse of [`Controller::mirror_to_view`].
+    /// handlers): the inverse of [`Controller::mirror_to_view`]. Of the player, only the bytes
+    /// the UI changed go back. The zone thread writes the player too (a world switch puts
+    /// them at the position saved for the world, `threads::load_world`); the whole copy, taken
+    /// before that, would put them back where they stood in the old world.
     pub fn write_back_from_view(&mut self) {
         let id = self.player.id;
         let mut nw = self.net.world.lock().unwrap_or_else(|e| e.into_inner());
         let nw = &mut *nw;
         if let Some(e) = nw.entities.get_mut(&id) {
-            *e = self.game.player.clone();
+            for ((b, &v), &m) in e.0.iter_mut().zip(&self.game.player.0).zip(&self.mirrored_player.0) {
+                if v != m {
+                    *b = v;
+                }
+            }
+            self.mirrored_player = self.game.player.clone();
             for (k, slot) in self.game.equipment.iter().enumerate() {
                 let o = EQUIPMENT_AT + k * Item::SIZE;
                 let n = slot.len().min(Item::SIZE);
@@ -3060,5 +3075,39 @@ mod tests {
         assert!(c.model(0).is_none());
         assert!(c.model(-1).is_none());
         assert_eq!(pose::ModelSource::model_count(&c), 0);
+    }
+
+    /// The zone thread moves the player between a mirror and its write-back (a world switch
+    /// puts them at the position saved for the world, `threads::load_world`): the write-back
+    /// keeps the move and still stores what the UI changed. Skipped without `CW_GAME_DIR`.
+    #[test]
+    fn the_write_back_keeps_a_move_made_after_the_mirror() {
+        let Some(dir) = std::env::var_os("CW_GAME_DIR").map(PathBuf::from) else {
+            eprintln!("CW_GAME_DIR not set; skipped");
+            return;
+        };
+        let mut c = Controller::new(dir, [1280, 720], vec![(1280, 720)], false, String::new());
+        // The start screen's world loads first; its switch places the player once.
+        let t = std::time::Instant::now();
+        while !c.shared.lock_world_cs().matches() {
+            assert!(t.elapsed().as_secs() < 60, "the start screen's world never loaded");
+            std::thread::sleep(std::time::Duration::from_millis(20));
+        }
+        c.mirror_to_view();
+        let saved = [551169371338i64, 548046074839, 4723855];
+        {
+            let mut nw = c.net.world.lock().unwrap();
+            let e = nw.entities.get_mut(&c.player.id).unwrap();
+            for i in 0..3 {
+                e.0[i * 8..i * 8 + 8].copy_from_slice(&saved[i].to_le_bytes());
+            }
+        }
+        c.game.player.0[0x1158..0x1168].fill(0);
+        c.game.player.0[0x1158..0x115c].copy_from_slice(b"john");
+        c.write_back_from_view();
+        let nw = c.net.world.lock().unwrap();
+        let e = &nw.entities[&c.player.id];
+        assert_eq!(scene::entity_pos(e), saved);
+        assert_eq!(&e.0[0x1158..0x115c], b"john");
     }
 }
