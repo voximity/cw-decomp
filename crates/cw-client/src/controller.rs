@@ -253,6 +253,10 @@ pub struct Controller {
     pub bytes: ControllerBytes,
     /// `+0x19[256]`, `+0x119[3]`: VK key and button state.
     pub vk: VkState,
+    /// Port-only: the mouse buttons pressed while the cursor was free (left, right, middle).
+    /// They stay the GUI's until let go, so the right click that closes a panel does not also
+    /// start the right-button skill once the cursor is held again.
+    pub gui_buttons: [bool; 3],
     /// `+0x11c`, `+0x120`: client width and height.
     pub screen: [i32; 2],
     /// Port-only: the back buffer the GUI is drawn into, in device pixels, and the device
@@ -471,6 +475,7 @@ impl Controller {
             input: InputState::default(),
             bytes: ControllerBytes::default(),
             vk: VkState::default(),
+            gui_buttons: [false; 3],
             screen,
             back_buffer: [0, 0],
             pixel_scale: 1.0,
@@ -715,8 +720,8 @@ impl Controller {
             // The scroll buttons' `MOUSE_MOVE` callback (`dragScroll` 0x004c5bb0) runs inside
             // the engine's inject in the original.
             self.ui.on_mouse_moved();
+            let d = self.ui.gui.cursor - self.ui.gui.prev_cursor;
             if self.ui.gui.current_target().is_none() && self.bytes.left_mouse() {
-                let d = self.ui.gui.cursor - self.ui.gui.prev_cursor;
                 let opts = self.camera_options();
                 if self.game.map_open {
                     self.player.camera.on_map_drag(&opts, d.x, d.y);
@@ -724,6 +729,10 @@ impl Controller {
                     self.player.camera.on_mouse_drag(&opts, d.x, d.y);
                 }
             }
+            // 0x0047ede4..0x0047ee7c: the middle button (`GC+0xa`) turns the customization
+            // panel's weapon.
+            let ui::GameUi { gui, m, voxel, .. } = &mut self.ui;
+            ui::voxel::on_mouse_move(gui, m, voxel, self.bytes.middle_mouse(), d);
         } else {
             let opts = self.camera_options();
             self.player.camera.on_mouse_move(&opts, x, y);
@@ -733,6 +742,7 @@ impl Controller {
     /// Slot 7 `onMouseDown` 0x0047b600 (UI part; the gameplay clicks are `update`'s).
     pub fn on_mouse_down(&mut self, b: MouseButton) {
         self.vk.mouse_down(b);
+        self.gui_buttons[b as usize] = self.is_cursor_free();
         match b {
             MouseButton::Left => self.ui.gui.inject_left_down(None),
             MouseButton::Right => self.ui.gui.inject_right_down(),
@@ -770,6 +780,7 @@ impl Controller {
     /// the system menu at 0x0047e00e).
     pub fn on_mouse_up(&mut self, b: MouseButton) {
         self.vk.mouse_up(b);
+        self.gui_buttons[b as usize] = false;
         match b {
             MouseButton::Left => self.ui.gui.inject_left_up(),
             MouseButton::Right => self.ui.gui.inject_right_up(),
@@ -1466,6 +1477,13 @@ impl Controller {
         self.frame_ms = dt;
         let head = profile::scope(Phase::UpdateHead);
         self.bytes = ControllerBytes::from_input(&self.input);
+        if !self.is_cursor_free() {
+            for (b, o) in [(MouseButton::Left, 4), (MouseButton::Right, 5), (MouseButton::Middle, 0xa)] {
+                if self.gui_buttons[b as usize] {
+                    self.bytes.bytes[o] = false;
+                }
+            }
+        }
         self.finish_world_loads();
         // 0x00489020..0x00489372: the fog distance.
         self.fog_step(dt);
@@ -1749,7 +1767,13 @@ impl Controller {
             };
             // 0x0048d771..0x0048d7a9: the aimed ground item (`GC+0x800a78`, 0x0059fb90).
             let ground_item = interact::ground_item_at(world, self.player.aimed_item).map(|g| g.item.to_bytes());
+            // 0x00588d32: the customization panel's weapon model, `modelForItem 0x004ec400`.
+            let voxel_model = ui::voxel::target_item(&self.game, &self.ui.voxel)
+                .and_then(interact::item_model_index)
+                .filter(|&i| self.models.info(i as i32).is_some())
+                .and_then(|i| Some((i, self.models.voxels(i)?)));
             let mut inp = ui::FrameInputs::basic(&mut rng, stamina, dt, glam::IVec2::new(screen[0], screen[1]));
+            inp.voxel = voxel_model.as_ref().map(|(i, g)| ui::VoxelWorld { model: Some(g as &dyn ui::voxel::VoxelModel), model_index: Some(*i) });
             inp.ground_item = ground_item.as_ref().map(|b| &b[..]);
             inp.time_ms = self.game.engine_time_ms;
             inp.left_held = self.bytes.left_mouse();
@@ -2074,11 +2098,14 @@ impl Controller {
                     self.audio.play_sound(&l, id, pos, volume, pitch);
                 }
                 Event::CloseMovementPanels => {
+                    // 0x004a8e21..0x004a8ed9: each panel's visibility in its frame is zeroed;
+                    // the word store at 0x004a8ebd clears the skills byte and the menu bar.
                     let m = self.ui.m.clone();
-                    for n in [m.inventory_panel, m.crafting_panel, m.system_panel, m.skills_panel] {
+                    for n in [m.inventory_panel, m.crafting_panel, m.shop_panel, m.voxel_panel, m.enchant_panel, m.adaption_panel, m.system_panel] {
                         self.ui.set_visible(n, false);
                     }
                     self.ui.skills_open = false;
+                    self.ui.system_menu = false;
                 }
                 Event::OpenMapFromBed => {
                     // 0x00497424: `+0x8006e4 = +0x800de4 = 1`.
@@ -2374,7 +2401,7 @@ impl Controller {
         self.scene.time_of_day_ms = world.time_of_day;
         // The global `rand()` stream is the world's (`cw_world::World::rng` on the client).
         let mut rng: MsvcRand = std::mem::take(&mut world.rng);
-        let (pieces, sounds) = scene::gather_scene(world, &nw.entities, &nw.states, &self.projectiles, &mut self.scene, &mut self.particles, &self.models, dt, &mut rng);
+        let (mut pieces, sounds) = scene::gather_scene(world, &nw.entities, &nw.states, &self.projectiles, &mut self.scene, &mut self.particles, &self.models, dt, &mut rng);
         world.rng = rng;
         // 0x004ae27e..0x004ae370 (world frames only): the GUI root `GC+0x800884` is visible
         // exactly when no menu screen is (`scene::GuiVisibility::apply` in the gather).
@@ -2391,7 +2418,7 @@ impl Controller {
         // The creature bodies: the pose object `creature+0x1498` per creature
         // (0x004b4ef0..0x004b5db2).
         let poses_scope = profile::scope(Phase::Poses);
-        let creatures = self.pose_creatures(&nw.entities, &nw.states, &pieces.creature_order, &pieces.body_materials);
+        let creatures = self.pose_creatures(&nw.entities, &nw.states, &pieces.creature_order, &pieces.body_materials, &mut pieces.creature_extras);
         drop(poses_scope);
         let build_scope = profile::scope(Phase::BuildFrame);
         let player_position = nw.entities.get(&self.player.id).map(scene::entity_pos).unwrap_or([0; 3]);
@@ -2561,7 +2588,7 @@ impl Controller {
     /// animation time is the entity's mode time (`+0x5c`), the mode from `anim_mode_for`
     /// (0x004b4ef0), the render position and rotation the tick smooths, the render origin
     /// `GC+0x1d8/+0x1e0`.
-    fn pose_creatures(&mut self, entities: &BTreeMap<i64, EntityData>, states: &BTreeMap<i64, CreatureState>, order: &[i64], body_materials: &BTreeMap<i64, [f32; 4]>) -> Vec<CreatureInput> {
+    fn pose_creatures(&mut self, entities: &BTreeMap<i64, EntityData>, states: &BTreeMap<i64, CreatureState>, order: &[i64], body_materials: &BTreeMap<i64, [f32; 4]>, extras: &mut Vec<ModelDraw>) -> Vec<CreatureInput> {
         let mut out = Vec::new();
         for &id in order {
             let Some(e) = entities.get(&id) else { continue };
@@ -2614,6 +2641,12 @@ impl Controller {
                 // The trails, root offset and render origin the same call leaves in the pose
                 // object: next frame's ray and beam starts, shadows, ribbons and charge glow.
                 self.scene.poses.insert(id, scene::PoseView { root_off: ps.root_off, trails: ps.trails, origin: ps.origin });
+            }
+            // 0x004b5db7..0x004b5ef3: the spirit cubes, on this pose (the creature pass ran
+            // before it), for a creature that pass drew.
+            if body_materials.contains_key(&id) {
+                let models = &self.models;
+                scene::creatures::posed_spirit_cubes(models.particle_cube(), e, &pose, |n| models.info(n as i32), color, extras);
             }
             let parts: Vec<ModelDraw> = pose
                 .parts
@@ -2920,10 +2953,11 @@ mod tests {
         let net = Arc::clone(&c.net);
         let nw = net.world.lock().unwrap();
         let id = LOCAL_PLAYER_ID;
-        c.pose_creatures(&nw.entities, &nw.states, &[id], &BTreeMap::new());
+        let mut extras = Vec::new();
+        c.pose_creatures(&nw.entities, &nw.states, &[id], &BTreeMap::new(), &mut extras);
         assert!(!c.scene.poses.contains_key(&id));
         c.scene.explode_pending.insert(id);
-        c.pose_creatures(&nw.entities, &nw.states, &[id], &BTreeMap::new());
+        c.pose_creatures(&nw.entities, &nw.states, &[id], &BTreeMap::new(), &mut extras);
         let v = c.scene.poses[&id];
         assert_eq!(v.origin, [-5 << 16, 7 << 16]);
         assert_eq!((v.root_off, v.trails), (c.poses[&id].root_off, c.poses[&id].trails));

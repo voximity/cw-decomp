@@ -42,7 +42,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use cw_math::rand::MsvcRand;
 use cw_net::EntityData;
-use cw_render::frame::D3dMatrix;
+use cw_render::frame::{D3dMatrix, ModelRef};
 use cw_render::passes::{ModelDraw, sphere_visible};
 use cw_sim::combat::CreatureState;
 use cw_sim::util::has_buff;
@@ -530,10 +530,9 @@ pub fn living_creature(
     // frame (0x004b3a31).
     fx.posed.push(id);
     fx.body_materials.insert(id, body_mat);
-    // 0x004b5db7..0x004b5ef3: spirit cubes of the equipment.
-    if let Some(p) = parts {
-        spirit_cubes(ctx, e, p, body_mat, out);
-    }
+    // 0x004b5db7..0x004b5ef3: the spirit cubes of the equipment, on the pose the body draw
+    // just built. The port poses the bodies after this pass, so it draws them there
+    // ([`posed_spirit_cubes`]); last frame's pose here left them a frame behind the weapon.
     // 0x004b5ef8..0x004b62fc.
     let stun = i32_at(e, 0x11c);
     stun_models(ctx, e, mode, mt, stun, inp.real_time_ms, out);
@@ -724,20 +723,31 @@ fn buff_models(ctx: &SceneCtx, e: &EntityData, rpos: [i64; 3], step: f32, b: &[u
 /// matrix `+0x1744`), the left weapon (slot 6, `+0x1784`), the chest (slot 2, body matrix) and
 /// the shoulders (slot 5, `+0x1844`), each only while that part has a model; the colour base is
 /// the body material and the strength the charge `entity+0x60 / maxBlock`.
-fn spirit_cubes(ctx: &SceneCtx, e: &EntityData, p: &PoseParts, body_mat: [f32; 4], out: &mut Vec<ModelDraw>) {
+fn spirit_cubes(cube: ModelRef, e: &EntityData, p: &PoseParts, body_mat: [f32; 4], out: &mut Vec<ModelDraw>) {
     let charge = (i32_at(e, 0x60) as f32) / (cw_sim::skills::max_block(e) as f32);
     if p.weapon_r.is_some() {
-        out.extend(spirit_cubes_471b60(ctx, equip(e, 7), &p.weapon_r_m, body_mat, charge));
+        out.extend(spirit_cubes_471b60(cube, equip(e, 7), &p.weapon_r_m, body_mat, charge));
     }
     if p.weapon_l.is_some() {
-        out.extend(spirit_cubes_471b60(ctx, equip(e, 6), &p.weapon_l_m, body_mat, charge));
+        out.extend(spirit_cubes_471b60(cube, equip(e, 6), &p.weapon_l_m, body_mat, charge));
     }
     if p.body.is_some() {
-        out.extend(spirit_cubes_471b60(ctx, equip(e, 2), &p.body_m, body_mat, charge));
+        out.extend(spirit_cubes_471b60(cube, equip(e, 2), &p.body_m, body_mat, charge));
     }
     if p.shoulder.is_some() {
-        out.extend(spirit_cubes_471b60(ctx, equip(e, 5), &p.shoulder_m, body_mat, charge));
+        out.extend(spirit_cubes_471b60(cube, equip(e, 5), &p.shoulder_m, body_mat, charge));
     }
+}
+
+/// [`spirit_cubes`] on this frame's `pose`, for a creature the creature pass drew (it has a
+/// body material). Skips the pose copy when none of the four items holds a spirit.
+pub fn posed_spirit_cubes(cube: ModelRef, e: &EntityData, pose: &cw_render::pose::Pose, info: impl Fn(u32) -> Option<ModelInfo>, body_mat: [f32; 4], out: &mut Vec<ModelDraw>) {
+    if ![7, 6, 2, 5].iter().any(|&k| i32::from_le_bytes(equip(e, k)[0x114..0x118].try_into().unwrap()) > 0) {
+        return;
+    }
+    let mut p = PoseParts::default();
+    p.record_pose(pose, info);
+    spirit_cubes(cube, e, &p, body_mat, out);
 }
 
 /// `0x00471b60(item, matrix, view, projection, base, strength)`: for an item (type byte not 0),
@@ -745,7 +755,7 @@ fn spirit_cubes(ctx: &SceneCtx, e: &EntityData, p: &PoseParts, body_mat: [f32; 4
 /// `item+0x114`), at `matrix · T(x, y, z)`, coloured `material_color(material, base, strength)`
 /// (`0x004c7250`). The original also sets the shininess of `0x004c7be0(item)` around the loop,
 /// which `ModelDraw` does not carry.
-pub fn spirit_cubes_471b60(ctx: &SceneCtx, item: &[u8], matrix: &D3dMatrix, base: [f32; 4], strength: f32) -> Vec<ModelDraw> {
+pub fn spirit_cubes_471b60(cube: ModelRef, item: &[u8], matrix: &D3dMatrix, base: [f32; 4], strength: f32) -> Vec<ModelDraw> {
     let mut out = Vec::new();
     if item[0] == 0 {
         return out;
@@ -758,7 +768,7 @@ pub fn spirit_cubes_471b60(ctx: &SceneCtx, item: &[u8], matrix: &D3dMatrix, base
         let mut m = *matrix;
         pre_translate(&mut m, [x, y, z]);
         let color = material_color(c[3], base, strength);
-        out.push(draw(0x0047_1cfc, ctx.models.particle_cube(), m, color));
+        out.push(draw(0x0047_1cfc, cube, m, color));
     }
     out
 }
@@ -1482,7 +1492,7 @@ pub fn rotate_from_to(m: &mut D3dMatrix, from: [f32; 3], to: [f32; 3]) {
 mod tests {
     use super::*;
     use crate::scene::{SceneModels, SceneState};
-    use cw_render::frame::{IDENTITY, ModelRef};
+    use cw_render::frame::IDENTITY;
     use cw_render::mesh::VoxelGrid;
 
     const B: i64 = 65536;
@@ -1980,12 +1990,40 @@ mod tests {
         item[0x114] = 2;
         item[0x14..0x18].copy_from_slice(&[1, 2, 0xff, 0x80]);
         item[0x1c..0x20].copy_from_slice(&[0, 0, 0, 1]);
-        let v = spirit_cubes_471b60(&c, &item, &IDENTITY, [1.0; 4], 0.5);
+        let v = spirit_cubes_471b60(c.models.particle_cube(), &item, &IDENTITY, [1.0; 4], 0.5);
         assert_eq!(v.len(), 2);
         assert_eq!(v[0].world[3], [1.0, 2.0, -1.0, 1.0]);
         assert_eq!(v[0].material, material_color(0x80, [1.0; 4], 0.5));
         assert_eq!(v[1].material, material_color(1, [1.0; 4], 0.5));
         item[0] = 0;
-        assert!(spirit_cubes_471b60(&c, &item, &IDENTITY, [1.0; 4], 0.5).is_empty());
+        assert!(spirit_cubes_471b60(c.models.particle_cube(), &item, &IDENTITY, [1.0; 4], 0.5).is_empty());
+    }
+
+    /// The spirit cubes sit on the weapon of the pose they are given (this frame's), not on
+    /// the pose the creature pass kept from last frame.
+    #[test]
+    fn spirit_cubes_ride_this_frames_pose() {
+        use cw_render::pose::{PartSlot, PartTransform, Pose};
+        let info = |n: u32| Some(ModelInfo { handle: n, size: [4; 3] });
+        let at = |x: f32| Pose {
+            parts: vec![PartTransform { slot: PartSlot::WeaponRight, model: 7, matrix: glam::Mat4::from_translation(glam::Vec3::new(x, 0.0, 0.0)), color: [1.0; 4], shine: 0.0, mirrored: false }],
+            root: glam::Mat4::IDENTITY,
+            trails: [[[0.0; 3]; 16]; 4],
+            walk_blend: 0.0,
+        };
+        let mut e = creature([0, 0, 0], 10.0);
+        let o = 0x2f0 + 7 * 0x118;
+        e.0[o] = 3;
+        e.0[o + 0x14..o + 0x18].copy_from_slice(&[1, 2, 3, 0x80]);
+        e.0[o + 0x114] = 1;
+        let mut out = Vec::new();
+        posed_spirit_cubes(ModelRef::default(), &e, &at(10.0), info, [1.0; 4], &mut out);
+        assert_eq!(out.len(), 1);
+        assert_eq!(out[0].world[3], [11.0, 2.0, 3.0, 1.0]);
+        // No spirits: nothing, and no pose copy.
+        e.0[o + 0x114] = 0;
+        out.clear();
+        posed_spirit_cubes(ModelRef::default(), &e, &at(10.0), info, [1.0; 4], &mut out);
+        assert!(out.is_empty());
     }
 }

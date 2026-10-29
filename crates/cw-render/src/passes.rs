@@ -1248,15 +1248,29 @@ pub struct GuiModel {
     pub material: [f32; 4],
     /// `0x004c7be0(item)`: 1 for the metal materials, else 0.
     pub shininess: f32,
-    /// The spirit cubes of `0x00471b60`: per cube its offset in model voxels (`item+0x14 +
-    /// 8i`, signed bytes) and its colour (`0x004c7250`).
-    pub spirits: Vec<([f32; 3], [f32; 4])>,
+    /// The spirit cubes of `0x00471b60` (`item+0x14 + 8i`, signed bytes; colour
+    /// `0x004c7250`), or the customization panel's placement cube and spirits
+    /// (`VoxelWidget::update` 0x0058add8, 0x0058b4af), in draw order.
+    pub spirits: Vec<GuiCube>,
     /// The unit cube the spirit cubes are drawn with.
     pub spirit_model: ModelRef,
     /// The widget whose slot 1 draws it: the model is drawn at that
     /// [`GuiCommand::WidgetMark`] of the GUI stream (dropped when the stream has no such mark,
     /// the widget's node was not drawn). `None`: after the whole GUI.
     pub anchor: Option<GuiAnchor>,
+}
+
+/// One unit cube drawn after a [`GuiModel`]'s model, at `world · T(offset)`; a scale other
+/// than 1 grows it about its centre (`· T(0.5) · S(scale) · T(-0.5)`, the hovered spirit of
+/// 0x0058b033..0x0058b2f5).
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct GuiCube {
+    /// The cube's corner in model voxels.
+    pub offset: [f32; 3],
+    /// 1, or 1.1 for the customization panel's hovered spirit.
+    pub scale: f32,
+    /// The material colour (`0x004c7250`).
+    pub color: [f32; 4],
 }
 
 /// A posed creature (or the world preview model, `Model::draw` 0x004e6df0 at 0x00607033 with
@@ -1308,30 +1322,38 @@ fn rows_rotate(m: &mut D3dMatrix, a: usize, b: usize, c: f32, s: f32) {
 ///    is not 1;
 /// 5. the translation `(-sx/2, -sy/2, -sz/2)` in model space.
 pub fn gui_model_matrices(screen: [i32; 2], g: &GuiModel) -> (D3dMatrix, D3dMatrix) {
+    item_model_matrices(screen, g.screen, g.rotation, g.scale, g.ring_turn, g.model_size, g.depth)
+}
+
+/// [`gui_model_matrices`] from its parts: the model centre `pos` in pixels, the Euler angles
+/// in degrees, the scale argument, the ring turn, the model size in voxels and the depth.
+/// `VoxelWidget::update` builds the same matrices inline for the customization panel's
+/// weapon (0x00588f3e..0x00589c82).
+pub fn item_model_matrices(screen: [i32; 2], pos: [f32; 2], rotation: [f32; 3], scale: f32, ring_turn: bool, size: [i32; 3], depth: f32) -> (D3dMatrix, D3dMatrix) {
     let rad = |d: f32| (d * 0.017_453_292) as f64;
     let mut m = IDENTITY;
     for j in 0..4 {
         m[3][j] += m[2][j];
     }
-    let (c, s) = (rad(g.rotation[0]).cos() as f32, rad(g.rotation[0]).sin() as f32);
+    let (c, s) = (rad(rotation[0]).cos() as f32, rad(rotation[0]).sin() as f32);
     rows_rotate(&mut m, 1, 2, c, s);
-    let (c, s) = (rad(g.rotation[1]).cos() as f32, rad(g.rotation[1]).sin() as f32);
+    let (c, s) = (rad(rotation[1]).cos() as f32, rad(rotation[1]).sin() as f32);
     rows_rotate(&mut m, 2, 0, c, s);
-    let (c, s) = (rad(g.rotation[2]).cos() as f32, rad(g.rotation[2]).sin() as f32);
+    let (c, s) = (rad(rotation[2]).cos() as f32, rad(rotation[2]).sin() as f32);
     rows_rotate(&mut m, 0, 1, c, s);
-    if g.ring_turn {
+    if ring_turn {
         let q = 1.570_796_370_506_286_6f64;
         rows_rotate(&mut m, 1, 2, q.cos() as f32, q.sin() as f32);
         rows_rotate(&mut m, 0, 1, (-q).cos() as f32, (-q).sin() as f32);
     }
-    if g.scale != 1.0 {
+    if scale != 1.0 {
         for row in m.iter_mut().take(3) {
             for v in row.iter_mut() {
-                *v *= g.scale;
+                *v *= scale;
             }
         }
     }
-    let big = g.model_size[0].max(g.model_size[1]).max(g.model_size[2]);
+    let big = size[0].max(size[1]).max(size[2]);
     let f = 1.0 / (big as f32);
     if f != 1.0 {
         for row in m.iter_mut().take(3) {
@@ -1340,11 +1362,11 @@ pub fn gui_model_matrices(screen: [i32; 2], g: &GuiModel) -> (D3dMatrix, D3dMatr
             }
         }
     }
-    let h = [g.model_size[0] as f32 * -0.5, g.model_size[1] as f32 * -0.5, g.model_size[2] as f32 * -0.5];
+    let h = [size[0] as f32 * -0.5, size[1] as f32 * -0.5, size[2] as f32 * -0.5];
     for j in 0..4 {
         m[3][j] += m[0][j] * h[0] + m[1][j] * h[1] + m[2][j] * h[2];
     }
-    (m, screen_projection(screen, g.screen, g.depth))
+    (m, screen_projection(screen, pos, depth))
 }
 
 // ---------------------------------------------------------------------------------------
@@ -1563,11 +1585,16 @@ impl Builder {
         self.draw.shininess = g.shininess;
         self.emit(g.origin, Geometry::Model { model: g.model });
         // 0x00471b60: one unit cube per spirit at `world · T(offset)`, in its colour.
-        for (off, color) in &g.spirits {
+        for c in &g.spirits {
             let mut m = world;
-            pre_translate(&mut m, *off);
+            pre_translate(&mut m, c.offset);
+            if c.scale != 1.0 {
+                pre_translate(&mut m, [0.5; 3]);
+                pre_scale(&mut m, [c.scale; 3]);
+                pre_translate(&mut m, [-0.5; 3]);
+            }
             self.draw.world = m;
-            self.draw.material = *color;
+            self.draw.material = c.color;
             self.emit(0x0047_1cfc, Geometry::Model { model: g.spirit_model });
         }
         self.draw.shininess = 0.0;
@@ -3118,7 +3145,10 @@ mod tests {
             depth: 0.0,
             material: [1.0; 4],
             shininess: 1.0,
-            spirits: vec![([1.0, 2.0, 3.0], [1.0, 0.0, 0.0, 1.0])],
+            spirits: vec![
+                GuiCube { offset: [1.0, 2.0, 3.0], scale: 1.0, color: [1.0, 0.0, 0.0, 1.0] },
+                GuiCube { offset: [0.0, 0.0, 0.0], scale: 1.1, color: [0.0, 1.0, 0.0, 1.0] },
+            ],
             spirit_model: 9,
             anchor: None,
         };
@@ -3129,7 +3159,7 @@ mod tests {
         assert_eq!(kinds[gi + 1], PassKind::GuiModels);
         let p = f.pass(PassKind::GuiModels).unwrap();
         assert!(p.clear.is_none());
-        assert_eq!(p.draws.len(), 2);
+        assert_eq!(p.draws.len(), 3);
         assert_eq!(p.draws[0].state.depth.func, CompareFunc::Less);
         assert!(p.draws[0].state.depth.test);
         assert_eq!((p.draws[0].draw.shininess, p.draws[0].draw.light_set), (1.0, 0));
@@ -3141,6 +3171,12 @@ mod tests {
         assert_eq!(m[3], [-0.5, -1.0, 0.75, 1.0]);
         // The spirit cube at `world · T(1, 2, 3)`.
         assert_eq!(p.draws[1].draw.world[3], [-0.25, -0.5, 1.5, 1.0]);
+        // The grown cube: 1.1 times the voxel, its centre where the unit cube's would be.
+        let w2 = p.draws[2].draw.world;
+        assert!((w2[0][0] - 0.275).abs() < 1e-6);
+        let centre: Vec<f32> = (0..3).map(|j| (w2[0][j] + w2[1][j] + w2[2][j]) * 0.5 + w2[3][j]).collect();
+        let unit: Vec<f32> = (0..3).map(|j| (m[0][j] + m[1][j] + m[2][j]) * 0.5 + m[3][j]).collect();
+        assert!(centre.iter().zip(&unit).all(|(a, b)| (a - b).abs() < 1e-6), "{centre:?} {unit:?}");
         // `P · T`: the model centre (view (0, 0, 1)) lands on its pixel.
         let at = GuiModel { screen: [600.0, 150.0], ..g };
         let (_, proj) = gui_model_matrices([800, 600], &at);

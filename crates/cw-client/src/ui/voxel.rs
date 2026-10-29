@@ -12,6 +12,9 @@
 //! the next click moves it. Middle-drag rotates the model. There is no separate save: the
 //! item bytes are edited in place.
 //!
+//! The panel closes with R at the bench again, with a right click on no widget, or when the
+//! player moves (`applyMovementInput`, see `crate::player::Event::CloseMovementPanels`).
+//!
 //! # Map
 //!
 //! | Original | Here |
@@ -22,16 +25,18 @@
 //! | `Item::setSpirit` 0x004c69b0 / `Item::removeSpirit` 0x004c79b0 | [`set_spirit`], [`remove_spirit`] |
 //! | max spirits 0x004c7660 | [`max_spirits`] |
 //! | `VoxelWidget::update` (slot 1) 0x00588500: list 0x00588500..0x00588c7d, caption item ..0x00588cc4, model and pick ..0x0058a89a, preview and spirits ..0x0058b5c0, list cells, texts | [`build_list`], [`pick`], [`frame`] |
+//! | the cursor ray through the model 0x0058a20e..0x0058a5e0 | [`cursor_ray`] |
 //! | `onMouseDown` 0x0047bcee..0x0047bd3f (left button) | [`left_click`] |
-//! | `onMouseDown` 0x0047cd16 (right button prelude) | [`right_click_prelude`] |
+//! | `onMouseDown` 0x0047ccfa..0x0047cd39 (right button prelude) | [`right_click_prelude`] |
 //! | `onMouseDown` 0x0047cf6c / 0x0047d99d (target) | [`set_target`] |
 //! | `onMouseMove` 0x0047ede4..0x0047ee7c | [`on_mouse_move`] |
 //! | `update` 0x0049743c..0x0049747e (R on static 0x4d) | [`open_from_static`] |
 //! | `update` 0x0048b4ff..0x0048b627 (cursor caption) | [`cursor_caption`] |
 //! | tooltip 0x0047b3e0 (voxel half) | [`tooltip_item`] |
 
+use cw_render::frame::D3dMatrix;
 use cw_ui::widget::Gui;
-use glam::Vec2;
+use glam::{IVec2, Vec2};
 
 use super::crafting::{default_item, i32_at, set_vis, shows_level, vis, ItemIcon, ModelDraw, PanelText, WHITE};
 use super::inventory::{item_level, same_item, take_one, ItemRef};
@@ -247,6 +252,40 @@ pub trait VoxelModel {
     fn is_empty(&self, x: i32, y: i32, z: i32) -> bool;
 }
 
+/// A model of the model vector: not raw, so the marker voxels count as empty too.
+impl VoxelModel for cw_render::mesh::VoxelGrid<'_> {
+    fn dims(&self) -> [i32; 3] {
+        self.size
+    }
+    fn is_empty(&self, x: i32, y: i32, z: i32) -> bool {
+        cw_render::mesh::voxel_is_empty(self.at(x, y, z), false)
+    }
+}
+
+/// 0x0058a20e..0x0058a5e0: the cursor ray in model voxel space. `world · projection` (the
+/// view is the identity) is inverted (0x0058c440); the engine cursor becomes the device point
+/// `(x / width · 2 - 1, 1 - y / height · 2)`, unprojected at depth 0 (the ray's origin) and
+/// at depth 1; the direction is their difference scaled to unit length. `None` for a client
+/// of no size or a matrix that does not invert.
+pub fn cursor_ray(world: &D3dMatrix, projection: &D3dMatrix, client: IVec2, cursor: Vec2) -> Option<([f32; 3], [f32; 3])> {
+    if client.x <= 0 || client.y <= 0 {
+        return None;
+    }
+    // A row-major `v * M` matrix has the memory layout of glam's column-major `M * v`.
+    let m = glam::Mat4::from_cols_array_2d(projection) * glam::Mat4::from_cols_array_2d(world);
+    let inv = m.inverse();
+    if !inv.is_finite() {
+        return None;
+    }
+    let nx = cursor.x / client.x as f32 * 2.0 - 1.0;
+    let ny = 1.0 - cursor.y / client.y as f32 * 2.0;
+    let near = inv * glam::Vec4::new(nx, ny, 0.0, 1.0);
+    let far = inv * glam::Vec4::new(nx, ny, 1.0, 1.0);
+    let (a, b) = (near.truncate() / near.w, far.truncate() / far.w);
+    let d = (b - a).normalize();
+    (a.is_finite() && d.is_finite()).then_some((a.to_array(), d.to_array()))
+}
+
 /// The ray walk of 0x0058a3f0..0x0058a89a: `origin` and the unit `dir` are the cursor ray in
 /// model voxel space (the renderer's unprojection of the cursor through the model's
 /// transform, see [`VoxelFrame::model`]). Starting in the cell `(int)origin` (minus one on each
@@ -329,9 +368,11 @@ pub fn pick(w: &mut VoxelWidget, weapon: &[u8], model: &dyn VoxelModel, origin: 
 /// - No valid selection: carrying, the spirit moves from its old cell to the hovered one
 ///   (remove, then set with the saved material and level) and the carrying ends; not
 ///   carrying, a spirit at the hovered cell is picked up (it stays in the item until moved).
-/// - A selection, below 32 spirits (not [`max_spirits`]): a spirit of the selected material
-///   and level is set at the hovered cell, and the first bag stack with a count, the same type,
-///   sub type and material and the same displayed level loses one.
+/// - A selection, below [`max_spirits`]: a spirit of the selected material and level is set at
+///   the hovered cell, and the first bag stack with a count, the same type, sub type and
+///   material and the same displayed level loses one. Port fix: the original tests 32 here
+///   (0x005882ae) while `setSpirit` stops at [`max_spirits`], so a click on a full one-handed
+///   weapon took the cube and added nothing.
 pub fn place(w: &mut VoxelWidget, game: &mut GameView, over_widget: bool) {
     let Some(t) = w.target.filter(|_| w.hit) else {
         if !over_widget && w.carrying {
@@ -370,7 +411,7 @@ pub fn place(w: &mut VoxelWidget, game: &mut GameView, over_widget: bool) {
         return;
     }
     let Some(item) = target_mut(game, t) else { return };
-    if spirit_count(item) >= 0x20 {
+    if spirit_count(item) >= max_spirits(item) {
         return;
     }
     let pick = w.list[sel as usize].item.clone();
@@ -399,11 +440,12 @@ pub fn left_click(gui: &Gui, m: &GcMembers, w: &mut VoxelWidget, game: &mut Game
     }
 }
 
-/// `onMouseDown` 0x0047ccff..0x0047cd39 (right button, before the bag routing): with
-/// `GC+0x800704` clear and the panel open, [`VoxelWidget::reset`]. `GC+0x800704` is build
-/// mode: written only by the GameController ctor (0 at 0x0045a09b), so always false in this
-/// build (see `crate::interact::build_r`). With it set the original would increment the
-/// player's build block type `creature+0x18c` instead.
+/// `onMouseDown` 0x0047ccfa..0x0047cd39 (the right button only, before the bag routing; the
+/// middle button jumps to that at 0x0047cd3b): with `GC+0x800704` clear and the panel open,
+/// [`VoxelWidget::reset`]. `GC+0x800704` is build mode: written only by the GameController
+/// ctor (0 at 0x0045a09b), so always false in this build (see `crate::interact::build_r`).
+/// With it set the original would increment the player's build block type `creature+0x18c`
+/// instead.
 pub fn right_click_prelude(gui: &Gui, m: &GcMembers, w: &mut VoxelWidget, flag_800704: bool) {
     if !flag_800704 && vis(gui, m.voxel_panel) {
         w.reset();
@@ -471,13 +513,18 @@ pub struct VoxelInputs<'a> {
     pub size: Vec2,
     /// The engine cursor in screen space.
     pub cursor: Vec2,
+    /// `Engine+0x10c`, `+0x110`: the client size (the projection's aspect and the cursor's
+    /// device point).
+    pub client: IVec2,
     /// `Engine+0xe8`: engine time in ms (the hovered spirit pulses).
     pub time_ms: i32,
     /// The weapon's model (`0x004ec400` non-null), when it has one.
     pub model: Option<&'a dyn VoxelModel>,
     /// Its model-cache index ([`crate::interact::item_model_index`]).
     pub model_index: Option<u32>,
-    /// The cursor ray in model voxel space (origin, unit direction), see [`pick`].
+    /// An override of the cursor ray in model voxel space (origin, unit direction), see
+    /// [`pick`]; `None` takes it from the cursor through the model's matrices
+    /// ([`cursor_ray`]).
     pub ray: Option<([f32; 3], [f32; 3])>,
 }
 
@@ -497,8 +544,9 @@ pub struct SpiritCube {
 /// The cube previewing a placement.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct PreviewCube {
-    /// The free cell next to the hit, or `None`: floating on the ray 100 units from its origin.
-    pub cell: Option<[i32; 3]>,
+    /// Its corner in model voxels: the free cell next to the hit, or with no hit the point on
+    /// the ray 100 units from its origin (0x0058abfa).
+    pub offset: [f32; 3],
     /// The material (the selection's or the carried spirit's).
     pub material: u8,
 }
@@ -545,14 +593,13 @@ pub fn frame(w: &mut VoxelWidget, game: &GameView, i: &VoxelInputs) -> VoxelFram
             w.selected = n - 1;
         }
         if let (Some(model), Some(idx)) = (i.model, i.model_index) {
-            f.model = Some(ModelDraw {
-                item: weapon.to_vec(),
-                model: idx,
-                center: [i.origin.x + i.size.x * 0.5, i.origin.y + i.size.y * 0.6],
-                scale: 0.25,
-                angles: w.angles,
+            let center = [i.origin.x + i.size.x * 0.5, i.origin.y + i.size.y * 0.6];
+            f.model = Some(ModelDraw { item: weapon.to_vec(), model: idx, center, scale: 0.25, angles: w.angles });
+            let ray = i.ray.or_else(|| {
+                let (world, projection) = cw_render::passes::item_model_matrices(i.client.to_array(), center, w.angles, 0.25, false, model.dims(), 0.0);
+                cursor_ray(&world, &projection, i.client, i.cursor)
             });
-            let back = match i.ray {
+            let back = match ray {
                 Some((o, d)) => pick(w, weapon, model, o, d),
                 None => {
                     w.hit = false;
@@ -561,16 +608,16 @@ pub fn frame(w: &mut VoxelWidget, game: &GameView, i: &VoxelInputs) -> VoxelFram
             };
             // 0x0058a8b9: the preview.
             if w.hovered < 0 && (w.carrying || (w.selected >= 0 && (w.selected as usize) < w.list.len())) {
-                let cell = if w.hit {
+                let offset = if w.hit {
                     for a in 0..3 {
                         w.cell[a] += back[a];
                     }
-                    Some(w.cell)
+                    Some(w.cell.map(|v| v as f32))
                 } else {
-                    None
+                    ray.map(|(o, d)| [d[0] * 100.0 + o[0], d[1] * 100.0 + o[1], d[2] * 100.0 + o[2]])
                 };
                 let material = if w.carrying { w.carried_material as u8 } else { w.list[w.selected as usize].item[0xd] };
-                f.preview = Some(PreviewCube { cell, material });
+                f.preview = offset.map(|offset| PreviewCube { offset, material });
             }
             let carried = [w.carried_cell[0] as u8, w.carried_cell[1] as u8, w.carried_cell[2] as u8];
             let key = [w.cell[0] as u8, w.cell[1] as u8, w.cell[2] as u8];
@@ -688,6 +735,7 @@ mod tests {
             origin: Vec2::ZERO,
             size: Vec2::new(400.0, 624.0),
             cursor: Vec2::new(25.0, 45.0),
+            client: IVec2::new(800, 600),
             time_ms: 0,
             model: Some(&Bar),
             model_index: Some(1),
@@ -704,7 +752,7 @@ mod tests {
         let inp = VoxelInputs { cursor: Vec2::new(-100.0, -100.0), ..inp };
         assert_eq!(frame(&mut w, &game, &inp).preview, None);
         let f = frame(&mut w, &game, &inp);
-        assert_eq!(f.preview, Some(PreviewCube { cell: Some([1, 0, 1]), material: 1 }));
+        assert_eq!(f.preview, Some(PreviewCube { offset: [1.0, 0.0, 1.0], material: 1 }));
         left_click(&ui.gui, &ui.m, &mut w, &mut game, true);
         assert_eq!(spirit(&game.equipment[6], 0), ([1, 0, 1], 1, 1));
         assert_eq!(game.inventory[2][0].count, 2);
@@ -722,5 +770,82 @@ mod tests {
         assert!(!w.carrying);
         assert_eq!(spirit_count(&game.equipment[6]), 1);
         assert_eq!(spirit(&game.equipment[6], 0).0, [2, 0, 1]);
+    }
+
+    #[test]
+    fn the_cursor_ray_runs_through_the_model() {
+        // The cursor on the model's centre pixel: the ray passes through the model's centre.
+        let (dims, center) = ([12, 4, 30], [300.0, 200.0]);
+        let (world, proj) = cw_render::passes::item_model_matrices([800, 600], center, [-90.0, 0.0, 90.0], 0.25, false, dims, 0.0);
+        let (o, d) = cursor_ray(&world, &proj, IVec2::new(800, 600), Vec2::from(center)).unwrap();
+        let v = [6.0 - o[0], 2.0 - o[1], 15.0 - o[2]];
+        let t = v[0] * d[0] + v[1] * d[1] + v[2] * d[2];
+        let off: f32 = (0..3).map(|a| (v[a] - d[a] * t).powi(2)).sum::<f32>().sqrt();
+        assert!(off < 1e-2, "{off}");
+        assert!(t > 0.0);
+        assert!((d.iter().map(|x| x * x).sum::<f32>() - 1.0).abs() < 1e-5);
+        assert_eq!(cursor_ray(&world, &proj, IVec2::ZERO, Vec2::ZERO), None);
+    }
+
+    #[test]
+    fn frame_aims_where_the_cursor_is() {
+        let mut game = GameView::default();
+        game.equipment[6] = weapon();
+        let mut w = VoxelWidget::default();
+        set_target(&mut w, ItemRef::Equipment(6));
+        // The model's centre is at (w / 2, 0.6 h) of the widget.
+        let inp = VoxelInputs {
+            origin: Vec2::ZERO,
+            size: Vec2::new(400.0, 624.0),
+            cursor: Vec2::new(200.0, 374.4),
+            client: IVec2::new(800, 600),
+            time_ms: 0,
+            model: Some(&Bar),
+            model_index: Some(1),
+            ray: None,
+        };
+        assert!(frame(&mut w, &game, &inp).model.is_some());
+        assert!(w.hit);
+        frame(&mut w, &game, &VoxelInputs { cursor: Vec2::new(10.0, 10.0), ..inp });
+        assert!(!w.hit);
+    }
+
+    /// The middle button (which turns the model) keeps the selection; the right one clears it.
+    #[test]
+    fn the_middle_button_keeps_the_selection() {
+        let game0 = GameView::default();
+        let mut ui = GameUi::new(Gui::new(), &mut NoPlx, &game0);
+        let mut game = GameView::default();
+        game.equipment[6] = weapon();
+        game.inventory = vec![vec![], vec![], vec![material(0xa, 1, 3)]];
+        set_target(&mut ui.voxel, ItemRef::Equipment(6));
+        open_from_static(&mut ui.gui, &ui.m, &mut ui.voxel);
+        ui.voxel.list = build_list(&game, Some(&game.equipment[6]));
+        ui.voxel.selected = 0;
+        ui.on_mouse_down(&mut game, 2, true, None);
+        assert_eq!(ui.voxel.selected, 0);
+        ui.on_mouse_down(&mut game, 1, true, None);
+        assert_eq!(ui.voxel.selected, -1);
+    }
+
+    /// A one-handed weapon holds 16 spirits: a click on a full one keeps the cube in the bag.
+    #[test]
+    fn a_full_weapon_takes_no_cube() {
+        let mut game = GameView::default();
+        game.equipment[6] = weapon();
+        for i in 0..16 {
+            set_spirit(&mut game.equipment[6], [i, 0, 0], 1, 1);
+        }
+        assert_eq!(spirit_count(&game.equipment[6]), 16);
+        game.inventory = vec![vec![], vec![], vec![material(0xa, 1, 3)]];
+        let mut w = VoxelWidget::default();
+        set_target(&mut w, ItemRef::Equipment(6));
+        w.list = build_list(&game, Some(&game.equipment[6]));
+        w.selected = 0;
+        w.hit = true;
+        w.cell = [1, 0, 1];
+        place(&mut w, &mut game, true);
+        assert_eq!(spirit_count(&game.equipment[6]), 16);
+        assert_eq!(game.inventory[2][0].count, 3);
     }
 }

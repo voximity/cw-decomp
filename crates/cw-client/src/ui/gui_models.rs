@@ -10,7 +10,7 @@
 //! | `InventoryWidget::update` 0x004c2050 (bag, crafting, shop) | the cells (0x004c2577) and the cursor stack (0x004c595a) | [`InventoryFrame::models`](super::inventory_widget::InventoryFrame), `held` |
 //! | `BlueprintPreviewWidget::update` 0x0042f910 | the ingredient icons (0x00430bd6), white | `BlueprintFrame::ingredients` |
 //! | `EnchantWidget::update` 0x0044ea30, `AdaptionWidget::update` 0x0040f8f0 | the target's icon, white | `EnchantFrame::icon`, `AdaptionFrame::icon` |
-//! | `VoxelWidget::update` 0x00588500 | the upgrade list (0x0058b736), white | `VoxelFrame::list` |
+//! | `VoxelWidget::update` 0x00588500 | its own draw of the weapon, the placement cube and the spirits (0x0058a8ee..0x0058b4af), then the upgrade list (0x0058b736), white | [`voxel_weapon`], `VoxelFrame::list` |
 //! | `PreviewWidget::update` 0x004d50a0 | the previewed item at `(x + 150, y + 150)`, scale 0.1, depth -0.05, white | [`super::item_preview::PreviewFrame::model`] |
 //!
 //! Every caller passes `GC+0x800a1c` as the rotation, the value it has while the GUI draws
@@ -29,7 +29,7 @@
 //! at that [`cw_render::frame::GuiCommand::WidgetMark`] of the GUI stream.
 
 use cw_render::frame::{GuiAnchor, ModelRef};
-use cw_render::passes::GuiModel;
+use cw_render::passes::{GuiCube, GuiModel};
 use cw_ui::widget::{Gui, NodeId, WidgetId};
 use glam::Vec2;
 
@@ -75,8 +75,8 @@ pub fn item_model(origin: u32, center: Vec2, scale: f32, depth: f32, item: &[u8]
     for i in 0..count.max(0) as usize {
         let o = 0x14 + i * 8;
         let Some(c) = item.get(o..o + 4) else { break };
-        let off = [c[0] as i8 as f32, c[1] as i8 as f32, c[2] as i8 as f32];
-        spirits.push((off, crate::scene::material_color(c[3], [1.0; 4], 0.0)));
+        let offset = [c[0] as i8 as f32, c[1] as i8 as f32, c[2] as i8 as f32];
+        spirits.push(GuiCube { offset, scale: 1.0, color: crate::scene::material_color(c[3], [1.0; 4], 0.0) });
     }
     Some(GuiModel {
         origin,
@@ -89,6 +89,37 @@ pub fn item_model(origin: u32, center: Vec2, scale: f32, depth: f32, item: &[u8]
         depth,
         material,
         shininess: item_shininess(item),
+        spirits,
+        spirit_model: inp.models.spirit_cube(),
+        anchor: None,
+    })
+}
+
+/// The customization panel's weapon (`VoxelWidget::update` 0x00588d43..0x0058b4af), drawn
+/// by the widget itself rather than through `0x004758c0`: ZENABLE on, the point lights zeroed,
+/// material white, alpha 1 (0x00588d43..0x00588e84; the shininess is left as it was, 0 here),
+/// the matrices of `0x004758c0` with the widget's angles ([`super::voxel::VoxelFrame::model`]),
+/// the model (0x0058a8ee); then with the widget's 1×1×1 white cube (`VoxelWidget+0x3e0`, the
+/// same model as the spirit cube) the placement preview in `0x004c7250(material, white, 0)`
+/// (0x0058add8) and each spirit but the carried one (0x0058b4af), the hovered one 1.1 times
+/// as big with the white base scaled by its pulse.
+fn voxel_weapon(vx: &super::voxel::VoxelFrame, inp: &GuiModelInputs) -> Option<GuiModel> {
+    let d = vx.model.as_ref()?;
+    let model_size = inp.models.size(d.model)?;
+    let color = |m: u8, k: f32| crate::scene::material_color(m, [k; 4], 0.0);
+    let mut spirits: Vec<GuiCube> = vx.preview.iter().map(|p| GuiCube { offset: p.offset, scale: 1.0, color: color(p.material, 1.0) }).collect();
+    spirits.extend(vx.spirits.iter().map(|s| GuiCube { offset: s.cell.map(|v| v as f32), scale: s.scale, color: color(s.material, s.brightness) }));
+    Some(GuiModel {
+        origin: 0x0058_a8ee,
+        screen: d.center,
+        rotation: d.angles,
+        scale: d.scale,
+        ring_turn: false,
+        model: d.model,
+        model_size,
+        depth: 0.0,
+        material: [1.0; 4],
+        shininess: 0.0,
         spirits,
         spirit_model: inp.models.spirit_cube(),
         anchor: None,
@@ -191,6 +222,7 @@ pub fn gui_models(ui: &GameUi, game: &GameView, out: &FrameOutput, inp: &GuiMode
         v.extend(a.icon.as_ref().and_then(|i| icon(0x0040_fbf2, i, ui.m.adaption)));
     }
     if let Some(vx) = &out.voxel {
+        v.extend(anchored(voxel_weapon(vx, inp), ui.m.voxel, false));
         v.extend(vx.list.iter().filter_map(|i| icon(0x0058_b736, i, ui.m.voxel)));
     }
     // PreviewWidget 0x004d5d02: white (0x00448280), depth -0.05, scale 0.1; before the
@@ -227,7 +259,7 @@ mod tests {
         assert!(g.ring_turn);
         assert_eq!(g.shininess, 1.0);
         assert_eq!(g.spirits.len(), 1);
-        assert_eq!(g.spirits[0].0, [1.0, -1.0, 2.0]);
+        assert_eq!(g.spirits[0].offset, [1.0, -1.0, 2.0]);
         assert_eq!((g.rotation, g.screen, g.model_size, g.spirit_model), ([225.0, 0.0, 12.0], [5.0, 6.0], [10, 20, 5], 7));
         // Type 0: model 0x95c.
         let empty = super::super::crafting::default_item();

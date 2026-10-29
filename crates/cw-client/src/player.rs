@@ -368,7 +368,7 @@ pub enum Event {
     Sound { id: u32, pos: [i64; 3], volume: f32, pitch: f32 },
     /// `applyMovementInput` 0x004a8e2e..0x004a8ed9: moving closes the widgets at `+0x8008bc`,
     /// `+0x8008c0`, `+0x8008c4`, `+0x8008dc`, `+0x8008f8`, `+0x800900`, `+0x800910` and clears
-    /// `+0x8008f1`.
+    /// the word at `+0x8008f1` (the skills byte and the menu bar `+0x8008f2`).
     CloseMovementPanels,
     /// 0x00493d72..0x00493ea6: the level went up ("LEVEL UP" text at 0x00493e35).
     LevelUp { level: i32 },
