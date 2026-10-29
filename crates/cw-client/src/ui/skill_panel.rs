@@ -20,7 +20,8 @@
 //! | `update` 0x0048e1fa..0x0048e492: the specialization buttons | [`panel_frame`] |
 //! | `update` 0x0048e498..0x0048ead2: the skill buttons | [`panel_frame`] |
 //! | `update` 0x0048ead4..0x0048eaef: panel closed | [`panel_frame`] |
-//! | `update` 0x0048eaef..0x0048ec93: the menu buttons' hover brightness | [`menu_bar_frame`] |
+//! | `update` 0x0048eaef..0x0048eb03: skill button 9 hidden, open or closed | [`panel_frame`] |
+//! | `update` 0x0048eb03..0x0048ec93: the menu buttons' hover brightness | [`menu_bar_frame`] |
 //! | `SkillWidget::update` 0x004dd810 | [`widget_texts`] |
 //! | `onMouseDown` 0x0047b849..0x0047baab | [`on_mouse_down`] |
 //! | `onMouseDown` 0x0047c806..0x0047c8ea (Learn / Cancel) | [`learn_or_cancel`] |
@@ -232,7 +233,7 @@ fn frame_color(gui: &Gui, n: NodeId, c: [f32; 4], out: &mut Vec<(NodeId, [f32; 4
     }
 }
 
-/// The skills-panel part of `update` 0x0048b820.. and 0x0048da0b..0x0048eaef: every skill
+/// The skills-panel part of `update` 0x0048b820.. and 0x0048da0b..0x0048eb03: every skill
 /// button hidden, the preview's skill and specialization reset; with the panel open
 /// (`GC+0x8008f1`) the buttons placed ([`button_positions`]) and shown, their `frame`
 /// coloured cyan (0, 1, 1, 1) when hovered (the hovered one fills the preview) or white, the
@@ -240,8 +241,19 @@ fn frame_color(gui: &Gui, n: NodeId, c: [f32; 4], out: &mut Vec<(NodeId, [f32; 4
 /// (texture -1 without an icon), and per skill button its level written as text over the whole
 /// button (`Node::setText` 0x00636ad0), the icon (`GC+0x800820` by the class skill of buttons
 /// 6..8, `GC+0x800828` by index otherwise, -1 without one) with saturation 0 when locked and 1
-/// otherwise. Closed, both specialization buttons (and skill 9 again) are hidden.
+/// otherwise. Closed, both specialization buttons are hidden. Open or closed, skill button 9
+/// is hidden last (0x0048eaef..0x0048eb03): no class has a fourth ability, so the game never
+/// shows it, though the loop places it and shows it first.
 pub fn panel_frame(ui: &mut GameUi, game: &GameView, colors: &mut Vec<(NodeId, [f32; 4])>) -> SkillHover {
+    let h = panel_buttons(ui, game, colors);
+    if let Some(&n) = ui.m.skill_buttons.get(9) {
+        ui.gui.nodes[n].visible = false;
+    }
+    h
+}
+
+/// [`panel_frame`] up to 0x0048eaef.
+fn panel_buttons(ui: &mut GameUi, game: &GameView, colors: &mut Vec<(NodeId, [f32; 4])>) -> SkillHover {
     let mut h = SkillHover { hovered: false, skill: -1, level: 0, spec: -1 };
     let m = ui.m.clone();
     // 0x0048b820: every skill button hidden.
@@ -252,9 +264,6 @@ pub fn panel_frame(ui: &mut GameUi, game: &GameView, colors: &mut Vec<(NodeId, [
         // 0x0048ead4..0x0048eaef.
         for n in m.spec_buttons.iter().flatten() {
             ui.gui.nodes[*n].visible = false;
-        }
-        if let Some(&n) = m.skill_buttons.get(9) {
-            ui.gui.nodes[n].visible = false;
         }
         return h;
     }
@@ -325,7 +334,7 @@ pub fn panel_frame(ui: &mut GameUi, game: &GameView, colors: &mut Vec<(NodeId, [
 
 pub use super::members::ShapeAttr;
 
-/// `update` 0x0048eaef..0x0048ec93: the menu buttons (`GC+0x800838`) shown with the system
+/// `update` 0x0048eb03..0x0048ec93: the menu buttons (`GC+0x800838`) shown with the system
 /// menu bar (`GC+0x8008f2`, also done by `flow::frame_rules`); while it is up, each button's
 /// texture brightness (`+0x494`) is 1.5 when hovered and 1 otherwise.
 pub fn menu_bar_frame(ui: &mut GameUi) {
@@ -515,6 +524,21 @@ mod tests {
         assert_eq!(hovered_menu_button(&ui), Some(2));
         ui.gui.hovered = None;
         assert_eq!(hovered_menu_button(&ui), None);
+    }
+
+    /// 0x0048eaef: the loop shows buttons 0..9, then button 9 is hidden again, open or closed.
+    #[test]
+    fn skill_button_9_never_shown() {
+        use super::super::members::NoPlx;
+        let game = GameView::default();
+        let mut ui = GameUi::new(Gui::new(), &mut NoPlx, &game);
+        assert_eq!(ui.m.skill_buttons.len(), 11);
+        for open in [true, false] {
+            ui.skills_open = open;
+            panel_frame(&mut ui, &game, &mut Vec::new());
+            let shown: Vec<usize> = (0..11).filter(|&i| ui.gui.nodes[ui.m.skill_buttons[i]].visible).collect();
+            assert_eq!(shown, if open { (0..9).collect() } else { vec![] });
+        }
     }
 
     #[test]
