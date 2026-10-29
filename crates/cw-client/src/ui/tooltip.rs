@@ -113,11 +113,15 @@ pub fn skill_variables(player: &EntityData, level: i32) -> BTreeMap<String, Stri
     put("@bulwarkduration", "10".to_string());
     put("@warfrenzycooldown", cooldown_s(player, 0x66, level));
     put("@warfrenzyduration", "10".to_string());
-    // 0x00479ac7: (skillLevelFactor(0x66) * 9 + 1) * 100.
-    put("@warfrenzyamount", pct(round2((lf(0x66, level) * 9.0f32 + 1.0f32) * 100.0f32)));
+    // 0x00479ac7: (skillLevelFactor(0x66) * 9 + 1) * 100, the charge rate itself, which the
+    // text calls "N% faster". Port fix: the gain, skillLevelFactor * 9 * 100 (the rate is
+    // × (9f + 1), so × 5.5 reads "450% faster", not "550%").
+    put("@warfrenzyamount", pct(round2(lf(0x66, level) * 9.0f32 * 100.0f32)));
     put("@rangerkickcooldown", cooldown_s(player, 0x15, level));
-    // 0x00479c76: skillFactor(level) * 100 with the wide L"%" (0x006fd728).
-    put("@rangerkickknockback", pct(round2(skill_factor(level) * 100.0f32)));
+    // 0x00479c76: skillFactor(level) * 100 with the wide L"%" (0x006fd728). Port fix: the
+    // knockback is skillFactor * 30 + 5 (cw_sim `knockback`, modes 0x15 and 0x58), 5 with no
+    // points, so the gain is skillFactor * 600%, as for the fire explosion below.
+    put("@rangerkickknockback", pct(round2(skill_factor(level) * 600.0f32)));
     put("@retreatcooldown", cooldown_s(player, 0x32, level));
     put("@retreatdistance", pct(round2(skill_factor(level) * 100.0f32)));
     put("@aimcooldown", cooldown_s(player, 99, level));
@@ -126,7 +130,7 @@ pub fn skill_variables(player: &EntityData, level: i32) -> BTreeMap<String, Stri
     put("@swiftnessamount", pct(round2(skill_factor(level) * 100.0f32)));
     put("@swiftnessduration", "10".to_string());
     put("@fireexplosioncooldown", cooldown_s(player, 0x58, level));
-    put("@fireexplosionknockback", pct(round2(skill_factor(level) * 100.0f32)));
+    put("@fireexplosionknockback", pct(round2(skill_factor(level) * 600.0f32)));
     // L"30" (0x00702474).
     put("@manashieldduration", "30".to_string());
     put("@manashieldcooldown", cooldown_s(player, 0x67, level));
@@ -138,9 +142,9 @@ pub fn skill_variables(player: &EntityData, level: i32) -> BTreeMap<String, Stri
     put("@interceptcooldown", cooldown_s(player, 0x30, level));
     put("@shurikencooldown", cooldown_s(player, 0x60, level));
     put("@camouflagecooldown", cooldown_s(player, 0x61, level));
-    // 0x0047aaaa: skillLevelFactor(0x61, -1): the PLAYER's own level, not `level` (a quirk
-    // of the original: the duration shown does not change with the previewed level).
-    let cam = (lf(0x61, -1) * 12000.0f32 + 8000.0f32) / 1000.0f32;
+    // 0x0047aaaa: skillLevelFactor(0x61, -1), the player's own level, so the original's
+    // duration does not change with the previewed level. Port fix: the previewed `level`.
+    let cam = (lf(0x61, level) * 12000.0f32 + 8000.0f32) / 1000.0f32;
     put("@camouflageduration", fmt_g6(round2(cam) as f64));
     put("@sneakcooldown", cooldown_s(player, 0x4f, level));
     // 0x0047ac5e: skillLevelFactor(0x4f) * 0.4 * 100 and * 100.
@@ -448,10 +452,12 @@ mod tests {
         assert_eq!(v["@cycloneduration"], "5");
         // skillCooldown(0x36, 5) = 20000 - lf * 14000, lf = 1/3 -> 15333 ms -> 15.33 s.
         assert_eq!(v["@smashcooldown"], "15.33");
-        // Camouflage duration uses the player's own level (3): lf = 1 - 1/1.3.
-        let lf3 = 1.0f32 - 1.0f32 / (3.0f32 * 0.1f32 + 1.0f32);
-        let cam = round2((lf3 * 12000.0 + 8000.0) / 1000.0);
-        assert_eq!(v["@camouflageduration"], fmt_g6(cam as f64));
+        // Port fixes: the previewed level (5, lf = 1/3), not the player's own (3).
+        // Camouflage lasts 8 + 12 lf s; the war frenzy gain is 9 lf; the knockback gain 6 lf.
+        assert_eq!(v["@camouflageduration"], "12");
+        assert_eq!(v["@warfrenzyamount"], "300%");
+        assert_eq!(v["@rangerkickknockback"], "200%");
+        assert_eq!(v["@fireexplosionknockback"], "200%");
         assert_eq!(v.len(), 39);
         let t = substitute("Heals [@health $number], lasts @bulwarkduration s (@level).", &v);
         assert_eq!(texts(&t[0]), vec!["Heals", "16.67%", ",", "lasts", "10", "s", "(", "5", ")", "."]);
