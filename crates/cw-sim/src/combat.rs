@@ -102,9 +102,15 @@ impl CreatureState {
 }
 
 impl CreatureState {
-    /// The state of a creature made from a zone spawn (`World::tick` 0x00536166, 0x00535f39).
+    /// The state of a creature made from a zone spawn (`World::tick` 0x00536166, 0x00535f39):
+    /// the inventory, the boss marker, and (0x0053613d..0x00536161) the special attacks
+    /// (`+0x10ac`), the summon look (`+0x10b8`) and the summon types (`+0x10bc`).
     pub fn from_spawn(s: &Spawn) -> CreatureState {
-        CreatureState { inventory: s.inventory.clone(), boss: s.b10e8, ..CreatureState::default() }
+        let mut st = CreatureState { inventory: s.inventory.clone(), boss: s.b10e8, ..CreatureState::default() };
+        st.ai.special_modes = s.v10ac.clone();
+        st.modes.summon_look = s.f10b8;
+        st.modes.summon_types = s.v10bc.clone();
+        st
     }
 }
 

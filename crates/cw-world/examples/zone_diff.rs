@@ -21,6 +21,8 @@ fn main() {
         })
         .collect();
     let mut world = World::new(seed);
+    // The dumps come from Server.exe.
+    world.fix_camp_boss_boost = false;
     if let Some(dir) = std::env::var_os("CW_GAME_DIR") {
         let mut table = Vec::new();
         cw_world::model::load_models_from_game_dir(std::path::Path::new(&dir), &mut table).expect("model table");

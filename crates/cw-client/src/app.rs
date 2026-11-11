@@ -804,6 +804,8 @@ impl ApplicationHandler for App {
                 c.ui.set_visible(n, false);
             }
             c.ui.set_visible(m.gui_root, true);
+            // No character was picked: the fresh player is not saved over character 0.
+            c.game.selected_character = -1;
             // The world select's "Select" (0x00484170): the camera reset, then `startWorld`.
             c.apply_action(crate::ui::UiAction::ResetCamera { yaw: 180.0 });
             c.start_world(seed, &name);

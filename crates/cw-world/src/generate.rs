@@ -987,7 +987,8 @@ impl World {
                     critter = true;
                 } else if h > -1 {
                     if matches!(under, 4 | 5 | 9) {
-                        if self.rng.rand() % 3 != 0 && a > 0.8 && b < 0.1 {
+                        // Scrub or cactus on hot, dry ground (0x0051f38f: climateB > 0.8, climateA < 0.1).
+                        if self.rng.rand() % 3 != 0 && b > 0.8 && a < 0.1 {
                             spawn.entity_type = if self.rng.rand() % 2 == 0 { 0x7c } else { 0x80 };
                             critter = true;
                         } else if under == 4 && self.rng.rand() % 3 != 0 && zone.column(px, py).climate_a > 0.1 {

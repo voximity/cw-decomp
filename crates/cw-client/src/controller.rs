@@ -253,6 +253,10 @@ pub struct Controller {
     pub bytes: ControllerBytes,
     /// `+0x19[256]`, `+0x119[3]`: VK key and button state.
     pub vk: VkState,
+    /// Port-only: the mouse buttons pressed while the cursor was free (left, right, middle).
+    /// They stay the GUI's until let go, so the right click that closes a panel does not also
+    /// start the right-button skill once the cursor is held again.
+    pub gui_buttons: [bool; 3],
     /// `+0x11c`, `+0x120`: client width and height.
     pub screen: [i32; 2],
     /// Port-only: the back buffer the GUI is drawn into, in device pixels, and the device
@@ -371,6 +375,10 @@ pub struct Controller {
     pub assets: crate::assets::AssetState,
     /// The style the local player's appearance was last built from.
     applied_style: ui::Style,
+    /// The local player as [`GameView::player`] last took it from the creature map
+    /// ([`Controller::mirror_to_view`]): [`Controller::write_back_from_view`] stores only the
+    /// bytes the UI changed since.
+    mirrored_player: EntityData,
     /// The last `GameUi::frame` output (what the widgets show; `ui::present`).
     pub ui_out: ui::FrameOutput,
     /// The client state the UI reads.
@@ -467,6 +475,7 @@ impl Controller {
             input: InputState::default(),
             bytes: ControllerBytes::default(),
             vk: VkState::default(),
+            gui_buttons: [false; 3],
             screen,
             back_buffer: [0, 0],
             pixel_scale: 1.0,
@@ -517,6 +526,7 @@ impl Controller {
             ui,
             ui_out: ui::FrameOutput::default(),
             applied_style: ui::Style::default(),
+            mirrored_player: game.player.clone(),
             map_pan: [0.0; 3],
             teleport_map: false,
             teleport_pick: crate::map_screen::TeleportPick::default(),
@@ -710,11 +720,19 @@ impl Controller {
             // The scroll buttons' `MOUSE_MOVE` callback (`dragScroll` 0x004c5bb0) runs inside
             // the engine's inject in the original.
             self.ui.on_mouse_moved();
+            let d = self.ui.gui.cursor - self.ui.gui.prev_cursor;
             if self.ui.gui.current_target().is_none() && self.bytes.left_mouse() {
-                let d = self.ui.gui.cursor - self.ui.gui.prev_cursor;
                 let opts = self.camera_options();
-                self.player.camera.on_mouse_drag(&opts, d.x, d.y);
+                if self.game.map_open {
+                    self.player.camera.on_map_drag(&opts, d.x, d.y);
+                } else {
+                    self.player.camera.on_mouse_drag(&opts, d.x, d.y);
+                }
             }
+            // 0x0047ede4..0x0047ee7c: the middle button (`GC+0xa`) turns the customization
+            // panel's weapon.
+            let ui::GameUi { gui, m, voxel, .. } = &mut self.ui;
+            ui::voxel::on_mouse_move(gui, m, voxel, self.bytes.middle_mouse(), d);
         } else {
             let opts = self.camera_options();
             self.player.camera.on_mouse_move(&opts, x, y);
@@ -724,6 +742,7 @@ impl Controller {
     /// Slot 7 `onMouseDown` 0x0047b600 (UI part; the gameplay clicks are `update`'s).
     pub fn on_mouse_down(&mut self, b: MouseButton) {
         self.vk.mouse_down(b);
+        self.gui_buttons[b as usize] = self.is_cursor_free();
         match b {
             MouseButton::Left => self.ui.gui.inject_left_down(None),
             MouseButton::Right => self.ui.gui.inject_right_down(),
@@ -761,6 +780,7 @@ impl Controller {
     /// the system menu at 0x0047e00e).
     pub fn on_mouse_up(&mut self, b: MouseButton) {
         self.vk.mouse_up(b);
+        self.gui_buttons[b as usize] = false;
         match b {
             MouseButton::Left => self.ui.gui.inject_left_up(),
             MouseButton::Right => self.ui.gui.inject_right_up(),
@@ -808,6 +828,7 @@ impl Controller {
                 }
                 appearance_from_style(e, &style, &mut rng);
                 self.game.player = e.clone();
+                self.mirrored_player = e.clone();
             }
         }
         self.shared.write_world().rng = rng;
@@ -1010,6 +1031,7 @@ impl Controller {
         self.game.sheet = ui::character_sheet::SheetState::of(nw.states.get(&id));
         if let Some(e) = nw.entities.get(&id) {
             self.game.player = e.clone();
+            self.mirrored_player = e.clone();
             for (k, slot) in self.game.equipment.iter_mut().enumerate() {
                 let o = EQUIPMENT_AT + k * Item::SIZE;
                 slot.clear();
@@ -1045,13 +1067,21 @@ impl Controller {
     }
 
     /// The UI's edits back into the authoritative state (after the UI frame and the click
-    /// handlers): the inverse of [`Controller::mirror_to_view`].
+    /// handlers): the inverse of [`Controller::mirror_to_view`]. Of the player, only the bytes
+    /// the UI changed go back. The zone thread writes the player too (a world switch puts
+    /// them at the position saved for the world, `threads::load_world`); the whole copy, taken
+    /// before that, would put them back where they stood in the old world.
     pub fn write_back_from_view(&mut self) {
         let id = self.player.id;
         let mut nw = self.net.world.lock().unwrap_or_else(|e| e.into_inner());
         let nw = &mut *nw;
         if let Some(e) = nw.entities.get_mut(&id) {
-            *e = self.game.player.clone();
+            for ((b, &v), &m) in e.0.iter_mut().zip(&self.game.player.0).zip(&self.mirrored_player.0) {
+                if v != m {
+                    *b = v;
+                }
+            }
+            self.mirrored_player = self.game.player.clone();
             for (k, slot) in self.game.equipment.iter().enumerate() {
                 let o = EQUIPMENT_AT + k * Item::SIZE;
                 let n = slot.len().min(Item::SIZE);
@@ -1447,6 +1477,13 @@ impl Controller {
         self.frame_ms = dt;
         let head = profile::scope(Phase::UpdateHead);
         self.bytes = ControllerBytes::from_input(&self.input);
+        if !self.is_cursor_free() {
+            for (b, o) in [(MouseButton::Left, 4), (MouseButton::Right, 5), (MouseButton::Middle, 0xa)] {
+                if self.gui_buttons[b as usize] {
+                    self.bytes.bytes[o] = false;
+                }
+            }
+        }
         self.finish_world_loads();
         // 0x00489020..0x00489372: the fog distance.
         self.fog_step(dt);
@@ -1730,7 +1767,13 @@ impl Controller {
             };
             // 0x0048d771..0x0048d7a9: the aimed ground item (`GC+0x800a78`, 0x0059fb90).
             let ground_item = interact::ground_item_at(world, self.player.aimed_item).map(|g| g.item.to_bytes());
+            // 0x00588d32: the customization panel's weapon model, `modelForItem 0x004ec400`.
+            let voxel_model = ui::voxel::target_item(&self.game, &self.ui.voxel)
+                .and_then(interact::item_model_index)
+                .filter(|&i| self.models.info(i as i32).is_some())
+                .and_then(|i| Some((i, self.models.voxels(i)?)));
             let mut inp = ui::FrameInputs::basic(&mut rng, stamina, dt, glam::IVec2::new(screen[0], screen[1]));
+            inp.voxel = voxel_model.as_ref().map(|(i, g)| ui::VoxelWorld { model: Some(g as &dyn ui::voxel::VoxelModel), model_index: Some(*i) });
             inp.ground_item = ground_item.as_ref().map(|b| &b[..]);
             inp.time_ms = self.game.engine_time_ms;
             inp.left_held = self.bytes.left_mouse();
@@ -1871,6 +1914,10 @@ impl Controller {
         let mut out = ServerUpdate::default();
         let interacts = std::mem::take(&mut self.pending_interacts);
         self.world_tick(world, &mut nw.entities, &mut nw.states, dt, interacts, &mut out);
+        // In singleplayer the tick runs the server passes, so a big creature's swing or a bomb
+        // breaks blocks here rather than in a received list: their zones need a new mesh (and
+        // light) all the same.
+        received::mark_zones(&mut self.dirty_zones, &out.block_actions);
         drop(tick_scope);
         let net_scope = profile::scope(Phase::Net);
         // 0x0048d5f0..0x0049081b: the received lists, applied and spliced into the output.
@@ -1898,7 +1945,7 @@ impl Controller {
             [((p[0] / 65536) as i32) / 256, ((p[1] / 65536) as i32) / 256]
         };
         let mut after = ServerUpdate::default();
-        let fi = FrameInput { input: &self.bytes, ui: &ui, opts: &opts, dt, world_ms: self.world_ms, center_zone, models: &self.models };
+        let fi = FrameInput { input: &self.bytes, ui: &ui, opts: &opts, dt, world_ms: self.world_ms, center_zone, models: &self.models, hits: &out.hits };
         // 0x0049732f..0x0049735f (inside the gameplay ranges, before the R key that can open
         // the map from a bed): map closed, bed mode and the pick cleared. Nothing between
         // 0x00491f16 and here reads them.
@@ -1979,19 +2026,7 @@ impl Controller {
             let mut missions = Vec::new();
             let walk = &mut self.walk;
             let mut hook = |_w: &World, entities: &BTreeMap<i64, EntityData>, states: &BTreeMap<i64, CreatureState>, cid: i64| {
-                let Some(e) = entities.get(&cid) else { return };
-                let (guard, haste) = cw_sim::util::guard_haste(states, cid);
-                let mount_id = states.get(&cid).map_or(0, |s| s.modes.mount);
-                let mount = if mount_id != 0
-                    && entities.get(&mount_id).is_some_and(|m| f32::from_le_bytes(m.0[0x15c..0x160].try_into().unwrap()) > 0.0)
-                    && e.0[0x50] != 5
-                {
-                    walk.get(&mount_id).copied()
-                } else {
-                    None
-                };
-                let w = walk.entry(cid).or_default();
-                pose::advance_walk_cycle(e, w, step, guard, haste, mount);
+                advance_walk(walk, entities, states, cid, step);
             };
             {
                 let mut ctx = cw_server::server::TickCtx { clock: &mut self.clock, projectiles: &mut self.projectiles, verbose: false, log_regions: false, deferred_saves: Some(&mut self.deferred_saves) };
@@ -2063,11 +2098,14 @@ impl Controller {
                     self.audio.play_sound(&l, id, pos, volume, pitch);
                 }
                 Event::CloseMovementPanels => {
+                    // 0x004a8e21..0x004a8ed9: each panel's visibility in its frame is zeroed;
+                    // the word store at 0x004a8ebd clears the skills byte and the menu bar.
                     let m = self.ui.m.clone();
-                    for n in [m.inventory_panel, m.crafting_panel, m.system_panel, m.skills_panel] {
+                    for n in [m.inventory_panel, m.crafting_panel, m.shop_panel, m.voxel_panel, m.enchant_panel, m.adaption_panel, m.system_panel] {
                         self.ui.set_visible(n, false);
                     }
                     self.ui.skills_open = false;
+                    self.ui.system_menu = false;
                 }
                 Event::OpenMapFromBed => {
                     // 0x00497424: `+0x8006e4 = +0x800de4 = 1`.
@@ -2088,6 +2126,14 @@ impl Controller {
                     // 0x0049756a..0x004975b6: the crafting stations.
                     let ui::GameUi { gui, m, crafting, inv, .. } = &mut self.ui;
                     ui::crafting::open_from_station(gui, m, crafting, &self.game, &mut inv.crafting, kind);
+                }
+                Event::LevelUp { level } => {
+                    // 0x00493ec4: `0x0047fae0(level)`, the recipes the new level teaches
+                    // ([`ui::character_style::learn_level_formulas`]), with the main thread's
+                    // `rand()`.
+                    let mut rng: MsvcRand = std::mem::take(&mut self.shared.write_world().rng);
+                    ui::character_style::learn_level_formulas(&mut self.game, level, &mut rng);
+                    self.shared.write_world().rng = rng;
                 }
                 Event::InventoryFull => {
                     // 0x00497653..0x004976ae: "You can't carry more of these items." in
@@ -2355,7 +2401,7 @@ impl Controller {
         self.scene.time_of_day_ms = world.time_of_day;
         // The global `rand()` stream is the world's (`cw_world::World::rng` on the client).
         let mut rng: MsvcRand = std::mem::take(&mut world.rng);
-        let (pieces, sounds) = scene::gather_scene(world, &nw.entities, &nw.states, &self.projectiles, &mut self.scene, &mut self.particles, &self.models, dt, &mut rng);
+        let (mut pieces, sounds) = scene::gather_scene(world, &nw.entities, &nw.states, &self.projectiles, &mut self.scene, &mut self.particles, &self.models, dt, &mut rng);
         world.rng = rng;
         // 0x004ae27e..0x004ae370 (world frames only): the GUI root `GC+0x800884` is visible
         // exactly when no menu screen is (`scene::GuiVisibility::apply` in the gather).
@@ -2372,7 +2418,7 @@ impl Controller {
         // The creature bodies: the pose object `creature+0x1498` per creature
         // (0x004b4ef0..0x004b5db2).
         let poses_scope = profile::scope(Phase::Poses);
-        let creatures = self.pose_creatures(&nw.entities, &nw.states, &pieces.creature_order, &pieces.body_materials);
+        let creatures = self.pose_creatures(&nw.entities, &nw.states, &pieces.creature_order, &pieces.body_materials, &mut pieces.creature_extras);
         drop(poses_scope);
         let build_scope = profile::scope(Phase::BuildFrame);
         let player_position = nw.entities.get(&self.player.id).map(scene::entity_pos).unwrap_or([0; 3]);
@@ -2542,7 +2588,7 @@ impl Controller {
     /// animation time is the entity's mode time (`+0x5c`), the mode from `anim_mode_for`
     /// (0x004b4ef0), the render position and rotation the tick smooths, the render origin
     /// `GC+0x1d8/+0x1e0`.
-    fn pose_creatures(&mut self, entities: &BTreeMap<i64, EntityData>, states: &BTreeMap<i64, CreatureState>, order: &[i64], body_materials: &BTreeMap<i64, [f32; 4]>) -> Vec<CreatureInput> {
+    fn pose_creatures(&mut self, entities: &BTreeMap<i64, EntityData>, states: &BTreeMap<i64, CreatureState>, order: &[i64], body_materials: &BTreeMap<i64, [f32; 4]>, extras: &mut Vec<ModelDraw>) -> Vec<CreatureInput> {
         let mut out = Vec::new();
         for &id in order {
             let Some(e) = entities.get(&id) else { continue };
@@ -2592,6 +2638,15 @@ impl Controller {
             if self.scene.explode_pending.contains(&id) {
                 let models = &self.models;
                 self.scene.pose_parts.entry(id).or_default().record_pose(&pose, |n| models.info(n as i32));
+                // The trails, root offset and render origin the same call leaves in the pose
+                // object: next frame's ray and beam starts, shadows, ribbons and charge glow.
+                self.scene.poses.insert(id, scene::PoseView { root_off: ps.root_off, trails: ps.trails, origin: ps.origin });
+            }
+            // 0x004b5db7..0x004b5ef3: the spirit cubes, on this pose (the creature pass ran
+            // before it), for a creature that pass drew.
+            if body_materials.contains_key(&id) {
+                let models = &self.models;
+                scene::creatures::posed_spirit_cubes(models.particle_cube(), e, &pose, |n| models.info(n as i32), color, extras);
             }
             let parts: Vec<ModelDraw> = pose
                 .parts
@@ -2621,6 +2676,7 @@ impl Controller {
         self.poses.retain(|k, _| entities.contains_key(k));
         // A deleted creature takes its pose object (and its flag) with it.
         self.scene.pose_parts.retain(|k, _| entities.contains_key(k));
+        self.scene.poses.retain(|k, _| entities.contains_key(k));
         self.scene.explode_pending.retain(|k| entities.contains_key(k));
         out
     }
@@ -2655,6 +2711,34 @@ impl Drop for Controller {
 /// `creature+0x418`: the first equipment slot the UI shows (`GameView::equipment[0]`, entity
 /// `+0x408`).
 const EQUIPMENT_AT: usize = 0x408;
+
+/// The walk cycle of creature `cid` after its update and move in a tick slice of `step` ms
+/// ([`pose::advance_walk_cycle`], 0x005447a6..0x00544e3e), then 0x005458c5: a pet (hostile 5)
+/// whose owner (`entity+0x188`) rides it (mode 0x6a) takes the owner's walk cycle, as
+/// `cw_sim::riding::follow_owner` does for the sim's copy (`CreatureState::riding`). Without
+/// it the pet, its velocity cleared under its rider, keeps its feet still while it carries
+/// the player.
+fn advance_walk(walk: &mut BTreeMap<i64, WalkCycle>, entities: &BTreeMap<i64, EntityData>, states: &BTreeMap<i64, CreatureState>, cid: i64, step: i32) {
+    let Some(e) = entities.get(&cid) else { return };
+    let (guard, haste) = cw_sim::util::guard_haste(states, cid);
+    let mount_id = states.get(&cid).map_or(0, |s| s.modes.mount);
+    let mount = if mount_id != 0
+        && entities.get(&mount_id).is_some_and(|m| f32::from_le_bytes(m.0[0x15c..0x160].try_into().unwrap()) > 0.0)
+        && e.0[0x50] != 5
+    {
+        walk.get(&mount_id).copied()
+    } else {
+        None
+    };
+    let w = walk.entry(cid).or_default();
+    pose::advance_walk_cycle(e, w, step, guard, haste, mount);
+    // Id 0 is no owner (the guard of `cw_sim::riding::gather`).
+    let owner_id = i64::from_le_bytes(e.0[0x188..0x190].try_into().unwrap());
+    if e.0[0x50] == 5 && owner_id != 0 && entities.get(&owner_id).is_some_and(|o| o.0[0x58] == 0x6a) {
+        let o = walk.get(&owner_id).copied().unwrap_or_default();
+        walk.insert(cid, o);
+    }
+}
 
 /// The character database, its lock taken even when poisoned.
 fn lock_records(db: &Mutex<RecordDb>) -> std::sync::MutexGuard<'_, RecordDb> {
@@ -2854,6 +2938,31 @@ mod tests {
         assert_eq!(to_d3d(&a)[3][0], 12.0);
     }
 
+    /// A posed creature the creature pass drew leaves its pose object's render origin, trails
+    /// and root offset in the gather's mirror, so next frame's ray (modes 0x1c, 0x5e, 0x5f)
+    /// starts at the hand in world space; a culled one keeps its old entry. Skipped without
+    /// `CW_GAME_DIR`.
+    #[test]
+    fn a_drawn_pose_reaches_the_scene_mirror() {
+        let Some(dir) = std::env::var_os("CW_GAME_DIR").map(PathBuf::from) else {
+            eprintln!("CW_GAME_DIR not set; skipped");
+            return;
+        };
+        let mut c = Controller::new(dir, [1280, 720], vec![(1280, 720)], false, String::new());
+        c.player.camera.origin = [-5 << 16, 7 << 16];
+        let net = Arc::clone(&c.net);
+        let nw = net.world.lock().unwrap();
+        let id = LOCAL_PLAYER_ID;
+        let mut extras = Vec::new();
+        c.pose_creatures(&nw.entities, &nw.states, &[id], &BTreeMap::new(), &mut extras);
+        assert!(!c.scene.poses.contains_key(&id));
+        c.scene.explode_pending.insert(id);
+        c.pose_creatures(&nw.entities, &nw.states, &[id], &BTreeMap::new(), &mut extras);
+        let v = c.scene.poses[&id];
+        assert_eq!(v.origin, [-5 << 16, 7 << 16]);
+        assert_eq!((v.root_off, v.trails), (c.poses[&id].root_off, c.poses[&id].trails));
+    }
+
     /// Slot 8 `onMouseUp` 0x0047ddd0 reaches the system menu (0x0047e00e): "Exit Game" sets
     /// the quit flag `GC+0x1a0`, "Options" shows the options panel. Skipped without
     /// `CW_GAME_DIR`.
@@ -2930,6 +3039,29 @@ mod tests {
         assert!(c.ui.bubbles.iter().any(|b| b.creature == LOCAL_PLAYER_ID));
     }
 
+    /// A level-up (0x00493ec4) teaches the new level's recipes (`0x0047fae0(level)`): for a
+    /// Warrior at level 2, the Pumpkin Muffin (1, 9), iron boots (6, material 1) and an iron
+    /// shield (3, 0xd), all at level 2. Skipped without `CW_GAME_DIR`.
+    #[test]
+    fn level_up_teaches_the_level_recipes() {
+        let Some(dir) = std::env::var_os("CW_GAME_DIR").map(PathBuf::from) else {
+            eprintln!("CW_GAME_DIR not set; skipped");
+            return;
+        };
+        let mut c = Controller::new(dir, [1280, 720], vec![(1280, 720)], false, String::new());
+        c.game.player.0[0x130] = 1;
+        c.game.formulas.clear();
+        c.player.events.push(Event::LevelUp { level: 2 });
+        c.player_events();
+        let knows = |ty: u8, sub: Option<u8>, mat: u8| {
+            c.game.formulas.iter().any(|f| f[0] == ty && sub.is_none_or(|s| f[1] == s) && f[0xd] == mat && f[0x10..0x12] == 2u16.to_le_bytes())
+        };
+        assert_eq!(c.game.formulas.len(), 3);
+        assert!(knows(1, Some(9), 0));
+        assert!(knows(6, None, 1));
+        assert!(knows(3, Some(0xd), 1));
+    }
+
     /// Chat typed offline (0x0047e652..0x0047e6b0) goes onto the received list under the
     /// player's id and comes out one entry per frame (0x0048cc0f..0x0048cd99) as
     /// `"<name>: "` then the text and `"\n"`: one line per message. Skipped without
@@ -2968,11 +3100,83 @@ mod tests {
         assert_eq!(lines, ["Player: hello", "Player: again", ""]);
     }
 
+    /// A pet carrying its owner (mode 0x6a) strides with the owner (0x005458c5), though the
+    /// ride clears its own velocity; once the owner gets off, the pet's own still cycle
+    /// takes over again.
+    #[test]
+    fn a_ridden_pet_strides_with_its_rider() {
+        let (rider, pet) = (LOCAL_PLAYER_ID, 7i64);
+        let mut entities = BTreeMap::new();
+        for id in [rider, pet] {
+            let mut e = EntityData::ZERO;
+            e.0[0x4c..0x50].copy_from_slice(&1u32.to_le_bytes());
+            for o in [0x70, 0x74, 0x78] {
+                e.0[o..o + 4].copy_from_slice(&1.0f32.to_le_bytes());
+            }
+            entities.insert(id, e);
+        }
+        let r = entities.get_mut(&rider).unwrap();
+        r.0[0x58] = 0x6a;
+        r.0[0x24..0x28].copy_from_slice(&5.0f32.to_le_bytes());
+        let p = entities.get_mut(&pet).unwrap();
+        p.0[0x50] = 5;
+        p.0[0x188..0x190].copy_from_slice(&rider.to_le_bytes());
+        let states = BTreeMap::new();
+        let mut walk = BTreeMap::new();
+        for _ in 0..10 {
+            advance_walk(&mut walk, &entities, &states, rider, TICK_MS);
+            advance_walk(&mut walk, &entities, &states, pet, TICK_MS);
+        }
+        assert!(walk[&rider].phase > 0.0 && walk[&rider].blend > 0.0, "{:?}", walk[&rider]);
+        assert_eq!(walk[&pet], walk[&rider]);
+        // Off the pet: it stands, so its stride stays where it was and its blend fades.
+        entities.get_mut(&rider).unwrap().0[0x58] = 0;
+        let before = walk[&pet];
+        advance_walk(&mut walk, &entities, &states, rider, TICK_MS);
+        advance_walk(&mut walk, &entities, &states, pet, TICK_MS);
+        assert_eq!(walk[&pet].phase, before.phase);
+        assert!(walk[&pet].blend < before.blend);
+    }
+
     #[test]
     fn model_cache_bounds() {
         let c = empty_models();
         assert!(c.model(0).is_none());
         assert!(c.model(-1).is_none());
         assert_eq!(pose::ModelSource::model_count(&c), 0);
+    }
+
+    /// The zone thread moves the player between a mirror and its write-back (a world switch
+    /// puts them at the position saved for the world, `threads::load_world`): the write-back
+    /// keeps the move and still stores what the UI changed. Skipped without `CW_GAME_DIR`.
+    #[test]
+    fn the_write_back_keeps_a_move_made_after_the_mirror() {
+        let Some(dir) = std::env::var_os("CW_GAME_DIR").map(PathBuf::from) else {
+            eprintln!("CW_GAME_DIR not set; skipped");
+            return;
+        };
+        let mut c = Controller::new(dir, [1280, 720], vec![(1280, 720)], false, String::new());
+        // The start screen's world loads first; its switch places the player once.
+        let t = std::time::Instant::now();
+        while !c.shared.lock_world_cs().matches() {
+            assert!(t.elapsed().as_secs() < 60, "the start screen's world never loaded");
+            std::thread::sleep(std::time::Duration::from_millis(20));
+        }
+        c.mirror_to_view();
+        let saved = [551169371338i64, 548046074839, 4723855];
+        {
+            let mut nw = c.net.world.lock().unwrap();
+            let e = nw.entities.get_mut(&c.player.id).unwrap();
+            for i in 0..3 {
+                e.0[i * 8..i * 8 + 8].copy_from_slice(&saved[i].to_le_bytes());
+            }
+        }
+        c.game.player.0[0x1158..0x1168].fill(0);
+        c.game.player.0[0x1158..0x115c].copy_from_slice(b"john");
+        c.write_back_from_view();
+        let nw = c.net.world.lock().unwrap();
+        let e = &nw.entities[&c.player.id];
+        assert_eq!(scene::entity_pos(e), saved);
+        assert_eq!(&e.0[0x1158..0x115c], b"john");
     }
 }

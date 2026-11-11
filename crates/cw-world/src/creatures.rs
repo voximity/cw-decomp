@@ -373,7 +373,12 @@ impl World {
                 s.b10e8 = 1;
             }
             self.init_appearance(&mut s);
+            let multipliers = (s.f_f58, s.f_f5c, s.f_f60, s.f_f64, s.f_f68);
             self.init_creature(&mut s);
+            if self.fix_camp_boss_boost {
+                // generateZone sets this creature up again; see `World::fix_camp_boss_boost`.
+                (s.f_f58, s.f_f5c, s.f_f60, s.f_f64, s.f_f68) = multipliers;
+            }
             zone.spawns.push(s);
         }
     }

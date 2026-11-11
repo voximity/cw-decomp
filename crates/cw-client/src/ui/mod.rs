@@ -18,7 +18,7 @@
 //! | [`options_menu`] | `OptionsWidget` ctor 0x004cf3c0, update 0x004d0230, callbacks 0x004d4430..0x004d4dc0, 0x004d4cb0/0x004d4d20, 0x004d4de0 |
 //! | [`chat`] | `ChatWidget` ctor 0x004393b0, update 0x00439730, print 0x0043a500, keys 0x0043a0d0, chars 0x0043a010; the Enter handling and commands of `onKeyDown` 0x0047e1b0 |
 //! | [`skills`] | `SkillWidget` point allocation (`onMouseDown` 0x0047b600, 0x00488c70) |
-//! | [`skill_panel`] | the skill and specialization buttons of `update` 0x0048da47..0x0048eaef, `SkillWidget::update` 0x004dd810, the skill clicks 0x0047b849 / 0x0047c806, the quick bar's icons and cooldowns 0x0048bd8c..0x0048c100 |
+//! | [`skill_panel`] | the skill and specialization buttons of `update` 0x0048da47..0x0048eb03, `SkillWidget::update` 0x004dd810, the skill clicks 0x0047b849 / 0x0047c806, the quick bar's icons and cooldowns 0x0048bd8c..0x0048c100 |
 //! | [`item_preview`] | the preview sources 0x0047ae10 / 0x0047b450 / 0x0047b1b0 / 0x0047b340 / 0x0047b550 / 0x0047b3e0 / 0x0047b010, the placement 0x0048ec97..0x0048f17e, `PreviewWidget::update` 0x004d50a0, the Tab selector texts 0x00497b0b.. |
 //! | [`hud`] | the HUD bars of `update` 0x00488ee0: experience, life, mana, stamina, cast, charge, mana cubes, pet, party, combo points |
 //! | [`target`] | the nameplates (`*lifebar:small` clones), the crosshairs and prompt, the quest tags (`update` 0x0048d054.., 0x00490920..0x0049ad13) |
@@ -529,8 +529,6 @@ pub struct VoxelWorld<'a> {
     pub model: Option<&'a dyn voxel::VoxelModel>,
     /// Its model-cache index.
     pub model_index: Option<u32>,
-    /// The cursor ray in model voxel space.
-    pub ray: Option<([f32; 3], [f32; 3])>,
 }
 
 /// What one [`GameUi::frame`] reads besides the UI state and [`GameView`]: the frame time,
@@ -918,18 +916,19 @@ impl GameUi {
         }
         if self.visible(self.m.voxel_panel) {
             let w = self.m.voxel;
-            let (model, model_index, ray) = match &inp.voxel {
-                Some(v) => (v.model, v.model_index, v.ray),
-                None => (None, None, None),
+            let (model, model_index) = match &inp.voxel {
+                Some(v) => (v.model, v.model_index),
+                None => (None, None),
             };
             let vi = voxel::VoxelInputs {
                 origin: self.widget_origin(w),
                 size: self.widget_size(w),
                 cursor,
+                client: inp.client,
                 time_ms: inp.time_ms,
                 model,
                 model_index,
-                ray,
+                ray: None,
             };
             out.voxel = Some(voxel::frame(&mut self.voxel, game, &vi));
         }
@@ -1048,8 +1047,8 @@ impl GameUi {
     /// (`over_widget` = the engine hit a widget, 0x00650ae0), the menu bar
     /// (`hovered_menu_button` = index into `menu_buttons`), the select-screen drag reset,
     /// the panels' left clicks ([`GameUi::left_panels`] order) and the right/middle clicks
-    /// (the customization prelude 0x0047bab1, then [`inventory::right_click`], then the
-    /// recipe rebuild 0x0047dd88).
+    /// (on the right button only the customization prelude 0x0047ccfa, then
+    /// [`inventory::right_click`], then the recipe rebuild 0x0047dd88).
     #[allow(clippy::too_many_arguments)]
     pub fn on_mouse_down(
         &mut self,
@@ -1089,7 +1088,9 @@ impl GameUi {
         if button == 0 {
             self.left_panels(game, rng, over_widget, hovered_equipment, shift, &mut out);
         } else if button == 1 || button == 2 {
-            voxel::right_click_prelude(&self.gui, &self.m, &mut self.voxel, flag_800704);
+            if button == 1 {
+                voxel::right_click_prelude(&self.gui, &self.m, &mut self.voxel, flag_800704);
+            }
             let ctx = inventory::ClickContext {
                 panels: self.panels(),
                 bag: &self.inv.bag,

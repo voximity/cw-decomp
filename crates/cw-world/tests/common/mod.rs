@@ -75,10 +75,13 @@ pub fn serialize_zone(zone: &Zone) -> Vec<u8> {
 }
 
 /// A world with the model table loaded from `$CW_GAME_DIR/data1.db`; panics without the game
-/// files, since the generator needs the models for trees, towns and dungeons.
+/// files, since the generator needs the models for trees, towns and dungeons. It generates as
+/// the original does (`World::fix_camp_boss_boost` off), since the golden files come from
+/// Server.exe.
 pub fn world_with_models(seed: i32) -> cw_world::World {
     let dir = std::env::var_os("CW_GAME_DIR").map(std::path::PathBuf::from).expect("CW_GAME_DIR must point at the game directory");
     let mut world = cw_world::World::new(seed);
+    world.fix_camp_boss_boost = false;
     let mut table = Vec::new();
     cw_world::model::load_models_from_game_dir(&dir, &mut table).expect("model table");
     world.models = std::sync::Arc::new(table);

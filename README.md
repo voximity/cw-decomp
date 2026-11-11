@@ -20,11 +20,25 @@ things about the game or learn about how Cube World works (with one hideous laye
 This project aims to be a very faithful port of the last Alpha build, with many known
 quirks and problems being ported straight in.
 
-You can expect it to play identically to the alpha build but with fewer rendering or
-software gimmicks. It also targets Linux and macOS (via Metal) for better platform support.
+You can expect it to play like the alpha build, apart from the change below, but with
+fewer rendering or software gimmicks. It also targets Linux and macOS (via Metal) for better
+platform support.
 
 As a result, a `cw-client` can be played against the source `Server.exe` or vice versa,
 a `Cube.exe` client connecting to a `cw-server` instance.
+
+### Landscape rulers
+
+The alpha boosts the ruler of a landscape cell (the boss of the camp at its centre) twice:
+the camp code sets the creature up, then the zone code sets up every creature in the zone
+again, and each pass applies the boss boost. A ruler ends with 100 times the health
+multiplier of a plain creature, 9 times the damage, and +4 armour and resistance. Here a
+ruler gets the boost once, as every other boss does: 15 times the health, 3 times the
+damage, +2 armour and resistance. The rest of world generation stays as it was, so a saved
+world keeps its towns, camps and creatures.
+
+In a mixed game each side applies its own rules to what it runs, so on a `Server.exe`
+rulers keep the double boost.
 
 ## Usage
 

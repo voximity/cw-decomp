@@ -166,12 +166,22 @@ pub fn block_actions(t: &mut Target<'_>, records: Vec<cw_net::packet::BlockActio
         x1 = x1.max(b.x);
         y0 = y0.min(b.y);
         y1 = y1.max(b.y);
-        if (0..0x100_0000).contains(&b.x) && (0..0x100_0000).contains(&b.y) {
-            t.dirty_zones.insert((b.x / 256, b.y / 256));
-        }
     }
+    mark_zones(t.dirty_zones, &records);
     cw_sim::modes::drop_unsupported_props(t.world, x0, y0, x1, y1);
     out.block_actions.extend(records);
+}
+
+/// Marks for remeshing the zones of the blocks `records` changed, and the zone next door when
+/// a block lies on a zone's edge (its neighbour there shows a new face).
+pub fn mark_zones(dirty_zones: &mut BTreeSet<(i32, i32)>, records: &[cw_net::packet::BlockAction]) {
+    for b in records {
+        for (x, y) in [(b.x, b.y), (b.x - 1, b.y), (b.x + 1, b.y), (b.x, b.y - 1), (b.x, b.y + 1)] {
+            if (0..0x100_0000).contains(&x) && (0..0x100_0000).contains(&y) {
+                dirty_zones.insert((x / 256, y / 256));
+            }
+        }
+    }
 }
 
 /// `World::setBlock(x, y, z, block)` on a loaded zone (the zone found from the block).
@@ -567,6 +577,22 @@ mod tests {
         let count: i32 = states[&1].inventory.pages.iter().flatten().map(|s| s.count).sum();
         assert_eq!(count, 1);
         assert_eq!(states[&1].inventory.f12c, 3);
+    }
+
+    /// A changed block marks its zone for remeshing, and the zone next door when it lies on
+    /// the edge; blocks off the map mark nothing.
+    #[test]
+    fn block_zones_marked_for_remeshing() {
+        let at = |x, y| cw_net::packet::BlockAction { x, y, z: 100, block: [0; 4], time: 0 };
+        let mut dirty = BTreeSet::new();
+        mark_zones(&mut dirty, &[at(256 * 10 + 5, 256 * 20 + 5)]);
+        assert_eq!(dirty, BTreeSet::from([(10, 20)]));
+        dirty.clear();
+        mark_zones(&mut dirty, &[at(256 * 10 + 255, 256 * 20)]);
+        assert_eq!(dirty, BTreeSet::from([(10, 20), (11, 20), (10, 19)]));
+        dirty.clear();
+        mark_zones(&mut dirty, &[at(-5, 100)]);
+        assert!(dirty.is_empty());
     }
 
     #[test]

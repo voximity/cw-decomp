@@ -17,6 +17,7 @@
 //! | 0x0048d4..(death latch, Ghidra line 1528) | [`LocalPlayer::death_latch`] |
 //! | 0x00493b0f..0x0049413a | [`LocalPlayer::xp_display`] |
 //! | 0x004943xx (per-creature `+0x13c8..+0x13d0`) | [`damage_display_tick`], [`damage_display_hit`] |
+//! | 0x00494a79..0x00494bfa (in the output-hit loop 0x004949b0..0x00495266) | [`LocalPlayer::pet_from_feeding`] |
 //! | 0x004965a2..0x0049662c | [`Camera::smooth`] |
 //! | 0x0049736c..0x004973df | [`LocalPlayer::respawn`] (R while dead) |
 //! | 0x00497723..0x00497892 | [`LocalPlayer::glide_steering`] |
@@ -47,7 +48,8 @@ use std::collections::BTreeMap;
 
 use cw_net::EntityData;
 use cw_net::ServerUpdate;
-use cw_net::packet::{Interact, Passive};
+use cw_net::packet::{Hit, Interact, Passive};
+use cw_render::passes::MAP_MIN_PITCH;
 use cw_sim::combat::{Buff, CreatureState};
 use cw_world::World;
 use cw_world::inventory::Item;
@@ -366,7 +368,7 @@ pub enum Event {
     Sound { id: u32, pos: [i64; 3], volume: f32, pitch: f32 },
     /// `applyMovementInput` 0x004a8e2e..0x004a8ed9: moving closes the widgets at `+0x8008bc`,
     /// `+0x8008c0`, `+0x8008c4`, `+0x8008dc`, `+0x8008f8`, `+0x800900`, `+0x800910` and clears
-    /// `+0x8008f1`.
+    /// the word at `+0x8008f1` (the skills byte and the menu bar `+0x8008f2`).
     CloseMovementPanels,
     /// 0x00493d72..0x00493ea6: the level went up ("LEVEL UP" text at 0x00493e35).
     LevelUp { level: i32 },
@@ -517,6 +519,16 @@ impl Camera {
         }
         self.clamp_pitch();
         self.rot_target[2] = self.rot_target[2] - cursor_dx * s * 0.005f32;
+    }
+
+    /// Port-only: [`Self::on_mouse_drag`] over the open map. The map draws any pitch below
+    /// [`MAP_MIN_PITCH`] as that, so the pitch starts there and stays there; else the first
+    /// stretch of a drag down turns nothing on the map.
+    pub fn on_map_drag(&mut self, opts: &CameraOptions, cursor_dx: f32, cursor_dy: f32) {
+        self.rot[0] = self.rot[0].max(MAP_MIN_PITCH);
+        self.rot_target[0] = self.rot_target[0].max(MAP_MIN_PITCH);
+        self.on_mouse_drag(opts, cursor_dx, cursor_dy);
+        self.rot_target[0] = self.rot_target[0].max(MAP_MIN_PITCH);
     }
 
     fn clamp_pitch(&mut self) {
@@ -1207,6 +1219,50 @@ impl LocalPlayer {
             self.sound(0x1d, pos_of(e), 1.0, 1.0);
             self.shown_level = level;
             self.shown_xp = 0;
+        }
+    }
+
+    /// 0x00494a79..0x00494bfa, one step of the loop over the output hits (the tick's and the
+    /// received, 0x004949b0..0x00495266; the loop's other steps are not ported): a type-6 hit
+    /// (a feeding, mode 0x6e) on the local player while it holds pet food (slot 12 type 0x14)
+    /// gives it the hitter as its pet when the hitter carries a type-7 buff of at least 1.0
+    /// from the player (`+0x10`). Slot 12 becomes a fresh item (`Item::Item` 0x0042f3e0 copied
+    /// in by `Item::operator=` 0x0042c5e0, which leaves bytes +2, +3, +0xf, +0x12 and +0x13
+    /// alone) of type 0x13 with the hitter's type as sub type and its level (`+0x10`) and XP
+    /// (`+4`); the mode ends (0) and the hitter becomes the player's pet (`creature+0x11c8`).
+    /// The next tick's pet pass (`cw_sim::statics::player_pets`) makes the pet again from the
+    /// item, follow behaviour included.
+    pub fn pet_from_feeding(&self, entities: &mut BTreeMap<i64, EntityData>, states: &mut BTreeMap<i64, CreatureState>, hits: &[Hit]) {
+        let me = self.id;
+        let s = ent::slot(12);
+        for h in hits {
+            let h = &h.0;
+            if i64_at(h, 8) != me || h[0x45] != 6 {
+                continue;
+            }
+            if entities.get(&me).is_none_or(|e| e.0[s] != 0x14) {
+                continue;
+            }
+            // 0x00494aae: the hitter's lookup goes unchecked in the original.
+            let pet_id = i64_at(h, 0);
+            let Some(pet) = entities.get(&pet_id) else { continue };
+            // 0x00494b0e: `comiss value, 1.0; jb` skips a NaN.
+            let fed = states.get(&pet_id).is_some_and(|st| st.buffs.iter().any(|b| b[0] == 7 && f32_at(b, 4) >= 1.0f32 && i64_at(b, 0x10) == me));
+            if !fed {
+                continue;
+            }
+            let (kind, level, xp) = (pet.0[0x54], u16_at(&pet.0, ent::LEVEL), i32_at(&pet.0, ent::XP));
+            let e = entities.get_mut(&me).expect("local player");
+            let fresh = Item::NEW.to_bytes();
+            for r in [0..2, 4..0xf, 0x10..0x12, 0x14..Item::SIZE] {
+                e.0[s + r.start..s + r.end].copy_from_slice(&fresh[r]);
+            }
+            e.0[ent::MODE] = 0;
+            states.entry(me).or_default().pet = pet_id;
+            e.0[s] = 0x13;
+            e.0[s + 1] = kind;
+            wu16(&mut e.0, s + 0x10, level);
+            wi32(&mut e.0, s + 4, xp);
         }
     }
 
@@ -1923,6 +1979,8 @@ pub struct FrameInput<'a> {
     /// `GameController+0x2bc`: the zone the item aim scans around.
     pub center_zone: [i32; 2],
     pub models: &'a dyn crate::interact::ItemModels,
+    /// The output hits, the tick's and the received (`esp+0x224`), for the loop at 0x004949b0.
+    pub hits: &'a [Hit],
 }
 
 impl LocalPlayer {
@@ -1955,6 +2013,8 @@ impl LocalPlayer {
         }
         // 0x00493b0f: the combo, level and XP display.
         self.xp_display(&entities[&id]);
+        // 0x004949b0: the output hits; only the taming step is ported.
+        self.pet_from_feeding(entities, states, f.hits);
         // 0x004965a2: the camera eases.
         self.camera.smooth(f.opts, f.dt);
         // 0x0049662f..0x004975bb: the held stack, the villager and mount, R.
@@ -2119,6 +2179,21 @@ mod tests {
         c.on_mouse_move(&o, 10.0, -1000.0);
         assert_eq!(c.rot_target[0], 0.0);
         assert_eq!(c.rot_target[2], -5.0);
+    }
+
+    /// A drag over the open map turns it from the first pixel: the pitch jumps to the map's
+    /// least and never drops below it, while a drag elsewhere keeps the full range.
+    #[test]
+    fn map_drag_starts_at_the_maps_pitch() {
+        let o = CameraOptions { camera_speed: 100, camera_smoothness: 50, invert_y: false };
+        let mut c = Camera { rot: [95.0, 0.0, 0.0], rot_target: [95.0, 0.0, 0.0], ..Camera::default() };
+        c.on_map_drag(&o, 0.0, 2.0);
+        assert_eq!(c.rot[0], MAP_MIN_PITCH);
+        assert_eq!(c.rot_target[0], MAP_MIN_PITCH + 1.0);
+        c.on_map_drag(&o, 0.0, -100.0);
+        assert_eq!(c.rot_target[0], MAP_MIN_PITCH);
+        c.on_mouse_drag(&o, 0.0, -100.0);
+        assert_eq!(c.rot_target[0], MAP_MIN_PITCH - 50.0);
     }
 
     #[test]
@@ -2380,5 +2455,60 @@ mod tests {
         e.0[ent::slot(11)] = 0;
         use_special_item(&mut e, 0.0);
         assert!(u16_at(&e.0, ent::FLAGS) & 0x10 == 0);
+    }
+
+    /// The last feeding (mode 0x6e: `World::tame`, the type-7 buff at 1.0, the type-6 hit) puts
+    /// the pet item in slot 12 (0x00494a79), and the next pet pass keeps the pet as a follower.
+    #[test]
+    fn last_feeding_gives_the_pet_item_and_a_follower() {
+        let (mut world, pos) = flat_world();
+        world.has_name = true;
+        let (me, pet_id, kind) = (1i64, 2i64, 0x23u8);
+        let s = ent::slot(12);
+        let mut player = player_at(pos);
+        wi32(&mut player.0, ent::LEVEL, 10);
+        player.0[s] = 0x14;
+        player.0[s + 1] = kind;
+        player.0[s + 2] = 0x77;
+        player.0[ent::MODE] = 0x52;
+        let mut pet = player_at(pos);
+        pet.0[ent::HOSTILE] = 3;
+        wi32(&mut pet.0, 0x54, i32::from(kind));
+        wi32(&mut pet.0, ent::LEVEL, 4);
+        wi32(&mut pet.0, ent::XP, 42);
+        let mut entities = BTreeMap::from([(me, player), (pet_id, pet)]);
+        let mut states = BTreeMap::from([(me, CreatureState::default()), (pet_id, CreatureState::default())]);
+        let mut h = [0u8; 0x48];
+        wi64(&mut h, 0, pet_id);
+        wi64(&mut h, 8, me);
+        h[0x45] = 6;
+        let hits = [Hit(h)];
+        let p = LocalPlayer::new(me);
+        let mut buff: Buff = [0; 0x18];
+        buff[0] = 7;
+        wf32(&mut buff, 4, 0.8);
+        wi64(&mut buff, 0x10, me);
+        // Not full yet: nothing changes.
+        cw_sim::combat::add_buff(states.get_mut(&pet_id).unwrap(), &buff);
+        p.pet_from_feeding(&mut entities, &mut states, &hits);
+        assert_eq!(entities[&me].0[s], 0x14);
+        // The fifth feeding: the server tames the creature and the buff reaches 1.0.
+        entities.get_mut(&pet_id).unwrap().0[ent::HOSTILE] = 5;
+        cw_sim::modes::tame(&mut entities, &mut states, me, pet_id);
+        wf32(&mut buff, 4, 1.0);
+        cw_sim::combat::add_buff(states.get_mut(&pet_id).unwrap(), &buff);
+        p.pet_from_feeding(&mut entities, &mut states, &hits);
+        let e = &entities[&me];
+        assert_eq!((e.0[s], e.0[s + 1], e.0[s + 2]), (0x13, kind, 0x77));
+        assert_eq!((u16_at(&e.0, s + 0x10), i32_at(&e.0, s + 4)), (4, 42));
+        assert_eq!(e.0[ent::MODE], 0);
+        assert_eq!(states[&me].pet, pet_id);
+        // The next tick's pet pass makes the pet again from the item: it follows the player.
+        cw_sim::statics::player_pets(&mut world, &mut entities, &mut states);
+        assert_eq!(states[&me].pet, pet_id);
+        let pe = &entities[&pet_id];
+        assert_eq!((pe.0[ent::HOSTILE], i64_at(&pe.0, 0x188), i32_at(&pe.0, ent::LEVEL)), (5, me, 4));
+        let Some(cw_sim::behaviors_more::AiNode::Sequence(nodes)) = &states[&pet_id].ai_root else { panic!("no behaviour tree") };
+        assert!(nodes.iter().any(|n| matches!(n, cw_sim::behaviors_more::AiNode::Companion(c) if c.leader == me)));
     }
 }
